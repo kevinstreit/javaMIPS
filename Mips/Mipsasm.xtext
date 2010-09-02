@@ -1,0 +1,45 @@
+grammar de.unisb.prog.Mipsasm with org.eclipse.xtext.common.Terminals
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore 
+generate mipsasm "http://www.unisb.de/prog/Mipsasm"
+
+File hidden(WS, COMMENT):        (elem+=Data | elem+=Text)*;
+
+Text:             ".text" {Text} (items+=TextItem)* ;
+LabelledTextItem: Label=(Label)? insn=Instruction | word=Word ;
+TextItem:         (item=LabelledTextItem | align=Align) ;
+
+Instruction: opcode=ID form=(RForm | IForm | BForm);
+	
+RForm:       rt=Reg ',' rs=Reg ',' rd=Reg (',' shamt=INT)?;
+	
+IForm
+	: rt=Reg ',' rs=Reg ',' imm=Imm
+	| rt=Reg ',' imm=Imm '(' rs=Reg ')'
+	;
+	
+BForm : addr=Imm;
+	
+Reg: '$' INT ;
+Imm: val=PNInt | Label=[Label];
+	
+	
+Data: ".data" {Data} (items+=DataItem)* ;
+
+DataItem: label=(Label)? data=DataDecl | align=Align ;
+	
+DataDecl
+	: ".asciiz" STRING
+	| ".ascii" STRING
+	| ".space" INT
+	| ".byte" IntList 
+	| ".half" IntList
+	| Word
+	;
+	
+Label:       name=ID ':' ;
+Align:       ".align" INT ;
+Word:        ".word" IntList ;
+IntList:     PNInt (',' PNInt)*;
+PNInt returns ecore::EInt:       ('-')? INT;
+	
+terminal COMMENT  : ';' !('\n'|'\r')* ('\r'? '\n')? ;
