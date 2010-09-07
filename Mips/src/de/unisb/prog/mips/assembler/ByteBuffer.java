@@ -2,7 +2,6 @@ package de.unisb.prog.mips.assembler;
 
 import de.unisb.prog.mips.insn.Util;
 
-
 public class ByteBuffer {
 	
 	private byte[] buf;

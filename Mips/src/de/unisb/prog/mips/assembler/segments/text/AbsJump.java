@@ -1,4 +1,4 @@
-package de.unisb.prog.mips.assembler.text;
+package de.unisb.prog.mips.assembler.segments.text;
 
 import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.insn.Encode;

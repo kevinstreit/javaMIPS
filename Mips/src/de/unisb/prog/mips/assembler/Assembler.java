@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler;
 
-import de.unisb.prog.mips.assembler.text.Text;
+import de.unisb.prog.mips.assembler.segments.text.Text;
 
 public class Assembler {
 	

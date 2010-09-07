@@ -1,4 +1,4 @@
-package de.unisb.prog.mips.assembler.text;
+package de.unisb.prog.mips.assembler.segments.text;
 
 public class JumpTargetNotAligned extends Exception {
 

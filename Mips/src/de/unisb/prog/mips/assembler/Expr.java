@@ -1,7 +1,7 @@
 package de.unisb.prog.mips.assembler;
 
-public interface Value {
+public interface Expr<T> {
 	
-	Type getType();
+	T eval();
 
 }

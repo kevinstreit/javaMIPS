@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.assembler;
 
+import de.unisb.prog.mips.assembler.segments.Segment;
+
 public class Label {
 	
 	private final String name;

@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler;
 
-public class LabelRef {
+public class LabelRef implements Expr<Integer> {
 	private Label label;
 	
 	LabelRef(Label l) {
@@ -20,6 +20,11 @@ public class LabelRef {
 
 	public Label getLabel() {
 		return label;
+	}
+
+	@Override
+	public Integer eval() {
+		return label.getOffset();
 	}
 
 }

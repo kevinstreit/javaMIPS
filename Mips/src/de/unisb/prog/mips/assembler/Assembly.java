@@ -2,8 +2,8 @@ package de.unisb.prog.mips.assembler;
 
 import java.util.Map;
 
-import de.unisb.prog.mips.assembler.data.Data;
-import de.unisb.prog.mips.assembler.text.Text;
+import de.unisb.prog.mips.assembler.segments.Data;
+import de.unisb.prog.mips.assembler.segments.text.Text;
 
 public class Assembly extends SymbolByteBuffer {
 	
