@@ -9,8 +9,8 @@ public abstract class Segment {
 		return e;
 	}
 	
-	protected final void assignOffsets() {
-		int ofs = 0;
+	protected final void assignOffsets(int start) {
+		int ofs = start;
 		
 		for (Element e = root.next(); e != root; e = e.next()) {
 			e.setOffset(ofs);

@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.assembler.segments;
 
+import de.unisb.prog.mips.assembler.ByteBuffer;
+
 public abstract class Element extends ListItem<Element> {
 	
 	private int offset;

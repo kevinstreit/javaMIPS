@@ -1,14 +1,10 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.assembler.segments.Data;
-import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
-import de.unisb.prog.mips.assembler.segments.Segments;
 import de.unisb.prog.mips.insn.Encode;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
@@ -68,9 +64,9 @@ public class Text extends Segment {
 			rj.rewrite();
 	}
 	
-	public void process(Data data) throws JumpTargetNotAligned, JumpTargetOutOfRange {
+	public void process() throws JumpTargetNotAligned, JumpTargetOutOfRange {
 		rewriteDataInsns();
-		assignOffsets();
+		assignOffsets(0);
 		rewriteRelJumps();
 	}
 }
