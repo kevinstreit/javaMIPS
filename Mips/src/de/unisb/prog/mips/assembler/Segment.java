@@ -1,17 +1,13 @@
 package de.unisb.prog.mips.assembler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class Segment extends ArrayList<Element> {
+public interface Segment {
 	
-	private final Map<Element, Label> labels  = new HashMap<Element, Label>();
+	public static enum Type { DATA, TEXT }
 	
-	public void add(String label, Element element) {
-		add(element);
-		Label l = null;
-		labels.put(element, l);
-	}
-
+	public Label createLabelOnLast();
+	public Type getType();
+	public void computeOffsets();
+	public void patchLabels();
+	
 }

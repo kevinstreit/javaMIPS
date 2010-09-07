@@ -1,5 +1,25 @@
 package de.unisb.prog.mips.assembler;
 
-public interface LabelRef {
+public class LabelRef {
+	private Label label;
+	
+	LabelRef(Label l) {
+	}
+	
+	LabelRef() {
+		this(null);
+	}
+
+	public void patchTo(Label label) {
+		this.label = label;
+	}
+
+	public boolean isLabelAvailable() {
+		return label != null;
+	}
+
+	public Label getLabel() {
+		return label;
+	}
 
 }

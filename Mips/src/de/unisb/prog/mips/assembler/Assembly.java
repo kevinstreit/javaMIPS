@@ -1,6 +1,31 @@
 package de.unisb.prog.mips.assembler;
 
+import java.util.Map;
+
+import de.unisb.prog.mips.assembler.data.Data;
+import de.unisb.prog.mips.assembler.text.Text;
+
 public class Assembly extends SymbolByteBuffer {
+	
+	private Map<String, Label> labels;
+	private Map<String, LabelRef> refs;
+	
+	private Text text;
+	private Data data;
+	
+	public void registerLabel(Label l) {
+		labels.put(l.toString(), l);
+	}
+	
+	public LabelRef getLabelRef(String name) {
+		Label l = labels.get(name);
+		return new LabelRef(l);
+	}
+	
+	public void computeAddresses() {
+		// data.computeAddresses();
+		
+	}
 	
 	@SuppressWarnings("serial")
 	public static class OutOfRange extends Exception { }
