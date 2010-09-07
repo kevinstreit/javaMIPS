@@ -31,7 +31,7 @@ public class Expressions {
 		return new IntBinOp(op, left, right);
 	}
 	
-	public static Expr<Integer> intConstant(final int val) {
+	public static Expr<Integer> constantInt(final int val) {
 		return new Expr<Integer>() {
 			@Override
 			public Integer eval() {

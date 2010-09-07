@@ -20,7 +20,7 @@ public class Data extends Segment {
 	public void string(String str, boolean zeroTerminate) {
 		List<Expr<Integer>> list = new ArrayList<Expr<Integer>>(str.length() + (zeroTerminate ? 1 : 0));
 		for (int i = 0, n = str.length(); i < n; i++) 
-			list.add(Expressions.intConstant(str.charAt(i)));
+			list.add(Expressions.constantInt(str.charAt(i)));
 		add(new Values(list, 1));
 	}
 

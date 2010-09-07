@@ -4,6 +4,7 @@ import de.unisb.prog.mips.assembler.segments.text.Text;
 
 public class Assembler {
 	
+	
 	private Text text;
 	
 	/*
