@@ -1,61 +1,40 @@
 package de.unisb.prog.mips.assembler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import de.unisb.prog.mips.assembler.segments.Data;
+import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 
 public class Assembly extends SymbolByteBuffer {
 	
-	private Map<String, Label> labels;
-	private Map<String, LabelRef> refs;
+	private Text text = new Text();
+	private Data data = new Data();
 	
-	private Text text;
-	private Data data;
+	private Map<String, LabelRef> refs = new HashMap<String, LabelRef>();
 	
-	public void registerLabel(Label l) {
-		labels.put(l.toString(), l);
+	public LabelRef createLabelRef(String name) {
+		LabelRef r = refs.get(name);
+		if (r == null) {
+			r = new LabelRef(name);
+			refs.put(name, r);
+		}
+		return r;
 	}
 	
-	public LabelRef getLabelRef(String name) {
-		Label l = labels.get(name);
-		return new LabelRef(l);
+	public void finish() throws AssemblerException {
+		// connect label references to labels
+		Map<String, Element> labels = new HashMap<String, Element>();
+		data.collectLabels(labels);
+		text.collectLabels(labels);
+		
+		for (LabelRef r : refs.values()) {
+			r.patch(labels);
+		}
+		
+		// The text segment finishes it all
+		text.finish(data);
 	}
 	
-	public void computeAddresses() {
-		// data.computeAddresses();
-		
-	}
-	
-	@SuppressWarnings("serial")
-	public static class OutOfRange extends Exception { }
-	
-	public void patchRelativeJump(int jumpAddr, int targetAddr) throws OutOfRange {
-		assert (jumpAddr & 3) == 0 : "target address not aligned to 4";
-		assert (targetAddr & 3) == 0 : "target address not aligned to 4";
-		
-		int ofs = (targetAddr >> 2) - (jumpAddr >> 2);
-		if (ofs > Short.MAX_VALUE || ofs < Short.MIN_VALUE)
-			throw new OutOfRange();
-		
-		ofs &= 0xffff;
-		int insn = get(jumpAddr);
-		insn = (insn & ~0xffff) | ofs;
-		set(jumpAddr, insn);
-	}
-	
-	public void patchAbsoluteJump(int jumpAddr, int targetAddr) throws OutOfRange {
-		assert (jumpAddr & 3) == 0 : "target address not aligned to 4";
-		assert (targetAddr & 3) == 0 : "target address not aligned to 4";
-		
-		int mask = (1 << 26) - 1;
-		int ofs = (targetAddr >> 2) & mask;
-		if ((ofs & ~mask) != 0)
-			throw new OutOfRange();
-		
-		int insn = get(jumpAddr);
-		insn = (insn & ~mask) | ofs;
-		set(jumpAddr, insn);
-	}
-
 }

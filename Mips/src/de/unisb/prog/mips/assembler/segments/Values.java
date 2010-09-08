@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.assembler.segments;
 
+import java.io.IOException;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
@@ -29,4 +30,13 @@ public class Values extends Element {
 		}
 	}
 
+	@Override
+	protected void appendInternal(Appendable app) throws IOException {
+		char type = elementType.name().toLowerCase().charAt(0);
+		String prefix = ".d" + type + " ";
+		for (Expr<Integer> e : values) {
+			app.append(prefix);
+			prefix = ", ";
+		}
+	}
 }

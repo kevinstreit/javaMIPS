@@ -33,6 +33,8 @@ public enum Reg {
 	/* 28 */ gp,
 	/* 29 */ sp,
 	/* 30 */ fp,
-	/* 31 */ ra,
+	/* 31 */ ra;
+	
+	public int get(int[] gp) { return gp[ordinal()]; }
 	
 }

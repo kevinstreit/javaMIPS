@@ -2,7 +2,7 @@ package de.unisb.prog.mips.assembler.segments;
 
 import java.util.Iterator;
 
-public abstract class ListItem<T extends ListItem<T>> implements Iterable<T> {
+public abstract class ListItem<T extends ListItem<T, D>, D extends T> {
 	
 	private T next;
 	private T prev;
@@ -16,11 +16,11 @@ public abstract class ListItem<T extends ListItem<T>> implements Iterable<T> {
 	public final T remove() {
 		prev.next = next;
 		next.prev = prev;
-		next = prev = null;
+		next = prev = me();
 		return me();
 	}
 	
-	public final T addBeforeMe(T x) {
+	public final T prepend(T x) {
 		prev.next = x;
 		x.prev = prev;
 		x.next = me();
@@ -28,12 +28,20 @@ public abstract class ListItem<T extends ListItem<T>> implements Iterable<T> {
 		return x;
 	}
 	
-	public final T addAfterMe(T x) {
+	public final T append(T x) {
 		next.prev = x;
 		x.prev = me();
 		x.next = next;
 		next = x;
 		return x;
+	}
+	
+	public final void replaceByList(D x) {
+		prev.next = x.next;
+		x.next.prev = prev;
+		next.prev = x.prev;
+		x.prev.next = next;
+		next = prev = me();
 	}
 	
 	public final T next() {
@@ -44,7 +52,6 @@ public abstract class ListItem<T extends ListItem<T>> implements Iterable<T> {
 		return prev;
 	}
 
-	@Override
 	public Iterator<T> iterator() {
 		return new Iterator<T>() {
 			private T curr = me();

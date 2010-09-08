@@ -1,12 +1,20 @@
 package de.unisb.prog.mips.assembler;
 
+import java.io.IOException;
+
 public class Expressions {
 	
 	public static enum IntOp {
-		ADD { public int op(int a, int b) { return a + b; } },
-		SUB { public int op(int a, int b) { return a - b; } },
-		MUL { public int op(int a, int b) { return a * b; } },
-		DIV { public int op(int a, int b) { return a / b; } };
+		ADD('+') { public int op(int a, int b) { return a + b; } },
+		SUB('-') { public int op(int a, int b) { return a - b; } },
+		MUL('*') { public int op(int a, int b) { return a * b; } },
+		DIV('/') { public int op(int a, int b) { return a / b; } };
+		
+		public final char sym;
+		
+		private IntOp(char sym) {
+			this.sym = sym;
+		}
 		
 		public abstract int op(int a, int b);
 	}
@@ -25,6 +33,14 @@ public class Expressions {
 		public Integer eval() {
 			return op.op(left.eval(), right.eval());
 		}
+
+		@Override
+		public void append(Appendable app) throws IOException {
+			app.append('(');
+			left.append(app);
+			app.append(op.sym);
+			right.append(app);
+		}
 	}
 	
 	public static Expr<Integer> binary(IntOp op, Expr<Integer> left, Expr<Integer> right) {
@@ -36,6 +52,11 @@ public class Expressions {
 			@Override
 			public Integer eval() {
 				return val;
+			}
+
+			@Override
+			public void append(Appendable app) throws IOException {
+				app.append(String.format("%d", val));
 			}
 		};
 	}

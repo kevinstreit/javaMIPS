@@ -22,8 +22,7 @@ public abstract class AddrGenInsn extends LabelRefInsn {
 		int value = exp.eval();
 		
 		// get insertion point into the list and remove current instruction
-		Element curr = prev();
-		this.remove();
+		Element.Root root = Element.createRoot();
 		
 		int imm;
 		int rs;
@@ -41,19 +40,20 @@ public abstract class AddrGenInsn extends LabelRefInsn {
 			rs  = tempReg;
 
 			// load high part of reg into assembler temp register
-			curr = curr.addAfterMe(new Normal(Encode.i(Opcode.lui, 0, rs, hi)));
+			root.prepend(new Normal(Encode.i(Opcode.lui, 0, rs, hi)));
 			if (lo != 0) {
 				if ((lo & 0x8000) != 0) 
-					curr = curr.addAfterMe(new Normal(Encode.i(Opcode.ori, rs, rs, lo)));
+					root.prepend(new Normal(Encode.i(Opcode.ori, rs, rs, lo)));
 				else
 					imm = lo;
 			}
 
 			if (baseReg != 0)
-				curr = curr.addAfterMe(new Normal(Encode.r(IntFunct.add, baseReg, rs, rs)));
+				root.prepend(new Normal(Encode.r(IntFunct.add, baseReg, rs, rs)));
 		}
 		
-		curr = curr.addAfterMe(new Normal(Encode.i(opcode, rs, rt, imm)));
+		root.prepend(new Normal(Encode.i(opcode, rs, rt, imm)));
+		this.replaceBy(root);
 	}
 	
 	protected abstract void rewrite();

@@ -1,30 +1,45 @@
 package de.unisb.prog.mips.assembler;
 
+import java.io.IOException;
+import java.util.Map;
+
+import de.unisb.prog.mips.assembler.segments.Element;
+
 public class LabelRef implements Expr<Integer> {
-	private Label label;
+	private Element elm;
+	private String name;
 	
-	LabelRef(Label l) {
+	LabelRef(Element elm) {
+		this.elm = elm;
+		this.name = elm.getLabel();
 	}
 	
-	LabelRef() {
-		this(null);
+	LabelRef(String label) {
+		this.elm = null;
+		this.name = label;
 	}
 
-	public void patchTo(Label label) {
-		this.label = label;
+	public void patch(Map<String, Element> labels) throws LabelNotDefinedException {
+		if (elm == null) {
+			elm = labels.get(name);
+			if (elm == null)
+				throw new LabelNotDefinedException();
+			elm.addReferrer(this);
+		}
 	}
 
-	public boolean isLabelAvailable() {
-		return label != null;
-	}
-
-	public Label getLabel() {
-		return label;
+	public Element getElement() {
+		return elm;
 	}
 
 	@Override
 	public Integer eval() {
-		return label.getOffset();
+		return elm.getOffset();
+	}
+
+	@Override
+	public void append(Appendable app) throws IOException {
+		app.append(name);
 	}
 
 }
