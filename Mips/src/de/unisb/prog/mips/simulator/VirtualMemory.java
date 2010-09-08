@@ -8,15 +8,15 @@ public class VirtualMemory implements Memory {
 	private static final int LAST      = OFFSETS[OFFSETS.length - 1];
 	public static final int PAGE_SIZE  = 1 << (LAST - 2);
 	
-	private int[][] pages;
+	private byte[][] pages;
 	private PageFaultHandler handler;
 	
 	public VirtualMemory(int nPages) {
-		this.pages = new int[nPages][];
-		this.pages[0] = new int[PAGE_SIZE];
+		this.pages = new byte[nPages][];
+		this.pages[0] = new byte[PAGE_SIZE];
 	}
 	
-	private int[] findPage(int addr, int[] page, int level) {
+	private byte[] findPage(int addr, byte[] page, int level) {
 		if (level >= OFFSETS.length)
 			return page;
 		int ofs  = OFFSETS[level];
@@ -28,7 +28,7 @@ public class VirtualMemory implements Memory {
 		return findPage(addr, pages[paddr], level + 1);
 	}
 	
-	private int[] lookupPage(int addr) {
+	private byte[] lookupPage(int addr) {
 		return findPage(addr, pages[0], 1);
 	}
 	
@@ -37,16 +37,16 @@ public class VirtualMemory implements Memory {
 	}
 	
 	@Override
-	public int load(int addr) {
-		int[] page = lookupPage(addr);
+	public byte load(int addr) {
+		byte[] page = lookupPage(addr);
 		int offset = getOffset(addr);
 		return page[offset];
 	}
 
 	@Override
-	public void store(int addr, int word) {
-		int[] page = lookupPage(addr);
+	public void store(int addr, byte b) {
+		byte[] page = lookupPage(addr);
 		int offset = getOffset(addr);
-		page[offset] = word;
+		page[offset] = b;
 	}
 }

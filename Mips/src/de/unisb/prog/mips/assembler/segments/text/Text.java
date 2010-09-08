@@ -49,11 +49,6 @@ public class Text extends Segment {
 		// TODO: NYI
 	}
 	
-	@Override
-	public Segment.Type getType() {
-		return Segment.Type.TEXT;
-	}
-	
 	private void rewriteDataInsns() {
 		for (DataRef dr : dataRefInsns) 
 			dr.rewrite();

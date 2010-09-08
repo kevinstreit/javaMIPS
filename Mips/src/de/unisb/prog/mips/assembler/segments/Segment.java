@@ -18,8 +18,4 @@ public abstract class Segment {
 		}
 	}
 	
-	public static enum Type { DATA, TEXT }
-	
-	public abstract Type getType();
-	
 }

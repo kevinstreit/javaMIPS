@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler.segments;
 
-import de.unisb.prog.mips.assembler.ByteBuffer;
+import de.unisb.prog.mips.simulator.CoarseMemory;
 
 public abstract class Element extends ListItem<Element> {
 	
@@ -18,15 +18,20 @@ public abstract class Element extends ListItem<Element> {
 		this.offset = offset;
 	}
 	
-	public abstract int nextElementOffset(int pos);
-	
 	static Element createDummy() {
 		return new Element() {
 			@Override
 			public int nextElementOffset(int pos) {
 				return pos;
 			}
+
+			@Override
+			public void writeToMem(CoarseMemory mem, int addr) {
+			}
 		};
 	}
+	
+	public abstract int nextElementOffset(int pos);
+	public abstract void writeToMem(CoarseMemory mem, int addr);
 	
 }

@@ -9,8 +9,7 @@ import de.unisb.prog.mips.insn.RegImm;
 
 public class Simulator extends ProcessorState implements Handler {
 	
-	private boolean littleEndian;
-	private Memory mem;
+	private CoarseMemory mem;
 	
 	private int gp(int r) {
 		return gp(r);
@@ -34,7 +33,7 @@ public class Simulator extends ProcessorState implements Handler {
 	}
 	
 	public void step() {
-		int insn = load(pc, 0, 5, false);
+		int insn = load(pc, 0, Type.WORD, false);
 		Decode.decode(insn, this);
 		pc += 4;
 	}
@@ -81,46 +80,21 @@ public class Simulator extends ProcessorState implements Handler {
 		}
 	}
 	
-	private int computeAddr(int addr, int disp, int align) {
-		int bits = 1 << align;
-		addr += signExtend(disp, bits);
-		if ((addr & (bits - 1)) != 0)
+	private int computeAddr(int addr, int disp, Type tp) {
+		addr += signExtend(disp, 16);
+		if (! tp.isAligned(addr)) 
 			throw new UnalignedMemoryException(this, addr);
-		
-		int memAddr = addr & -4;
-		return memAddr;
+		return addr;
 	}
 	
-	private int load(int addr, int disp, int align, boolean signExtend) {
-		int memAddr = computeAddr(addr, disp, align);
-		int shift   = (addr - memAddr) * 8;
-		int bits    = 1 << align;
-		
-		int word = mem.load(memAddr);
-		
-		word >>>= shift;
-		word = signExtend(word, bits);
-		if (!signExtend)
-			word &= (1 << bits) - 1;
-		
-		return word;
+	private int load(int addr, int disp, Type tp, boolean signExtend) {
+		int memAddr = computeAddr(addr, disp, tp);
+		return mem.load(addr, tp);
 	}
 	
-	private void store(int addr, int disp, int align, int val) {
-		int memAddr = computeAddr(addr, disp, align);
-		
-		if (align < 5) {
-			int shift = (addr - memAddr) * 8;
-			int bits  = 1 << align;
-			int mask  = (1 << bits) - 1;
-			
-			val  <<= shift;
-			mask <<= shift;
-			
-			val  = val | (mem.load(memAddr) & ~mask);
-		}
-		
-		mem.store(memAddr, val);
+	private void store(int addr, int disp, Type tp, int val) {
+		int memAddr = computeAddr(addr, disp, tp);
+		mem.store(memAddr, val, tp);
 	}
 	
 	private void i(RegImm ri, int rs, int imm) {
@@ -152,17 +126,17 @@ public class Simulator extends ProcessorState implements Handler {
 		case xori:  gp[rt] = s ^ imm; break;
 		case lui:   gp[rt] = imm << 16; break;
 		
-		case lb:    gp[rt] = load(s, imm, 3, true); break;
-		case lh:    gp[rt] = load(s, imm, 4, true); break;
+		case lb:    gp[rt] = load(s, imm, Type.BYTE, true); break;
+		case lh:    gp[rt] = load(s, imm, Type.HALF, true); break;
 		case lwl:   throw new IllegalOpcodeException(this);
-		case lw:    gp[rt] = load(s, imm, 5, true); break;
-		case lbu:   gp[rt] = load(s, imm, 3, false); break;
-		case lhu:   gp[rt] = load(s, imm, 4, false); break;
+		case lw:    gp[rt] = load(s, imm, Type.WORD, true); break;
+		case lbu:   gp[rt] = load(s, imm, Type.BYTE, false); break;
+		case lhu:   gp[rt] = load(s, imm, Type.HALF, false); break;
 		case lwr:   throw new IllegalOpcodeException(this);
-		case sb:    store(s, imm, 3, t); break;
-		case sh:    store(s, imm, 4, t >>> 16); break;
+		case sb:    store(s, imm, Type.BYTE, t); break;
+		case sh:    store(s, imm, Type.HALF, t >>> 16); break;
 		case swl:   throw new IllegalOpcodeException(this);
-		case sw:    store(s, imm, 5, t); break;
+		case sw:    store(s, imm, Type.WORD, t); break;
 		case swr:   throw new IllegalOpcodeException(this);
 		}
 		
