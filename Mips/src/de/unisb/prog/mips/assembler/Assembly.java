@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.assembler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,12 +8,20 @@ import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 
-public class Assembly extends SymbolByteBuffer {
+public class Assembly {
 	
 	private Text text = new Text();
 	private Data data = new Data();
 	
 	private Map<String, LabelRef> refs = new HashMap<String, LabelRef>();
+	
+	public Text getText() {
+		return text;
+	}
+	
+	public Data getData() {
+		return data;
+	}
 	
 	public LabelRef createLabelRef(String name) {
 		LabelRef r = refs.get(name);
@@ -37,4 +46,10 @@ public class Assembly extends SymbolByteBuffer {
 		text.finish(data);
 	}
 	
+	public void append(Appendable app) throws IOException {
+		app.append(".data\n");
+		data.append(app);
+		app.append(".text\n");
+		text.append(app);
+	}
 }

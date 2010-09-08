@@ -7,7 +7,7 @@ public class Encode {
 		res = (res << 5) | (rt & 0x1f);
 		res = (res << 5) | (rd & 0x1f);
 		res = (res << 5) | (shamt & 0x1f);
-		return (res << 6) | (funct.ordinal() & 0x1f);
+		return (res << 6) | (funct.ordinal() & 0x3f);
 	}
 	
 	public static int r(IntFunct funct, int rs, int rt, int rd) {

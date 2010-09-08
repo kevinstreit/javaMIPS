@@ -1,10 +1,8 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
+import java.io.IOException;
+
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.insn.Encode;
-import de.unisb.prog.mips.insn.IntFunct;
-import de.unisb.prog.mips.insn.Opcode;
 
 abstract class LabelRefInsn extends Insn {
 	
@@ -14,5 +12,14 @@ abstract class LabelRefInsn extends Insn {
 		super(enc);
 		this.exp = exp;
 	}
+
+	@Override
+	protected void appendInternal(Appendable app) throws IOException {
+		super.appendInternal(app);
+		app.append(" ; label ref: ");
+		exp.append(app);
+	}
+	
+	
 	
 }

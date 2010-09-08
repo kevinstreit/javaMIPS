@@ -5,7 +5,7 @@ import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.insn.Opcode;
 
-public class Constant extends AddrGenInsn {
+public class Constant extends AddrGen {
 
 	public Constant(int rt, Expr<Integer> exp) {
 		super(Opcode.addi, rt, exp);
@@ -16,7 +16,7 @@ public class Constant extends AddrGenInsn {
 	}
 	
 	protected void rewrite() {
-		insertAddrGen(Reg.zero.ordinal(), rt);
+		insertAddrGen(Reg.ze.ordinal(), rt);
 	}
 
 }

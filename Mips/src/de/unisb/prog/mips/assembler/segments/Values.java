@@ -36,6 +36,7 @@ public class Values extends Element {
 		String prefix = ".d" + type + " ";
 		for (Expr<Integer> e : values) {
 			app.append(prefix);
+			e.append(app);
 			prefix = ", ";
 		}
 	}

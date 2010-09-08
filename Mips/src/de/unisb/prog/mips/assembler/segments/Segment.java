@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.assembler.segments;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -38,4 +39,8 @@ public abstract class Segment implements Iterable<Element> {
 		return root.iterator();
 	}
 	
+	public void append(Appendable app) throws IOException {
+		for (Element e : this)
+			e.append(app);
+	}
 }

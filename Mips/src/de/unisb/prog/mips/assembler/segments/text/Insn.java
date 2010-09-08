@@ -2,6 +2,8 @@ package de.unisb.prog.mips.assembler.segments.text;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.Reg;
+import de.unisb.prog.mips.assembler.RegNameDisassembler;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.insn.Disassembler;
 import de.unisb.prog.mips.simulator.Memory;
@@ -27,8 +29,7 @@ class Insn extends Element {
 
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
-		app.append(Disassembler.get(word));
+		app.append(RegNameDisassembler.INSTANCE.disasm(word));
 	}
 
-	
 }

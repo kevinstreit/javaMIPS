@@ -1,33 +1,34 @@
 package de.unisb.prog.mips.insn;
 
-public class Disassembler {
+public class Disassembler implements Handler<String> {
 	
-	private Disassembler() { }
+	@Override
+	public String f(int fmt, int ft, int fs, int fd, int funct) {
+		throw new UnsupportedOperationException("no floating point support yet");
+	}
+
+	@Override
+	public String i(int op, int rs, int rt, int imm) {
+		return String.format("%5s %3s, %3s, %-6d", Opcode.values()[op].toString(), regName(rt), regName(rs), imm);
+	}
+
+	@Override
+	public String j(int op, int imm) {
+		return String.format("%5s %08x", Opcode.values()[op].toString(), imm);
+	}
+
+	@Override
+	public String r(int rs, int rt, int rd, int shamt, int funct) {
+		return String.format("%5s %3s, %3s, %3s", IntFunct.values()[funct].toString(), regName(rd), regName(rs), regName(rt));
+	}
 	
-	private static final Handler<String> DISASM = new Handler<String>() {
-		@Override
-		public String f(int fmt, int ft, int fs, int fd, int funct) {
-			throw new UnsupportedOperationException("no floating point support yet");
-		}
-
-		@Override
-		public String i(int op, int rs, int rt, int imm) {
-			return String.format("%5s $%2d, $%2d, %5d", Opcode.values()[op].toString(), rs, rt, imm);
-		}
-
-		@Override
-		public String j(int op, int imm) {
-			return String.format("%5s %8x", Opcode.values()[op].toString(), imm);
-		}
-
-		@Override
-		public String r(int rs, int rt, int rd, int shamt, int funct) {
-			return String.format("%5s $%2d, $%2d, $%2d", IntFunct.values()[funct].toString(), rs, rt, rd);
-		}
-	};
+	protected String regName(int reg) {
+		return String.format("$%d", reg);
+		
+	}
 	
-	public static String get(int word) {
-		return Decode.decode(word, DISASM);
+	public String disasm(int word) {
+		return Decode.decode(word, this);
 	}
 
 }

@@ -14,7 +14,7 @@ import de.unisb.prog.mips.insn.RegImm;
 
 public class Text extends Segment {
 	
-	private final List<DataRef> dataRefInsns = new LinkedList<DataRef>();
+	private final List<AddrGen> addrGenInsns = new LinkedList<AddrGen>();
 	private final List<RelJump> relJumps = new LinkedList<RelJump>();
 	
 	public Element normal(IntFunct f, int rs, int rt, int rd, int shamt) {
@@ -24,11 +24,25 @@ public class Text extends Segment {
 	public Element imm(Opcode opc, int rs, int rt, int imm) {
 		return add(new Normal(Encode.i(opc, rs, rt, imm)));
 	}
+	
+	public Element constant(int rt, int value) {
+		AddrGen e = new Constant(rt, value);
+		addrGenInsns.add(e);
+		add(e);
+		return e;
+	}
+
+	public Element constant(int rt, Expr<Integer> exp) {
+		AddrGen e = new Constant(rt, exp);
+		addrGenInsns.add(e);
+		add(e);
+		return e;
+	}
 
 	public Element loadstore(Opcode opc, int rt, Expr<Integer> e) {
 		DataRef dr = new DataRef(opc, rt, e);
 		add(dr);
-		dataRefInsns.add(dr);
+		addrGenInsns.add(dr);
 		return dr;
 	}
 
@@ -55,8 +69,8 @@ public class Text extends Segment {
 	}
 	
 	private void rewriteDataInsns() {
-		for (DataRef dr : dataRefInsns) 
-			dr.rewrite();
+		for (AddrGen i : addrGenInsns) 
+			i.rewrite();
 	}
 	
 	private void rewriteRelJumps() throws JumpTargetNotAligned, JumpTargetOutOfRange {

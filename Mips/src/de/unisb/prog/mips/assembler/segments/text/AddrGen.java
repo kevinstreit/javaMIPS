@@ -7,13 +7,13 @@ import de.unisb.prog.mips.insn.Encode;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 
-public abstract class AddrGenInsn extends LabelRefInsn {
+public abstract class AddrGen extends LabelRefInsn {
 	
 	protected final Opcode opcode;
 	protected final int rt;
 	
-	public AddrGenInsn(Opcode opc, int rt, Expr<Integer> exp) {
-		super(0, exp);
+	public AddrGen(Opcode opc, int rt, Expr<Integer> exp) {
+		super(Encode.i(opc, 0, rt, 0), exp);
 		this.opcode = opc;
 		this.rt = rt;
 	}

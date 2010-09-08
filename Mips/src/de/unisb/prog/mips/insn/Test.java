@@ -4,7 +4,7 @@ public class Test {
 	
 	public static void main(String[] args) {
 		int insn = Encode.r(IntFunct.add, 2, 23, 12);
-		System.out.println(Disassembler.get(insn));
+		System.out.println(new Disassembler().disasm(insn));
 	}
 
 }
