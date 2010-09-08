@@ -1,7 +1,7 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
 import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.simulator.CoarseMemory;
+import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
 class Insn extends Element {
@@ -18,7 +18,7 @@ class Insn extends Element {
 	}
 
 	@Override
-	public void writeToMem(CoarseMemory mem, int addr) {
+	public void writeToMem(Memory mem, int addr) {
 		mem.store(addr, word, Type.WORD);
 	}
 

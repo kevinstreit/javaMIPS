@@ -1,52 +1,43 @@
 package de.unisb.prog.mips.simulator;
 
-public class VirtualMemory implements Memory {
+import java.util.HashMap;
+import java.util.Map;
+
+public class VirtualMemory implements ByteMemory {
 	
-	// Page size in ints
+	private final int pageBits;
+	private final int inPageMask;
+	private final Map<Integer, byte[]> pageMap = new HashMap<Integer, byte[]>();
 	
-	private static final int[] OFFSETS = { 32, 22, 12 };
-	private static final int LAST      = OFFSETS[OFFSETS.length - 1];
-	public static final int PAGE_SIZE  = 1 << (LAST - 2);
-	
-	private byte[][] pages;
-	private PageFaultHandler handler;
-	
-	public VirtualMemory(int nPages) {
-		this.pages = new byte[nPages][];
-		this.pages[0] = new byte[PAGE_SIZE];
+	/**
+	 * Create a new virtual memory.
+	 * @param pageBits Number of bits to address a byte in a page (page size: 2^pageBits bytes).
+	 */
+	public VirtualMemory(int pageBits) {
+		this.pageBits = pageBits;
+		this.inPageMask = (1 << pageBits) - 1;
 	}
 	
-	private byte[] findPage(int addr, byte[] page, int level) {
-		if (level >= OFFSETS.length)
-			return page;
-		int ofs  = OFFSETS[level];
-		int mask = (1 << OFFSETS[level - 1]) - (1 << ofs);
-		int idx  = (mask & addr) >> ofs;
-		int paddr = page[idx];
-		if (paddr == 0)
-			handler.handle();
-		return findPage(addr, pages[paddr], level + 1);
-	}
-	
-	private byte[] lookupPage(int addr) {
-		return findPage(addr, pages[0], 1);
-	}
-	
-	private static int getOffset(int addr) {
-		return addr & ((1 << LAST) - 1);
-	}
-	
-	@Override
-	public byte load(int addr) {
-		byte[] page = lookupPage(addr);
-		int offset = getOffset(addr);
-		return page[offset];
+	byte[] lookupPage(int addr) {
+		int idx     = addr >>> pageBits;
+		byte[] page = pageMap.get(idx);
+		if (page == null) {
+			page = new byte[1 << pageBits];
+			pageMap.put(idx, page);
+		}
+		return page;
 	}
 
 	@Override
-	public void store(int addr, byte b) {
+	public byte load(int addr) {
 		byte[] page = lookupPage(addr);
-		int offset = getOffset(addr);
-		page[offset] = b;
+		return page[addr & inPageMask];
 	}
+
+	@Override
+	public void store(int addr, byte val) {
+		byte[] page = lookupPage(addr);
+		page[addr & inPageMask] = val;
+	}
+
 }

@@ -3,7 +3,7 @@ package de.unisb.prog.mips.assembler.segments;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.simulator.CoarseMemory;
+import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Values extends Element {
@@ -22,7 +22,7 @@ public class Values extends Element {
 	}
 
 	@Override
-	public void writeToMem(CoarseMemory mem, int addr) {
+	public void writeToMem(Memory mem, int addr) {
 		for (Expr<Integer> e : values) {
 			mem.store(addr, e.eval(), elementType);
 			addr += elementType.sizeof();

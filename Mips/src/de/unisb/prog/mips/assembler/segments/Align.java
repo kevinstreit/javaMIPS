@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler.segments;
 
-import de.unisb.prog.mips.simulator.CoarseMemory;
+import de.unisb.prog.mips.simulator.Memory;
 
 public class Align extends Element {
 	
@@ -19,7 +19,7 @@ public class Align extends Element {
 	}
 
 	@Override
-	public void writeToMem(CoarseMemory mem, int addr) {
+	public void writeToMem(Memory mem, int addr) {
 	}
 
 }

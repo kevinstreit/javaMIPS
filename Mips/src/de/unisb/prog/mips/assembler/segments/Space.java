@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler.segments;
 
-import de.unisb.prog.mips.simulator.CoarseMemory;
+import de.unisb.prog.mips.simulator.Memory;
 
 
 public class Space extends Element {
@@ -18,7 +18,7 @@ public class Space extends Element {
 	}
 
 	@Override
-	public void writeToMem(CoarseMemory mem, int addr) {
+	public void writeToMem(Memory mem, int addr) {
 	}
 
 }

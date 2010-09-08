@@ -1,22 +1,20 @@
 package de.unisb.prog.mips.simulator;
 
 import de.unisb.prog.mips.insn.Decode;
-import de.unisb.prog.mips.insn.FloatFunct;
 import de.unisb.prog.mips.insn.Handler;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
+import de.unisb.prog.mips.os.OS;
 
-public class Simulator extends ProcessorState implements Handler {
+public final class Simulator extends ProcessorState implements Handler<Void> {
 	
-	private CoarseMemory mem;
+	private final Memory mem;
+	private final OS os;
 	
-	private int gp(int r) {
-		return gp(r);
-	}
-	
-	private float fp(int r) {
-		return fp(r);
+	public Simulator(Memory mem, OS os) {
+		this.mem = mem;
+		this.os  = os;
 	}
 	
 	private static int signExtend(int v, int bit) {
@@ -37,38 +35,14 @@ public class Simulator extends ProcessorState implements Handler {
 		Decode.decode(insn, this);
 		pc += 4;
 	}
-	
-	private void floatDouble(int ft, int fs, int fd, int funct) {
+
+	@Override
+	public Void f(int fmt, int ft, int fs, int fd, int funct) {
 		throw new IllegalOpcodeException(this);
 	}
-	
-	private void floatSingle(int ft, int fs, int fd, int funct) {
-		switch (funct) {
-		case 0x32: fpc = fp(fs) == fp(ft); break;
-		case 0x3c: fpc = fp(fs) <  fp(ft); break;
-		case 0x3d: fpc = fp(fs) <= fp(ft); break;
-		}
-		switch (FloatFunct.values()[funct]) {
-		case add: fp[fd] = fp(fs) + fp(ft); break;
-		case sub: fp[fd] = fp(fs) - fp(ft); break;
-		case mul: fp[fd] = fp(fs) * fp(ft); break;
-		case div: fp[fd] = fp(fs) / fp(ft); break;
-		}
-	}
 
 	@Override
-	public void f(int fmt, int ft, int fs, int fd, int funct) {
-		switch (fmt) {
-		case 0x10: floatSingle(ft, fs, fd, funct); break;
-		case 0x11: floatDouble(ft, fs, fd, funct); break;
-		default:
-			throw new IllegalOpcodeException(this);
-		}
-		
-	}
-
-	@Override
-	public void j(int op, int imm) {
+	public Void j(int op, int imm) {
 		switch (Opcode.values()[op]) {
 		case jal: 
 			gp[31] = pc + 4;
@@ -78,6 +52,7 @@ public class Simulator extends ProcessorState implements Handler {
 		default:
 			throw new IllegalStateException(String.format("format j and opcode %x", op));
 		}
+		return null;
 	}
 	
 	private int computeAddr(int addr, int disp, Type tp) {
@@ -89,7 +64,7 @@ public class Simulator extends ProcessorState implements Handler {
 	
 	private int load(int addr, int disp, Type tp, boolean signExtend) {
 		int memAddr = computeAddr(addr, disp, tp);
-		return mem.load(addr, tp);
+		return mem.load(memAddr, tp);
 	}
 	
 	private void store(int addr, int disp, Type tp, int val) {
@@ -99,23 +74,24 @@ public class Simulator extends ProcessorState implements Handler {
 	
 	private void i(RegImm ri, int rs, int imm) {
 		switch (ri) {
-		case bgez:    if (rs >= 0) pc += 4 + (signExtend(imm, 16) << 2); break;
-		case bgezal:  if (rs >= 0) { gp[31] = pc + 4; pc += 4 + (signExtend(imm, 16) << 2); } break;
-		case bltz:    if (rs < 0) pc += 4 + (signExtend(imm, 16) << 2); break;
-		case bltzal:  if (rs < 0) { gp[31] = pc + 4; pc += 4 + (signExtend(imm, 16) << 2); } break;
+		case bgez:    if (rs >= 0) pc += (signExtend(imm, 16) << 2); break;
+		case bgezal:  if (rs >= 0) { gp[31] = pc + 4; pc += (signExtend(imm, 16) << 2); } break;
+		case bltz:    if (rs < 0) pc += (signExtend(imm, 16) << 2); break;
+		case bltzal:  if (rs < 0) { gp[31] = pc + 4; pc += (signExtend(imm, 16) << 2); } break;
+		default:      throw new IllegalOpcodeException(this);
 		}
 	}
 	
 	@Override
-	public void i(int op, int rs, int rt, int imm) {
-		int s = gp(rs);
-		int t = gp(rt);
+	public Void i(int op, int rs, int rt, int imm) {
+		int s = gp[rs];
+		int t = gp[rt];
 		switch (Opcode.values()[op]) {
 		case regimm: i(RegImm.values()[rt], rs, imm); break;
-		case beq:   if (s == t) pc += 4 + (signExtend(imm, 16) << 2); break;
-		case bne:   if (s != t) pc += 4 + (signExtend(imm, 16) << 2); break;
-		case blez:  if (s <= 0) pc += 4 + (signExtend(imm, 16) << 2); break;
-		case bgtz:  if (s >  0) pc += 4 + (signExtend(imm, 16) << 2); break;
+		case beq:   if (s == t) pc += (signExtend(imm, 16) << 2); break;
+		case bne:   if (s != t) pc += (signExtend(imm, 16) << 2); break;
+		case blez:  if (s <= 0) pc += (signExtend(imm, 16) << 2); break;
+		case bgtz:  if (s >  0) pc += (signExtend(imm, 16) << 2); break;
 		
 		case addi:  gp[rt] = s + signExtend(imm, 16); break;
 		case addiu: gp[rt] = s + signExtend(imm, 16); break; // TODO: Correct!
@@ -138,42 +114,59 @@ public class Simulator extends ProcessorState implements Handler {
 		case swl:   throw new IllegalOpcodeException(this);
 		case sw:    store(s, imm, Type.WORD, t); break;
 		case swr:   throw new IllegalOpcodeException(this);
+		default:    throw new IllegalOpcodeException(this);
 		}
-		
+		return null;
 	}
 
 	@Override
-	public void r(int rs, int rt, int rd, int shamt, int funct) {
-		int s = gp(rs);
-		int t = gp(rt);
+	public Void r(int rs, int rt, int rd, int shamt, int funct) {
+		int s = gp[rs];
+		int t = gp[rt];
 		switch (IntFunct.values()[funct]) {
-		case sll:   gp[rd] = s << shamt; break;
-		case srl:   gp[rd] = s >>> shamt; break;
-		case sra:   gp[rd] = s >> shamt; break;
-		case sllv:  gp[rd] = s << t; break;
-		case srlv:  gp[rd] = s >>> t; break;
-		case srav:  gp[rd] = s >> t; break;
-		case jr:    pc = s; break;
-		case jalr:  gp[rd] = pc + 4; pc = s; break;
-		case mfhi:  gp[rd] = hi; break;
-		case mflo:  gp[rd] = lo; break;
-		case mult:  {
+		case sll:     gp[rd] = s << shamt; break;
+		case srl:     gp[rd] = s >>> shamt; break;
+		case sra:     gp[rd] = s >> shamt; break;
+		case sllv:    gp[rd] = s << t; break;
+		case srlv:    gp[rd] = s >>> t; break;
+		case srav:    gp[rd] = s >> t; break;
+		case jr:      pc = s; break;
+		case jalr:    gp[rd] = pc + 4; pc = s; break;
+		case movz:    if (t == 0) gp[rd] = s; break;
+		case movn:    if (t != 0) gp[rd] = s; break;
+		case syscall: os.syscall(this, mem); break;
+		case brk:     break; // TODO break to debugger
+		case mfhi:    gp[rd] = hi; break;
+		case mthi:    hi = s; break;
+		case mflo:    gp[rd] = lo; break;
+		case mtlo:    lo = s; break;
+		case mult:    {
 			long ld = (long) s * (long) t;
 			lo = (int) (ld & 0xffffffff);
 			hi = (int) ((ld >> 32) & 0xffffffff);
 		}
-		case multu: throw new IllegalOpcodeException(this);
-		case div:   lo = s / t; hi = s % t; break;
-		case divu:  throw new IllegalOpcodeException(this);
-		case add:   gp[rd] = s + t; break;
-		case addu:  gp[rd] = s + t; break;
-		case sub:   gp[rd] = s - t; break;
-		case subu:  gp[rd] = s - t; break;
-		case and:   gp[rd] = s & t; break;
-		case or:    gp[rd] = s | t; break;
-		case xor:   gp[rd] = s ^ t; break;
-		case slt:   gp[rd] = s < t ? 1 : 0; break;
-		case sltu:  gp[rd] = cmpltu(s, t); break;
+		// TODO: Check, if this is ok.
+		case multu:   {
+			long a = (long) s & 0xffffffffL;
+			long b = (long) t & 0xffffffffL;
+			long r = a * b;
+			lo = (int) (r & 0xffffffff);
+			hi = (int) ((r >> 32) & 0xffffffff);
 		}
+		case div:     lo = s / t; hi = s % t; break;
+		// TODO: Check, if this is ok.
+		case divu:    lo = s / t; hi = s % t; break;
+		case add:     gp[rd] = s + t; break;
+		case addu:    gp[rd] = s + t; break;
+		case sub:     gp[rd] = s - t; break;
+		case subu:    gp[rd] = s - t; break;
+		case and:     gp[rd] = s & t; break;
+		case or:      gp[rd] = s | t; break;
+		case xor:     gp[rd] = s ^ t; break;
+		case slt:     gp[rd] = s < t ? 1 : 0; break;
+		case sltu:    gp[rd] = cmpltu(s, t); break;
+		default:      throw new IllegalOpcodeException(this);
+		}
+		return null;
 	}
 }

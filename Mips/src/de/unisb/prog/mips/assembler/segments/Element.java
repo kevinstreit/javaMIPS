@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler.segments;
 
-import de.unisb.prog.mips.simulator.CoarseMemory;
+import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Element extends ListItem<Element> {
 	
@@ -26,12 +26,12 @@ public abstract class Element extends ListItem<Element> {
 			}
 
 			@Override
-			public void writeToMem(CoarseMemory mem, int addr) {
+			public void writeToMem(Memory mem, int addr) {
 			}
 		};
 	}
 	
 	public abstract int nextElementOffset(int pos);
-	public abstract void writeToMem(CoarseMemory mem, int addr);
+	public abstract void writeToMem(Memory mem, int addr);
 	
 }
