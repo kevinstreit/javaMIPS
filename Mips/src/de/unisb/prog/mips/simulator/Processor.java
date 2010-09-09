@@ -1,20 +1,24 @@
 package de.unisb.prog.mips.simulator;
 
+import de.unisb.prog.mips.insn.Attribute;
 import de.unisb.prog.mips.insn.Decode;
 import de.unisb.prog.mips.insn.Handler;
 import de.unisb.prog.mips.insn.IllegalOpcodeException;
+import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
 
-public final class Processor extends ProcessorState implements Handler<Void> {
+public final class Processor extends ProcessorState implements Handler<Instruction> {
 	
 	private final Memory mem;
 	private final SysCallHandler os;
+	private final ExceptionHandler exc;
 	
-	public Processor(Memory mem, SysCallHandler os) {
+	public Processor(Memory mem, ExceptionHandler exc, SysCallHandler os) {
 		this.mem = mem;
 		this.os  = os;
+		this.exc = exc;
 	}
 	
 	private static int cmpltu(int a, int b) {
@@ -25,28 +29,19 @@ public final class Processor extends ProcessorState implements Handler<Void> {
 		return a < b || la < lb ? 1 : 0;
 	}
 	
-	public void step() {
+	public boolean step() {
 		int insn = load(pc, Type.WORD, false);
 		try {
-			Decode.decode(insn, this);
+			Instruction i = Decode.decode(insn, this);
+			if (i.has(Attribute.HALT))
+				return false;
+			if (! i.has(Attribute.CHANGES_PC))
+				pc += 4;
 		} catch (IllegalOpcodeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			exc.illegalInstruction(this, mem, pc);
 		}
-	}
-	
-	public void run() {
-		while (true)
-			step();
-	}
-
-	@Override
-	public Void j(Opcode opc, int imm) {
-		switch (opc) {
-		case jal: gp[31] = pc + 4;
-		case j:   pc = (pc & 0xf0000000) | (imm << 2);
-		}
-		return null;
+		
+		return true;
 	}
 	
 	private int load(int addr, Type tp, boolean signExtend) {
@@ -62,7 +57,16 @@ public final class Processor extends ProcessorState implements Handler<Void> {
 	}
 	
 	@Override
-	public Void i(RegImm ri, int rs, int imm) {
+	public Instruction j(Opcode opc, int imm) {
+		switch (opc) {
+		case jal: gp[31] = pc + 4;
+		case j:   pc = (pc & 0xf0000000) | (imm << 2);
+		}
+		return opc;
+	}
+	
+	@Override
+	public Instruction i(RegImm ri, int rs, int imm) {
 		imm = ri.extendImm(imm);
 		switch (ri) {
 		case bgezl:
@@ -74,23 +78,23 @@ public final class Processor extends ProcessorState implements Handler<Void> {
 		case bltzall:
 		case bltzal:  if (rs < 0)  { gp[31] = pc + 4; pc += imm << 2; } break;
 		}
-		return null;
+		return ri;
 	}
 	
 	@Override
-	public Void i(Opcode opc, int rs, int rt, int imm) {
+	public Instruction i(Opcode opc, int rs, int rt, int imm) {
 		int s = gp[rs];
 		int t = gp[rt];
 		imm = opc.extendImm(imm);
 		switch (opc) {
 		case beql:
-		case beq:   if (s == t) pc += imm << 2; return null;
+		case beq:   if (s == t) pc += imm << 2; break;
 		case bnel:
-		case bne:   if (s != t) pc += imm << 2; return null;
+		case bne:   if (s != t) pc += imm << 2; break;
 		case blezl:
-		case blez:  if (s <= 0) pc += imm << 2; return null;
+		case blez:  if (s <= 0) pc += imm << 2; break;
 		case bgtzl:
-		case bgtz:  if (s >  0) pc += imm << 2; return null;
+		case bgtz:  if (s >  0) pc += imm << 2; break;
 		
 		case addi:  gp[rt] = s + imm; break;
 		case addiu: gp[rt] = s + imm; break; // TODO: Correct!
@@ -114,12 +118,11 @@ public final class Processor extends ProcessorState implements Handler<Void> {
 		case sw:    store(s + imm, Type.WORD, t); break;
 		case swr:   break; // TODO Implement
 		}
-		pc += 4;
-		return null;
+		return opc;
 	}
 
 	@Override
-	public Void r(IntFunct funct, int rs, int rt, int rd, int shamt) {
+	public Instruction r(IntFunct funct, int rs, int rt, int rd, int shamt) {
 		int s = gp[rs];
 		int t = gp[rt];
 		switch (funct) {
@@ -165,7 +168,6 @@ public final class Processor extends ProcessorState implements Handler<Void> {
 		case slt:     gp[rd] = s < t ? 1 : 0; break;
 		case sltu:    gp[rd] = cmpltu(s, t); break;
 		}
-		pc += 4;
-		return null;
+		return funct;
 	}
 }

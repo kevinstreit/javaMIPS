@@ -13,7 +13,7 @@ public class Sys implements MemoryLayout {
 	public Sys(int memPages, SysCallHandler sys) {
 		ByteMemory vm = new VirtualMemory(12);
 		this.mem = new Memory(vm, true);
-		this.sim = new Processor(mem, sys);
+		this.sim = new Processor(mem, null, sys);
 		this.sys = sys;
 	}
 	

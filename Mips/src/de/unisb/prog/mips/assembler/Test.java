@@ -22,6 +22,7 @@ public class Test {
 		
 		e = d.string("Hallo", true);
 		e.setLabel("str");
+		d.align(3);
 		List<Expr<Integer>> vals = new ArrayList<Expr<Integer>>();
 		for (int i = 0; i < 10; i++)
 			vals.add(Expressions.constantInt(i));

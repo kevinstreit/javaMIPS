@@ -2,7 +2,7 @@ package de.unisb.prog.mips.insn;
 
 import de.unisb.prog.mips.simulator.Type;
 
-public enum RegImm {
+public enum RegImm implements Instruction {
 	
 	bltz,
 	bgez,
@@ -42,5 +42,10 @@ public enum RegImm {
 	
 	public int extendImm(int imm) {
 		return Type.HALF.signExtend(imm);
+	}
+	
+	@Override
+	public boolean has(Attribute attr) {
+		return BRANCH.contains(attr);
 	}
 }

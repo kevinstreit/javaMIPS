@@ -1,21 +1,24 @@
 package de.unisb.prog.mips.insn;
 
-public enum IntFunct {
+import java.util.EnumSet;
+import java.util.Set;
+
+public enum IntFunct implements Instruction {
 	
-	/* 00 */ sll,
+	/* 00 */ sll(EnumSet.of(Attribute.SHAMT)),
 	/* 01 */ _01,
-	/* 02 */ srl,
-	/* 03 */ sra,
+	/* 02 */ srl(EnumSet.of(Attribute.SHAMT)),
+	/* 03 */ sra(EnumSet.of(Attribute.SHAMT)),
 	/* 04 */ sllv,
 	/* 05 */ _05,
 	/* 06 */ srlv,
 	/* 07 */ srav,
-	/* 08 */ jr,
-	/* 09 */ jalr,
+	/* 08 */ jr(JUMP),
+	/* 09 */ jalr(JUMP),
 	/* 0a */ movz,
 	/* 0b */ movn,
-	/* 0c */ syscall,
-	/* 0d */ brk,
+	/* 0c */ syscall(EnumSet.of(Attribute.CHANGES_PC)),
+	/* 0d */ brk(EnumSet.of(Attribute.CHANGES_PC)),
 	/* 0e */ _0e,
 	/* 0f */ sync,
 	
@@ -68,6 +71,21 @@ public enum IntFunct {
 	/* 3c */ _3c,
 	/* 3d */ _3d,
 	/* 3e */ _3e,
-	/* 3f */ _3f,
+	/* 3f */ _3f;
+	
+	private final Set<Attribute> attributes;
+	
+	private IntFunct() {
+		this(REG);
+	}
+
+	private IntFunct(Set<Attribute> attr) {
+		this.attributes = attr;
+	}
+
+	@Override
+	public boolean has(Attribute attr) {
+		return attributes.contains(attr);
+	}
 
 }
