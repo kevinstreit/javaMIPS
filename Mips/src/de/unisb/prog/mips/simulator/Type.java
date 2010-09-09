@@ -23,10 +23,4 @@ public enum Type {
 		return addr == roundDown(addr);
 	}
 	
-	public int signExtend(int val) {
-		int bits = sizeof() * 8;
-		int shmt = 32 - bits;
-		return (val << shmt) >> shmt;
-	}
-	
 }

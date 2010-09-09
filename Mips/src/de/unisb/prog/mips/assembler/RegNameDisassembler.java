@@ -8,7 +8,7 @@ public class RegNameDisassembler extends Disassembler {
 	protected String regName(int reg) {
 		if (reg < 0 || reg > 31)
 			return "???";
-		return reg == 0 ? "$0" : "$" + Reg.values()[reg].name();
+		return "$" + Reg.values()[reg].name();
 	}
 	
 	public static final RegNameDisassembler INSTANCE = new RegNameDisassembler();

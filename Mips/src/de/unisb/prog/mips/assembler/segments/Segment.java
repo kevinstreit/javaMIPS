@@ -16,10 +16,14 @@ public abstract class Segment implements Iterable<Element> {
 	public final void assignOffsets(int start) {
 		int ofs = start;
 		
-		for (Element e : this) {
+		for (Element e = root.next(); e != root; e = e.next()) {
 			e.setOffset(ofs);
 			ofs = e.nextElementOffset(ofs);
 		}
+	}
+	
+	public Element getLastInserted() {
+		return root.prev();
 	}
 	
 	public void collectLabels(Map<String, Element> labels) {
