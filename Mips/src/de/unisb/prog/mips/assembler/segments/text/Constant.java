@@ -5,18 +5,18 @@ import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.insn.Opcode;
 
-public class Constant extends AddrGen {
+public class Constant extends AddrGen<Expr<Integer>> {
 
-	public Constant(int rt, Expr<Integer> exp) {
+	public Constant(Reg rt, Expr<Integer> exp) {
 		super(Opcode.addi, rt, exp);
 	}
 
-	public Constant(int rt, int value) {
+	public Constant(Reg rt, int value) {
 		super(Opcode.addi, rt, Expressions.constantInt(value));
 	}
 	
 	protected void rewrite() {
-		insertAddrGen(Reg.ze.ordinal(), rt);
+		insertAddrGen(Reg.zero, rt);
 	}
 
 }

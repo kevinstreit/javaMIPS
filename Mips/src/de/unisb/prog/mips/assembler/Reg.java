@@ -2,7 +2,7 @@ package de.unisb.prog.mips.assembler;
 
 public enum Reg {
 	
-	/* 00 */ ze,
+	/* 00 */ zero,
 	/* 01 */ at,
 	/* 02 */ v0,
 	/* 03 */ v1,
@@ -36,5 +36,6 @@ public enum Reg {
 	/* 31 */ ra;
 	
 	public int get(int[] gp) { return gp[ordinal()]; }
+	public static Reg get(int idx) { return Reg.values()[idx & 0x1f]; }
 
 }

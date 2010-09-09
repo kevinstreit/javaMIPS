@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Segment implements Iterable<Element> {
@@ -51,4 +52,5 @@ public abstract class Segment implements Iterable<Element> {
 		for (Element e : this)
 			e.append(app);
 	}
+	
 }

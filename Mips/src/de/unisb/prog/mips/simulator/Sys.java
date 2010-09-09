@@ -18,9 +18,11 @@ public class Sys implements MemoryLayout {
 	}
 	
 	public void run(Assembly asm) {
+		asm.writeToMem(mem);
 		sim.gp[Reg.gp.ordinal()] = dataStart() - dataStartOffset();
 		sim.gp[Reg.sp.ordinal()] = stackStart();
 		sim.pc = textStart();
+		sim.run();
 	}
 
 	@Override public int dataStart()       { return 0x10000000; }

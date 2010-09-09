@@ -19,6 +19,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		this.mem = mem;
 		this.os  = os;
 		this.exc = exc;
+		this.gp  = new int[32];
 	}
 	
 	private static int cmpltu(int a, int b) {
@@ -42,6 +43,10 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		}
 		
 		return true;
+	}
+	
+	public void run() {
+		while (step());
 	}
 	
 	private int load(int addr, Type tp, boolean signExtend) {

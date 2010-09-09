@@ -2,14 +2,15 @@ package de.unisb.prog.mips.assembler.segments;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
 public class Align extends Element {
 	
 	private final int powerOfTo;
 	
-	public Align(int powerOfTo) {
-		super();
+	public Align(int powerOfTo, Reg relative) {
+		super(relative);
 		this.powerOfTo = powerOfTo;
 	}
 

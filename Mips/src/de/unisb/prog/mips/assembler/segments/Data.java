@@ -3,6 +3,7 @@ package de.unisb.prog.mips.assembler.segments;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Data extends Segment {
@@ -16,11 +17,11 @@ public class Data extends Segment {
 	}
 	
 	public Element space(int bytes) {
-		return add(new Space(bytes));
+		return add(new Space(bytes, Reg.gp));
 	}
 	
 	public Element align(int powerOfTwo) {
-		return add(new Align(powerOfTwo));
+		return add(new Align(powerOfTwo, Reg.gp));
 	}
 
 }

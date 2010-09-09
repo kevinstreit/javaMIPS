@@ -2,6 +2,7 @@ package de.unisb.prog.mips.assembler.segments;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
@@ -10,6 +11,7 @@ public class Str extends Element {
 	private final boolean zeroTerminate;
 	
 	public Str(String str, boolean zeroTerminate) {
+		super(Reg.gp);
 		this.str = str;
 		this.zeroTerminate = zeroTerminate;
 	}

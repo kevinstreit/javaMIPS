@@ -5,22 +5,22 @@ public class Disassembler implements Handler<String> {
 	@Override
 	public String i(Opcode opc, int rs, int rt, int imm) {
 		imm = opc.extendImm(imm);
-		return String.format("%5s %3s, %3s, %-6d", opc, regName(rt), regName(rs), imm);
+		return String.format("%7s %3s, %3s, %-6d", opc, regName(rt), regName(rs), imm);
 	}
 
 	@Override
 	public String i(RegImm ri, int rs, int imm) {
-		return String.format("%5s %3s, %-6d", rs, imm);
+		return String.format("%7s %3s, %-6d", rs, imm);
 	}
 
 	@Override
 	public String j(Opcode opc, int imm) {
-		return String.format("%5s %08x", opc, imm);
+		return String.format("%7s %08x", opc, imm);
 	}
 
 	@Override
 	public String r(IntFunct funct, int rs, int rt, int rd, int shamt) {
-		return String.format("%5s %3s, %3s, %3s", funct, regName(rd), regName(rs), regName(rt));
+		return String.format("%7s %3s, %3s, %3s", funct, regName(rd), regName(rs), regName(rt));
 	}
 	
 	protected String regName(int reg) {

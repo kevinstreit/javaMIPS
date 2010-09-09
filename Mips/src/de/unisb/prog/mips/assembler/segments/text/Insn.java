@@ -5,7 +5,6 @@ import java.io.IOException;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.RegNameDisassembler;
 import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.insn.Disassembler;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
@@ -14,6 +13,7 @@ class Insn extends Element {
 	protected int word;
 	
 	Insn(int word) {
+		super(Reg.zero);
 		this.word = word;
 	}
 

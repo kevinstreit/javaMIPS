@@ -29,19 +29,24 @@ public class Test {
 		e = d.values(vals, Type.WORD);
 		e.setLabel("arr");
 		
+		e = t.constant(Reg.a0, asm.createLabelRef("str"));
+		e = t.constant(Reg.v0, 4);
+		e = t.normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero, 0);
+		e = t.imm(Opcode.halt, Reg.zero, Reg.zero, 0);
 		
-		e = t.normal(IntFunct.add, 3, 4, 2, 0);
+		e = t.normal(IntFunct.add, Reg.v0, Reg.a0, Reg.t2, 0);
 		e.setLabel("test");
-		t.constant(22, 0x12345678);
-		t.condjump(Opcode.beq, 3, 4, asm.createLabelRef("test"));
-		t.loadstore(Opcode.lw, 4, asm.createLabelRef("arr"));
-		t.loadstore(Opcode.lw, 5, asm.createLabelRef("str"));
+		t.constant(Reg.t1, 0x12345678);
+		t.condjump(Opcode.beq, Reg.t5, Reg.t6, asm.createLabelRef("test"));
+		t.loadstore(Opcode.lw, Reg.t7, asm.createLabelRef("arr"));
+		t.loadstore(Opcode.lw, Reg.t4, asm.createLabelRef("str"));
 		asm.append(System.out);
 		
 		
 		de.unisb.prog.mips.simulator.Sys sys = new de.unisb.prog.mips.simulator.Sys(1000, new DefaultOS());
 		asm.prepare(sys);
 		asm.append(System.out);
+		sys.run(asm);
 	}
 
 }

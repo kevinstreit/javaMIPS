@@ -6,28 +6,26 @@ import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.LabelRef;
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Element extends ListItem<Element, Element.Root> implements Expr<Integer> {
 	
 	public static class Root extends Element implements Iterable<Element> {
-		@Override
-		public int nextElementOffset(int pos) {
-			return pos;
-		}
-
-		@Override
-		public void writeToMem(Memory mem, int addr) {
-		}
-
-		@Override
-		protected void appendInternal(Appendable app) throws IOException {
-		}
+		Root() { super (Reg.zero); }
+		@Override public int nextElementOffset(int pos) { return pos; }
+		@Override public void writeToMem(Memory mem, int addr) { } 
+		@Override protected void appendInternal(Appendable app) throws IOException { }
 	}
 	
+	private final Reg relative;
 	private int offset;
 	private String label = "";
 	private List<LabelRef> referers = null;
+	
+	protected Element(Reg relative) {
+		this.relative = relative;
+	}
 
 	public Element me() {
 		return this;
@@ -77,6 +75,10 @@ public abstract class Element extends ListItem<Element, Element.Root> implements
 		}
 		appendInternal(app);
 		app.append('\n');
+	}
+	
+	public Reg relativeTo() {
+		return relative;
 	}
 	
 	protected abstract void appendInternal(Appendable app) throws IOException;

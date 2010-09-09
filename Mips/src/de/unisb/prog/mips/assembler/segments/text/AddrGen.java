@@ -7,18 +7,20 @@ import de.unisb.prog.mips.insn.Encode;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 
-public abstract class AddrGen extends LabelRefInsn {
+public abstract class AddrGen<T extends Expr<Integer>> extends Insn {
 	
 	protected final Opcode opcode;
-	protected final int rt;
+	protected final Reg rt;
+	protected final T exp;
 	
-	public AddrGen(Opcode opc, int rt, Expr<Integer> exp) {
-		super(Encode.i(opc, 0, rt, 0), exp);
+	public AddrGen(Opcode opc, Reg rt, T exp) {
+		super(Encode.i(opc, 0, rt.ordinal(), 0));
 		this.opcode = opc;
 		this.rt = rt;
+		this.exp = exp;
 	}
 	
-	protected void insertAddrGen(int baseReg, int tempReg) {
+	protected void insertAddrGen(Reg base, Reg temp) {
 		int value = exp.eval();
 		
 		// get insertion point into the list and remove current instruction
@@ -29,7 +31,7 @@ public abstract class AddrGen extends LabelRefInsn {
 		
 		if (Encode.immFitsI(value)) {
 			imm = value;
-			rs  = baseReg;
+			rs  = base.ordinal();
 		}
 		
 		else {
@@ -37,7 +39,7 @@ public abstract class AddrGen extends LabelRefInsn {
 			int lo = value & 0xffff;
 			
 			imm = 0;
-			rs  = tempReg;
+			rs  = temp.ordinal();
 
 			// load high part of reg into assembler temp register
 			root.prepend(new Normal(Encode.i(Opcode.lui, 0, rs, hi)));
@@ -48,11 +50,11 @@ public abstract class AddrGen extends LabelRefInsn {
 					imm = lo;
 			}
 
-			if (baseReg != 0)
-				root.prepend(new Normal(Encode.r(IntFunct.add, baseReg, rs, rs)));
+			if (base != Reg.zero)
+				root.prepend(new Normal(Encode.r(IntFunct.add, base.ordinal(), rs, rs)));
 		}
 		
-		root.prepend(new Normal(Encode.i(opcode, rs, rt, imm)));
+		root.prepend(new Normal(Encode.i(opcode, rs, rt.ordinal(), imm)));
 		this.replaceBy(root);
 	}
 	

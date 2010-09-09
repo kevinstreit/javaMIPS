@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.print.attribute.TextSyntax;
-
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
+import de.unisb.prog.mips.simulator.Memory;
 
 public class Assembly {
 	
@@ -50,6 +49,11 @@ public class Assembly {
 		// rewrite instructions using an address 
 		// patch jumps
 		text.prepare(layout);
+	}
+	
+	public void writeToMem(Memory mem) {
+		data.writeToMem(mem);
+		text.writeToMem(mem);
 	}
 	
 	public void append(Appendable app) throws IOException {

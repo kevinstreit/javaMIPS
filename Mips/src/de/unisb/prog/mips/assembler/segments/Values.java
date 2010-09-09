@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
@@ -13,6 +14,7 @@ public class Values extends Element {
 	private final List<Expr<Integer>> values;
 	
 	Values(List<Expr<Integer>> values, Type elementType) {
+		super(Reg.gp);
 		this.elementType = elementType;
 		this.values = values;
 	}
