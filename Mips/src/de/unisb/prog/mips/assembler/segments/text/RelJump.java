@@ -22,7 +22,7 @@ class RelJump extends LabelRefInsn {
 		if ((labelOffset & 3) != 0)
 			throw new JumpTargetNotAligned();
 		
-		int rel = (getOffset() - labelOffset) >>> 2;
+		int rel = (labelOffset - getOffset()) >> 2;
 		if (! Encode.immFitsI(rel))
 			throw new JumpTargetOutOfRange();
 		

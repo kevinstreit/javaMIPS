@@ -24,7 +24,7 @@ public class Str extends Element {
 
 	@Override
 	public int nextElementOffset(int pos) {
-		return str.length() + (zeroTerminate ? 1 : 0);
+		return pos + str.length() + (zeroTerminate ? 1 : 0);
 	}
 
 	@Override

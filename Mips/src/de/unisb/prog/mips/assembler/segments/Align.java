@@ -17,7 +17,7 @@ public class Align extends Element {
 	public int nextElementOffset(int pos) {
 		int v = 1 << powerOfTo;
 		int off = (pos + (v - 1)) & -v;
-		return off - pos;
+		return off;
 	}
 
 	@Override

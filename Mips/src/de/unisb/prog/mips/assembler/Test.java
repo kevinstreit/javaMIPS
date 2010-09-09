@@ -20,6 +20,7 @@ public class Test {
 		Element e;
 		
 		d.string("Hallo", true);
+		// d.align(2);
 		List<Expr<Integer>> vals = new ArrayList<Expr<Integer>>();
 		for (int i = 0; i < 10; i++)
 			vals.add(Expressions.constantInt(i));

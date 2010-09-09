@@ -2,7 +2,7 @@ package de.unisb.prog.mips.assembler;
 
 public enum Reg {
 	
-	/* 00 */ ze,
+	/* 00 */ zero,
 	/* 01 */ at,
 	/* 02 */ v0,
 	/* 03 */ v1,

@@ -16,7 +16,7 @@ public class Constant extends AddrGen {
 	}
 	
 	protected void rewrite() {
-		insertAddrGen(Reg.ze.ordinal(), rt);
+		insertAddrGen(Reg.zero.ordinal(), rt);
 	}
 
 }

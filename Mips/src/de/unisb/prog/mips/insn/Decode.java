@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.insn;
 
+import de.unisb.prog.mips.simulator.Type;
+
 public class Decode {
 	
 	public static <T> T decode(int insn, Handler<T> h) {
@@ -24,6 +26,7 @@ public class Decode {
 			imm = insn & 0xffff; insn >>>= 16;
 			rt  = insn & 0x1f; insn >>>= 5;
 			rs  = insn & 0x1f; insn >>>= 5;
+			imm = Type.HALF.signExtend(imm);
 			return h.i(opcode, rs, rt, imm);
 		}
 	}
