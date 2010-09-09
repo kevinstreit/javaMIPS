@@ -10,6 +10,7 @@ import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.os.DefaultOS;
+import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Test {
@@ -20,7 +21,7 @@ public class Test {
 		Data d = asm.getData();
 		Element e;
 		
-		e = d.string("Hallo", true);
+		e = d.string("Hallo Welt\n", true);
 		e.setLabel("str");
 		d.align(3);
 		List<Expr<Integer>> vals = new ArrayList<Expr<Integer>>();
@@ -29,7 +30,7 @@ public class Test {
 		e = d.values(vals, Type.WORD);
 		e.setLabel("arr");
 		
-		e = t.constant(Reg.a0, asm.createLabelRef("str"));
+		e = t.address(Reg.a0, asm.createLabelRef("str"));
 		e = t.constant(Reg.v0, 4);
 		e = t.normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero, 0);
 		e = t.imm(Opcode.halt, Reg.zero, Reg.zero, 0);
@@ -43,7 +44,7 @@ public class Test {
 		asm.append(System.out);
 		
 		
-		de.unisb.prog.mips.simulator.Sys sys = new de.unisb.prog.mips.simulator.Sys(1000, new DefaultOS());
+		Sys sys = new Sys(1000, new DefaultOS());
 		asm.prepare(sys);
 		asm.append(System.out);
 		sys.run(asm);

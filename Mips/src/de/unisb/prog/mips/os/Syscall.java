@@ -2,6 +2,7 @@ package de.unisb.prog.mips.os;
 
 public enum Syscall {
 	
+	_00,
 	print_int,
 	print_float,
 	print_double,

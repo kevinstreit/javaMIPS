@@ -4,22 +4,17 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Segment implements Iterable<Element> {
 	
 	private final Element.Root root = Element.createRoot();
-	private int startAddress = 0;
 	
 	protected final Element add(Element e) {
 		root.prepend(e);
 		return e;
 	}
 	
-	public void relocate(int startAddress) {
-		this.startAddress = startAddress;
-	}
 	
 	public final void assignOffsets(int startOffset) {
 		int ofs = startOffset;
@@ -30,9 +25,10 @@ public abstract class Segment implements Iterable<Element> {
 		}
 	}
 	
-	public final void writeToMem(Memory mem) {
+	public final void writeToMem(Memory mem, int addr) {
+		relocate(addr);
 		for (Element e : this) 
-			e.writeToMem(mem, startAddress + e.getOffset());
+			e.writeToMem(mem, addr + e.getOffset());
 	}
 	
 	public void collectLabels(Map<String, Element> labels) {
@@ -42,6 +38,8 @@ public abstract class Segment implements Iterable<Element> {
 				labels.put(l, e);
 		}
 	}
+	
+	protected abstract void relocate(int startAddress);
 
 	@Override
 	public Iterator<Element> iterator() {

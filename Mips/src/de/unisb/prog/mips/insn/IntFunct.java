@@ -17,8 +17,8 @@ public enum IntFunct implements Instruction {
 	/* 09 */ jalr(JUMP),
 	/* 0a */ movz,
 	/* 0b */ movn,
-	/* 0c */ syscall(EnumSet.of(Attribute.CHANGES_PC)),
-	/* 0d */ brk(EnumSet.of(Attribute.CHANGES_PC)),
+	/* 0c */ syscall,
+	/* 0d */ brk,
 	/* 0e */ _0e,
 	/* 0f */ sync,
 	

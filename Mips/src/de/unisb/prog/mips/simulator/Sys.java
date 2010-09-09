@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.simulator;
 
+import java.io.IOException;
+
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.MemoryLayout;
 import de.unisb.prog.mips.assembler.Reg;
@@ -18,7 +20,12 @@ public class Sys implements MemoryLayout {
 	}
 	
 	public void run(Assembly asm) {
-		asm.writeToMem(mem);
+		asm.writeToMem(mem, this);
+		try {
+			mem.dump(System.out, dataStart(), 100, MemDumpFormatter.DATA);
+			mem.dump(System.out, textStart(), 60, MemDumpFormatter.DISASM);
+		} catch (IOException e) {
+		}
 		sim.gp[Reg.gp.ordinal()] = dataStart() - dataStartOffset();
 		sim.gp[Reg.sp.ordinal()] = stackStart();
 		sim.pc = textStart();

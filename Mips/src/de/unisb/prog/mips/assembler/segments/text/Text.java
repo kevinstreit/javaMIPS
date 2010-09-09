@@ -35,6 +35,13 @@ public class Text extends Segment {
 		return e;
 	}
 
+	public Element address(Reg rt, LabelRef ref) {
+		AddrGen<?> e = new Address(rt, ref);
+		addrGenInsns.add(e);
+		add(e);
+		return e;
+	}
+
 	public Element constant(Reg rt, Expr<Integer> exp) {
 		AddrGen<?> e = new Constant(rt, exp);
 		addrGenInsns.add(e);
@@ -86,13 +93,11 @@ public class Text extends Segment {
 	
 	@Override
 	public void relocate(int startAddress) {
-		super.relocate(startAddress);
 		for (AbsJump aj : absJumps)
 			aj.rewrite(startAddress);
 	}
 	
 	public void prepare(MemoryLayout l) throws JumpTargetNotAligned, JumpTargetOutOfRange {
-		relocate(l.textStart());
 		rewriteDataInsns();
 		assignOffsets(l.textStartOffset());
 		rewriteRelJumps();

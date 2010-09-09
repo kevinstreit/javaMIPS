@@ -15,9 +15,11 @@ public class DefaultOS implements SysCallHandler {
 	
 	private void printStr(ProcessorState state, Memory mem) {
 		int a0 = Reg.a0.get(state.gp);
-		int a1 = Reg.a1.get(state.gp);
-		for (int i = 0; i < a1; i++) 
-			System.out.print((char) mem.load(a0 + i, Type.BYTE));
+		char ch = (char) mem.load(a0, Type.BYTE);
+		for (int i = 1; ch != 0; i++) {
+			System.out.print(ch);
+			ch = (char) mem.load(a0 + i, Type.BYTE);
+		}
 	}
 
 	@Override

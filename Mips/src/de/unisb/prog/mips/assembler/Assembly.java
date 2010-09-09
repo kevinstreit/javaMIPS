@@ -44,16 +44,15 @@ public class Assembly {
 		}
 		
 		data.assignOffsets(layout.dataStartOffset());
-		data.relocate(layout.dataStart());
 		
 		// rewrite instructions using an address 
 		// patch jumps
 		text.prepare(layout);
 	}
 	
-	public void writeToMem(Memory mem) {
-		data.writeToMem(mem);
-		text.writeToMem(mem);
+	public void writeToMem(Memory mem, MemoryLayout layout) {
+		data.writeToMem(mem, layout.dataStart() - layout.dataStartOffset());
+		text.writeToMem(mem, layout.textStart() - layout.textStartOffset());
 	}
 	
 	public void append(Appendable app) throws IOException {

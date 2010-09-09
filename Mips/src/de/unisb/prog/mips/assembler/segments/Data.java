@@ -24,4 +24,8 @@ public class Data extends Segment {
 		return add(new Align(powerOfTwo, Reg.gp));
 	}
 
+	@Override
+	protected void relocate(int startAddress) {
+	}
+
 }

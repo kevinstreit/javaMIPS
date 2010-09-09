@@ -2,6 +2,8 @@ package de.unisb.prog.mips.insn;
 
 public class Disassembler implements Handler<String> {
 	
+	public static final Disassembler INSTANCE = new Disassembler();
+	
 	@Override
 	public String i(Opcode opc, int rs, int rt, int imm) {
 		imm = opc.extendImm(imm);
@@ -10,7 +12,7 @@ public class Disassembler implements Handler<String> {
 
 	@Override
 	public String i(RegImm ri, int rs, int imm) {
-		return String.format("%7s %3s, %-6d", rs, imm);
+		return String.format("%7s %3s, %-6d", ri, rs, imm);
 	}
 
 	@Override
@@ -31,7 +33,7 @@ public class Disassembler implements Handler<String> {
 		try {
 			return Decode.decode(word, this);
 		} catch (IllegalOpcodeException e) {
-			return String.format(".word %08x", word);
+			return String.format("%7s %08x", ".word", word);
 		}
 	}
 
