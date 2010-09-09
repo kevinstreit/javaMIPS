@@ -3,9 +3,10 @@ package de.unisb.prog.mips.os;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.ProcessorState;
+import de.unisb.prog.mips.simulator.SysCallHandler;
 import de.unisb.prog.mips.simulator.Type;
 
-public class DefaultOS implements OS {
+public class DefaultOS implements SysCallHandler {
 	
 	private void printInt(ProcessorState state) {
 		int a0 = Reg.a0.get(state.gp);

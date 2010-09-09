@@ -5,14 +5,13 @@ import de.unisb.prog.mips.insn.Handler;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
-import de.unisb.prog.mips.os.OS;
 
 public final class Simulator extends ProcessorState implements Handler<Void> {
 	
 	private final Memory mem;
-	private final OS os;
+	private final SysCallHandler os;
 	
-	public Simulator(Memory mem, OS os) {
+	public Simulator(Memory mem, SysCallHandler os) {
 		this.mem = mem;
 		this.os  = os;
 	}
