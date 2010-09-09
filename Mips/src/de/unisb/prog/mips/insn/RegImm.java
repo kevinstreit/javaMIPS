@@ -6,8 +6,8 @@ public enum RegImm {
 	
 	bltz,
 	bgez,
-	_02,
-	_03,
+	bltzl,
+	bgezl,
 	_04,
 	_05,
 	_06,
@@ -24,8 +24,8 @@ public enum RegImm {
 	
 	bltzal,
 	bgezal,
-	_12,
-	_13,
+	bltzall,
+	bgezall,
 	_14,
 	_15,
 	_16,
@@ -43,5 +43,4 @@ public enum RegImm {
 	public int extendImm(int imm) {
 		return Type.HALF.signExtend(imm);
 	}
-	
 }

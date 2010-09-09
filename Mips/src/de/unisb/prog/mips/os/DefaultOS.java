@@ -23,10 +23,14 @@ public class DefaultOS implements SysCallHandler {
 	@Override
 	public void syscall(ProcessorState state, Memory mem) {
 		int v0 = Reg.v0.get(state.gp);
-		switch (v0) {
-		case 1: printInt(state); return;
-		case 4: printStr(state, mem); return;
+		Syscall c = Syscall.values()[v0];
+		switch (c) {
+		case print_int: printInt(state); return;
+		case print_string: printStr(state, mem); return;
+		case exit: return;
+		case exit2: return;
 		}
 	}
+
 
 }

@@ -5,8 +5,9 @@ public class Memory {
 	private final ByteMemory mem;
 	boolean bigEndian;
 	
-	public Memory(ByteMemory mem) {
+	public Memory(ByteMemory mem, boolean bigEndian) {
 		this.mem = mem;
+		this.bigEndian = bigEndian;
 	}
 
 	public void store(int addr, int val, Type tp) {

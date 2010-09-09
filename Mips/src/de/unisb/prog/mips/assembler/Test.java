@@ -9,24 +9,10 @@ import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
+import de.unisb.prog.mips.os.DefaultOS;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Test {
-	
-	public static final MemoryLayout ml = new MemoryLayout() {
-		
-		@Override
-		public int textStartOffset() { return 0; }
-		
-		@Override
-		public int textStart() { return 0x400000; }
-		
-		@Override
-		public int dataStartOffset() { return -0x8000; }
-		
-		@Override
-		public int dataStart() { return 0x10000000; }
-	};
 	
 	public static void main(String[] args) throws IOException, AssemblerException {
 		Assembly asm = new Assembly();
@@ -50,7 +36,10 @@ public class Test {
 		t.loadstore(Opcode.lw, 4, asm.createLabelRef("arr"));
 		t.loadstore(Opcode.lw, 5, asm.createLabelRef("str"));
 		asm.append(System.out);
-		asm.prepare(ml);
+		
+		
+		de.unisb.prog.mips.simulator.Sys sys = new de.unisb.prog.mips.simulator.Sys(1000, new DefaultOS());
+		asm.prepare(sys);
 		asm.append(System.out);
 	}
 

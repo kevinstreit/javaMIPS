@@ -4,6 +4,7 @@ public interface MemoryLayout {
 	
 	int dataStart();
 	int textStart();
+	int stackStart();
 	int dataStartOffset();
 	int textStartOffset();
 

@@ -2,16 +2,17 @@ package de.unisb.prog.mips.simulator;
 
 import de.unisb.prog.mips.insn.Decode;
 import de.unisb.prog.mips.insn.Handler;
+import de.unisb.prog.mips.insn.IllegalOpcodeException;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
 
-public final class Simulator extends ProcessorState implements Handler<Void> {
+public final class Processor extends ProcessorState implements Handler<Void> {
 	
 	private final Memory mem;
 	private final SysCallHandler os;
 	
-	public Simulator(Memory mem, SysCallHandler os) {
+	public Processor(Memory mem, SysCallHandler os) {
 		this.mem = mem;
 		this.os  = os;
 	}
@@ -26,25 +27,24 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 	
 	public void step() {
 		int insn = load(pc, Type.WORD, false);
-		Decode.decode(insn, this);
-		pc += 4;
+		try {
+			Decode.decode(insn, this);
+		} catch (IllegalOpcodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		while (true)
+			step();
 	}
 
 	@Override
-	public Void f(int fmt, int ft, int fs, int fd, int funct) {
-		throw new IllegalOpcodeException(this);
-	}
-
-	@Override
-	public Void j(int op, int imm) {
-		switch (Opcode.values()[op]) {
-		case jal: 
-			gp[31] = pc + 4;
-		case j:
-			pc = (pc & 0xf0000000) | (imm << 2);
-			break;
-		default:
-			throw new IllegalStateException(String.format("format j and opcode %x", op));
+	public Void j(Opcode opc, int imm) {
+		switch (opc) {
+		case jal: gp[31] = pc + 4;
+		case j:   pc = (pc & 0xf0000000) | (imm << 2);
 		}
 		return null;
 	}
@@ -61,29 +61,36 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 		mem.store(addr, val, tp);
 	}
 	
-	private void i(RegImm ri, int rs, int imm) {
+	@Override
+	public Void i(RegImm ri, int rs, int imm) {
 		imm = ri.extendImm(imm);
 		switch (ri) {
-		case bgez:    if (rs >= 0)                    pc += imm << 2; break;
+		case bgezl:
+		case bgez:    if (rs >= 0)                    pc += imm << 2;   break;
+		case bgezall:
 		case bgezal:  if (rs >= 0) { gp[31] = pc + 4; pc += imm << 2; } break;
-		case bltz:    if (rs < 0)                     pc += imm << 2; break;
+		case bltzl:
+		case bltz:    if (rs < 0)                     pc += imm << 2;   break;
+		case bltzall:
 		case bltzal:  if (rs < 0)  { gp[31] = pc + 4; pc += imm << 2; } break;
-		default:      throw new IllegalOpcodeException(this);
 		}
+		return null;
 	}
 	
 	@Override
-	public Void i(int op, int rs, int rt, int imm) {
-		Opcode opc = Opcode.values()[op];
+	public Void i(Opcode opc, int rs, int rt, int imm) {
 		int s = gp[rs];
 		int t = gp[rt];
 		imm = opc.extendImm(imm);
-		switch (Opcode.values()[op]) {
-		case regimm: i(RegImm.values()[rt], rs, imm); break;
-		case beq:   if (s == t) pc += imm << 2; break;
-		case bne:   if (s != t) pc += imm << 2; break;
-		case blez:  if (s <= 0) pc += imm << 2; break;
-		case bgtz:  if (s >  0) pc += imm << 2; break;
+		switch (opc) {
+		case beql:
+		case beq:   if (s == t) pc += imm << 2; return null;
+		case bnel:
+		case bne:   if (s != t) pc += imm << 2; return null;
+		case blezl:
+		case blez:  if (s <= 0) pc += imm << 2; return null;
+		case bgtzl:
+		case bgtz:  if (s >  0) pc += imm << 2; return null;
 		
 		case addi:  gp[rt] = s + imm; break;
 		case addiu: gp[rt] = s + imm; break; // TODO: Correct!
@@ -96,26 +103,26 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 		
 		case lb:    gp[rt] = load(s + imm, Type.BYTE, true); break;
 		case lh:    gp[rt] = load(s + imm, Type.HALF, true); break;
-		case lwl:   throw new IllegalOpcodeException(this);
+		case lwl:   break; // TODO Implement
 		case lw:    gp[rt] = load(s + imm, Type.WORD, true); break;
 		case lbu:   gp[rt] = load(s + imm, Type.BYTE, false); break;
 		case lhu:   gp[rt] = load(s + imm, Type.HALF, false); break;
-		case lwr:   throw new IllegalOpcodeException(this);
+		case lwr:   break; // TODO Implement
 		case sb:    store(s + imm, Type.BYTE, t); break;
 		case sh:    store(s + imm, Type.HALF, t >>> 16); break;
-		case swl:   throw new IllegalOpcodeException(this);
+		case swl:   break; // TODO Implement
 		case sw:    store(s + imm, Type.WORD, t); break;
-		case swr:   throw new IllegalOpcodeException(this);
-		default:    throw new IllegalOpcodeException(this);
+		case swr:   break; // TODO Implement
 		}
+		pc += 4;
 		return null;
 	}
 
 	@Override
-	public Void r(int rs, int rt, int rd, int shamt, int funct) {
+	public Void r(IntFunct funct, int rs, int rt, int rd, int shamt) {
 		int s = gp[rs];
 		int t = gp[rt];
-		switch (IntFunct.values()[funct]) {
+		switch (funct) {
 		case sll:     gp[rd] = s << shamt; break;
 		case srl:     gp[rd] = s >>> shamt; break;
 		case sra:     gp[rd] = s >> shamt; break;
@@ -157,8 +164,8 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 		case xor:     gp[rd] = s ^ t; break;
 		case slt:     gp[rd] = s < t ? 1 : 0; break;
 		case sltu:    gp[rd] = cmpltu(s, t); break;
-		default:      throw new IllegalOpcodeException(this);
 		}
+		pc += 4;
 		return null;
 	}
 }
