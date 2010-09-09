@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.insn;
 
+import de.unisb.prog.mips.simulator.Type;
+
 public enum RegImm {
 	
 	bltz,
@@ -36,6 +38,10 @@ public enum RegImm {
 	_1c, 
 	_1d, 
 	_1e, 
-	_1f, 
+	_1f; 
+	
+	public int extendImm(int imm) {
+		return Type.HALF.signExtend(imm);
+	}
 	
 }

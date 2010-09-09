@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.insn;
 
+import de.unisb.prog.mips.simulator.Type;
+
 public class Decode {
 	
 	public static <T> T decode(int insn, Handler<T> h) {

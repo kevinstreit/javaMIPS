@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.print.attribute.TextSyntax;
+
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
@@ -32,7 +34,7 @@ public class Assembly {
 		return r;
 	}
 	
-	public void finish() throws AssemblerException {
+	public void prepare(MemoryLayout layout) throws AssemblerException {
 		// connect label references to labels
 		Map<String, Element> labels = new HashMap<String, Element>();
 		data.collectLabels(labels);
@@ -42,8 +44,12 @@ public class Assembly {
 			r.patch(labels);
 		}
 		
-		// The text segment finishes it all
-		text.finish(data);
+		data.assignOffsets(layout.dataStartOffset());
+		data.relocate(layout.dataStart());
+		
+		// rewrite instructions using an address 
+		// patch jumps
+		text.prepare(layout);
 	}
 	
 	public void append(Appendable app) throws IOException {

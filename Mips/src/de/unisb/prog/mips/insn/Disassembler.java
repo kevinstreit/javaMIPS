@@ -9,7 +9,9 @@ public class Disassembler implements Handler<String> {
 
 	@Override
 	public String i(int op, int rs, int rt, int imm) {
-		return String.format("%5s %3s, %3s, %-6d", Opcode.values()[op].toString(), regName(rt), regName(rs), imm);
+		Opcode opc = Opcode.values()[op];
+		imm = opc.extendImm(imm);
+		return String.format("%5s %3s, %3s, %-6d", opc.name(), regName(rt), regName(rs), imm);
 	}
 
 	@Override

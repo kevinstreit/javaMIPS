@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.insn;
 
+import de.unisb.prog.mips.simulator.Type;
+
 public enum Opcode {
 	
 	/* 00 */ special,
@@ -15,10 +17,10 @@ public enum Opcode {
 	/* 09 */ addiu,
 	/* 0a */ slti,
 	/* 0b */ sltiu,
-	/* 0c */ andi,
-	/* 0d */ ori,
-	/* 0e */ xori,
-	/* 0f */ lui,
+	/* 0c */ andi(false),
+	/* 0d */ ori(false),
+	/* 0e */ xori(false),
+	/* 0f */ lui(false),
 	
 	/* 10 */ _10,
 	/* 11 */ _11,
@@ -69,7 +71,20 @@ public enum Opcode {
 	/* 3c */ _3c,
 	/* 3d */ _3d,
 	/* 3e */ _3e,
-	/* 3f */ _3f,
+	/* 3f */ _3f;
 	
+	private final boolean signExtend;
+	
+	private Opcode(boolean signExtend) {
+		this.signExtend = signExtend;
+	}
+	
+	private Opcode() {
+		this(true);
+	}
+	
+	public int extendImm(int imm) {
+		return signExtend ? Type.HALF.signExtend(imm) : imm;
+	}
 	
 }

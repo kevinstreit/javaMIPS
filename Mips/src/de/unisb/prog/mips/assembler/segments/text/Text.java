@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.assembler.segments.Data;
+import de.unisb.prog.mips.assembler.MemoryLayout;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.Encode;
@@ -16,6 +16,7 @@ public class Text extends Segment {
 	
 	private final List<AddrGen> addrGenInsns = new LinkedList<AddrGen>();
 	private final List<RelJump> relJumps = new LinkedList<RelJump>();
+	private final List<AbsJump> absJumps = new LinkedList<AbsJump>();
 	
 	public Element normal(IntFunct f, int rs, int rt, int rd, int shamt) {
 		return add(new Normal(Encode.r(f, rs, rt, rd, shamt)));
@@ -64,8 +65,11 @@ public class Text extends Segment {
 		return rj;
 	}
 	
-	public void absjump(Opcode opc, Expr<Integer> ref) {
-		// TODO: NYI
+	public Element absjump(Opcode opc, Expr<Integer> exp) {
+		AbsJump aj = new AbsJump(opc, exp);
+		add(aj);
+		absJumps.add(aj);
+		return aj;
 	}
 	
 	private void rewriteDataInsns() {
@@ -78,10 +82,16 @@ public class Text extends Segment {
 			rj.rewrite();
 	}
 	
-	public void finish(Data data) throws JumpTargetNotAligned, JumpTargetOutOfRange {
-		data.assignOffsets(-0x8000);
+	public void reloate(int startAddress) {
+		super.relocate(startAddress);
+		for (AbsJump aj : absJumps)
+			aj.rewrite(startAddress);
+	}
+	
+	public void prepare(MemoryLayout l) throws JumpTargetNotAligned, JumpTargetOutOfRange {
+		relocate(l.textStart());
 		rewriteDataInsns();
-		assignOffsets(0);
+		assignOffsets(l.textStartOffset());
 		rewriteRelJumps();
 	}
 }

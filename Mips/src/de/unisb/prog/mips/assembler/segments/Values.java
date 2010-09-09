@@ -32,8 +32,7 @@ public class Values extends Element {
 
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
-		char type = elementType.name().toLowerCase().charAt(0);
-		String prefix = ".d" + type + " ";
+		String prefix = "." + elementType.name().toLowerCase() + ":";
 		for (Expr<Integer> e : values) {
 			app.append(prefix);
 			e.append(app);

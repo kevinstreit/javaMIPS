@@ -17,11 +17,6 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 		this.os  = os;
 	}
 	
-	private static int signExtend(int v, int bit) {
-		int s = 32 - bit;
-		return (v << s) >> s;
-	}
-	
 	private static int cmpltu(int a, int b) {
 		int la = a & 0xffff;
 		int lb = b & 0xffff;
@@ -31,7 +26,7 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 	}
 	
 	public void step() {
-		int insn = load(pc, 0, Type.WORD, false);
+		int insn = load(pc, Type.WORD, false);
 		Decode.decode(insn, this);
 		pc += 4;
 	}
@@ -55,64 +50,62 @@ public final class Simulator extends ProcessorState implements Handler<Void> {
 		return null;
 	}
 	
-	private int computeAddr(int addr, int disp, Type tp) {
-		addr += signExtend(disp, 16);
+	private int load(int addr, Type tp, boolean signExtend) {
 		if (! tp.isAligned(addr)) 
 			throw new UnalignedMemoryException(this, addr);
-		return addr;
+		return mem.load(addr, tp);
 	}
 	
-	private int load(int addr, int disp, Type tp, boolean signExtend) {
-		int memAddr = computeAddr(addr, disp, tp);
-		return mem.load(memAddr, tp);
-	}
-	
-	private void store(int addr, int disp, Type tp, int val) {
-		int memAddr = computeAddr(addr, disp, tp);
-		mem.store(memAddr, val, tp);
+	private void store(int addr, Type tp, int val) {
+		if (! tp.isAligned(addr)) 
+			throw new UnalignedMemoryException(this, addr);
+		mem.store(addr, val, tp);
 	}
 	
 	private void i(RegImm ri, int rs, int imm) {
+		imm = ri.extendImm(imm);
 		switch (ri) {
-		case bgez:    if (rs >= 0) pc += (signExtend(imm, 16) << 2); break;
-		case bgezal:  if (rs >= 0) { gp[31] = pc + 4; pc += (signExtend(imm, 16) << 2); } break;
-		case bltz:    if (rs < 0) pc += (signExtend(imm, 16) << 2); break;
-		case bltzal:  if (rs < 0) { gp[31] = pc + 4; pc += (signExtend(imm, 16) << 2); } break;
+		case bgez:    if (rs >= 0)                    pc += imm << 2; break;
+		case bgezal:  if (rs >= 0) { gp[31] = pc + 4; pc += imm << 2; } break;
+		case bltz:    if (rs < 0)                     pc += imm << 2; break;
+		case bltzal:  if (rs < 0)  { gp[31] = pc + 4; pc += imm << 2; } break;
 		default:      throw new IllegalOpcodeException(this);
 		}
 	}
 	
 	@Override
 	public Void i(int op, int rs, int rt, int imm) {
+		Opcode opc = Opcode.values()[op];
 		int s = gp[rs];
 		int t = gp[rt];
+		imm = opc.extendImm(imm);
 		switch (Opcode.values()[op]) {
 		case regimm: i(RegImm.values()[rt], rs, imm); break;
-		case beq:   if (s == t) pc += (signExtend(imm, 16) << 2); break;
-		case bne:   if (s != t) pc += (signExtend(imm, 16) << 2); break;
-		case blez:  if (s <= 0) pc += (signExtend(imm, 16) << 2); break;
-		case bgtz:  if (s >  0) pc += (signExtend(imm, 16) << 2); break;
+		case beq:   if (s == t) pc += imm << 2; break;
+		case bne:   if (s != t) pc += imm << 2; break;
+		case blez:  if (s <= 0) pc += imm << 2; break;
+		case bgtz:  if (s >  0) pc += imm << 2; break;
 		
-		case addi:  gp[rt] = s + signExtend(imm, 16); break;
-		case addiu: gp[rt] = s + signExtend(imm, 16); break; // TODO: Correct!
-		case slti:  gp[rt] = s < signExtend(imm, 16) ? 1 : 0; break;
-		case sltiu: gp[rt] = cmpltu(s, signExtend(imm, 16)); break;
+		case addi:  gp[rt] = s + imm; break;
+		case addiu: gp[rt] = s + imm; break; // TODO: Correct!
+		case slti:  gp[rt] = s < imm ? 1 : 0; break;
+		case sltiu: gp[rt] = cmpltu(s, imm); break;
 		case andi:  gp[rt] = s & imm; break;
 		case ori:   gp[rt] = s | imm; break;
 		case xori:  gp[rt] = s ^ imm; break;
 		case lui:   gp[rt] = imm << 16; break;
 		
-		case lb:    gp[rt] = load(s, imm, Type.BYTE, true); break;
-		case lh:    gp[rt] = load(s, imm, Type.HALF, true); break;
+		case lb:    gp[rt] = load(s + imm, Type.BYTE, true); break;
+		case lh:    gp[rt] = load(s + imm, Type.HALF, true); break;
 		case lwl:   throw new IllegalOpcodeException(this);
-		case lw:    gp[rt] = load(s, imm, Type.WORD, true); break;
-		case lbu:   gp[rt] = load(s, imm, Type.BYTE, false); break;
-		case lhu:   gp[rt] = load(s, imm, Type.HALF, false); break;
+		case lw:    gp[rt] = load(s + imm, Type.WORD, true); break;
+		case lbu:   gp[rt] = load(s + imm, Type.BYTE, false); break;
+		case lhu:   gp[rt] = load(s + imm, Type.HALF, false); break;
 		case lwr:   throw new IllegalOpcodeException(this);
-		case sb:    store(s, imm, Type.BYTE, t); break;
-		case sh:    store(s, imm, Type.HALF, t >>> 16); break;
+		case sb:    store(s + imm, Type.BYTE, t); break;
+		case sh:    store(s + imm, Type.HALF, t >>> 16); break;
 		case swl:   throw new IllegalOpcodeException(this);
-		case sw:    store(s, imm, Type.WORD, t); break;
+		case sw:    store(s + imm, Type.WORD, t); break;
 		case swr:   throw new IllegalOpcodeException(this);
 		default:    throw new IllegalOpcodeException(this);
 		}
