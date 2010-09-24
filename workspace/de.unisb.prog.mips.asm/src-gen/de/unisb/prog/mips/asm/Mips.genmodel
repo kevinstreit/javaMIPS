@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/de.unisb.prog.mips.asm/src-gen"
+    editDirectory="/de.unisb.prog.mips.asm.edit/src" editorDirectory="/de.unisb.prog.mips.asm.editor/src"
+    modelPluginID="de.unisb.prog.mips.asm" forceOverwrite="true" modelName="Mips"
+    updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    complianceLevel="5.0" copyrightFields="false" editPluginID="de.unisb.prog.mips.asm.edit"
+    editorPluginID="de.unisb.prog.mips.asm.editor">
+  <genPackages prefix="Mips" basePackage="de.unisb.prog.mips.asm" disposableProviderFactory="true"
+      ecorePackage="Mips.ecore#/">
+    <genClasses ecoreClass="Mips.ecore#//Asm">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//Asm/elem"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//TextSegment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//TextSegment/items"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//TextItem">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//TextItem/Label"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//TextItem/item"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Instruction">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Instruction/opcode"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//Instruction/form"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//RForm">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//RForm/rt"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//RForm/rs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//RForm/rd"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//RForm/shamt"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//IArithForm">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//IArithForm/rt"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//IArithForm/rs"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//IArithForm/imm"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//IExpForm">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//IExpForm/rt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//IExpForm/imm"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//IExpForm/rs"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//ILabelForm">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//ILabelForm/reg"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Mips.ecore#//ILabelForm/label"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//IBr2Form">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//IBr2Form/rt"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//IBr2Form/rs"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Mips.ecore#//IBr2Form/label"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//BExpForm">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//BExpForm/addr"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//BLabelForm">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Mips.ecore#//BLabelForm/label"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//SpecialInsn">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//SpecialInsn/insn"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//LoadConstant">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//LoadConstant/rt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//LoadConstant/val"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//LoadAddress">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//LoadAddress/rt"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Mips.ecore#//LoadAddress/label"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Reg">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Reg/num"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Reg/name"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//DataSegment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//DataSegment/items"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//DataItem">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//DataItem/label"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//DataItem/data"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//DataDecl">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//DataDecl/item"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Label">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Label/name"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Align">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Align/align"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Space">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Space/bytes"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Word">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//Word/val"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Half">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//Half/val"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Byte">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Mips.ecore#//Byte/val"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//Str">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//Str/val"/>
+    </genClasses>
+    <genClasses ecoreClass="Mips.ecore#//IntList">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Mips.ecore#//IntList/vals"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
