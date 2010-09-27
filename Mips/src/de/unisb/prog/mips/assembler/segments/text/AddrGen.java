@@ -29,7 +29,7 @@ public abstract class AddrGen<T extends Expr<Integer>> extends Insn {
 		int imm;
 		int rs;
 		
-		if (Encode.immFitsI(value)) {
+		if (Encode.immFitsISign(value)) {
 			imm = value;
 			rs  = base.ordinal();
 		}

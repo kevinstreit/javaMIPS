@@ -47,17 +47,15 @@ public class Encode {
 		return (insn & ~mask) | (value & mask);
 	}
 	
-	private static boolean immFits(int value, int fieldWidth) {
-		int pos = (1 << (fieldWidth - 1)) - 1;
-		int neg = -pos - 1;
-		return value >= neg && value <= pos;
+	public static boolean immFitsISign(int value) {
+		return value >= -32768 && value <= 32767;
 	}
 	
-	public static boolean immFitsI(int value) {
-		return immFits(value, 16);
+	public static boolean immFitsIZero(int value) {
+		return value >= 0 && value < 65536;
 	}
 	
 	public static boolean immFitsJ(int value) {
-		return value >= 0 && value < ((1 << 26) - 1);
+		return value >= 0 && value < (1 << 26);
 	}
 }

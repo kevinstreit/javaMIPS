@@ -24,7 +24,7 @@ class RelJump extends LabelRefInsn {
 			throw new JumpTargetNotAligned();
 		
 		int rel = (getOffset() - labelOffset) >>> 2;
-		if (! Encode.immFitsI(rel))
+		if (! Encode.immFitsISign(rel))
 			throw new JumpTargetOutOfRange();
 		
 		word = Encode.setImmI(word, rel);
