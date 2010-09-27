@@ -98,5 +98,10 @@ public enum Opcode implements Instruction {
 	public Set<Attribute> attributes() {
 		return attributes;
 	}
+
+	@Override
+	public boolean valid() {
+		return Instructions.valid(this);
+	}
 	
 }

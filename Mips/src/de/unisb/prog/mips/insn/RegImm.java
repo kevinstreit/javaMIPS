@@ -55,4 +55,9 @@ public enum RegImm implements Instruction {
 	public Set<Attribute> attributes() {
 		return BRANCH0;
 	}
+
+	@Override
+	public boolean valid() {
+		return Instructions.valid(this);
+	}
 }

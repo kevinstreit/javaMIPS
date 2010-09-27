@@ -1,15 +1,19 @@
 package de.unisb.prog.mips.insn;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Instructions {
 	
-	private static final Map<String, Instruction> INSN = new HashMap<String, Instruction>();
+	private static final Instruction INVALID = new Instruction() {
+		@Override public boolean has(Attribute attr) { return false; }
+		@Override public Set<Attribute> attributes() { return EnumSet.noneOf(Attribute.class); }
+		@Override public boolean valid() { return false; }
+	};
 	
-	private static final <T extends Enum<?>> boolean valid(T x) {
-		return x.name().charAt(0) != '_';
-	}
+	private static final Map<String, Instruction> INSN = new HashMap<String, Instruction>();
 	
 	private static <T extends Enum<T> & Instruction> void add(Class<T> cls) {
 		for (T x : cls.getEnumConstants())
@@ -23,8 +27,13 @@ public class Instructions {
 		add(RegImm.class);
 	}
 	
+	static <T extends Enum<T>> boolean valid(T op) {
+		return op.name().charAt(0) != '_';
+	}
+	
 	public static Instruction get(String name) {
-		return INSN.get(name);
+		Instruction insn = INSN.get(name);
+		return insn != null ? insn : INVALID;
 	}
 	
 

@@ -93,4 +93,9 @@ public enum IntFunct implements Instruction {
 		return attributes;
 	}
 
+	@Override
+	public boolean valid() {
+		return Instructions.valid(this);
+	}
+
 }
