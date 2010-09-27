@@ -1,0 +1,54 @@
+grammar de.unisb.prog.Mips with org.eclipse.xtext.common.Terminals
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore 
+generate mips "http://www.unisb.de/prog/Mips"
+
+
+Asm hidden(WS, COMMENT): (elem+=DataSegment | elem+=TextSegment);
+TextSegment:      ".text" {TextSegment} (items+=TextItem)* ;
+TextItem:         Label=(Label)? item=(Insn | SpecialInsn | Align | Word) ;
+
+Insn:           form=(RForm | IArithForm | IExpForm | ILabelForm | IBr2Form | JExpForm | JLabelForm);
+	
+RForm:          opcode=ID rd=Reg rs=Reg rt=Reg;
+	
+IArithForm:     opcode=ID rt=Reg rs=Reg imm=PNInt;
+IExpForm:       opcode=ID rt=Reg imm=PNInt '(' rs=Reg ')';
+ILabelForm:     opcode=ID reg=Reg label=[Label];
+IBr2Form:       opcode=ID rt=Reg rs=Reg label=[Label];
+
+JExpForm:       opcode=ID addr=INT;
+JLabelForm:     opcode=ID label=[Label];
+	
+SpecialInsn: insn=(LoadAddress | LoadConstant);
+	
+LoadConstant : "li" rt=Reg val=INT;
+LoadAddress  : "la" rt=Reg label=[Label];
+	
+Reg: '$' (num=INT | name=ID);
+	
+	
+DataSegment: ".data" {DataSegment} (items+=DataItem)* ;
+
+DataItem: label=(Label)? data=DataDecl;
+	
+DataDecl
+	: item=(Str
+	| Align
+	| Space
+	| Byte
+	| Half 
+	| Word);
+	
+Label:       ^name=ID ':' ;
+Align:       ".align" (align=INT) ;
+Space:       ".space" (bytes=INT);
+Word:        ".word" val=IntList ;
+Half:        ".half" val=IntList ;
+Byte:        ".byte" val=IntList ;
+Str:         (".asciiz" | ".ascii") val=STRING;
+
+IntList:     vals+=PNInt (',' vals+=PNInt)*;
+PNInt returns ecore::EInt:       ('-')? INT;
+	
+terminal COMMENT  : ';' !('\n'|'\r')* ('\r'? '\n')? ;
+	
