@@ -88,4 +88,9 @@ public enum IntFunct implements Instruction {
 		return attributes.contains(attr);
 	}
 
+	@Override
+	public Set<Attribute> attributes() {
+		return attributes;
+	}
+
 }

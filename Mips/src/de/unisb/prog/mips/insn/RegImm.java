@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.insn;
 
+import java.util.Set;
+
 import de.unisb.prog.mips.simulator.Type;
 
 public enum RegImm implements Instruction {
@@ -46,6 +48,11 @@ public enum RegImm implements Instruction {
 	
 	@Override
 	public boolean has(Attribute attr) {
-		return BRANCH.contains(attr);
+		return BRANCH0.contains(attr);
+	}
+
+	@Override
+	public Set<Attribute> attributes() {
+		return BRANCH0;
 	}
 }

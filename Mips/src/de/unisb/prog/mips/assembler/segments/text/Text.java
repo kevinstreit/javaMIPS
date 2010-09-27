@@ -20,6 +20,10 @@ public class Text extends Segment {
 	private final List<RelJump> relJumps = new LinkedList<RelJump>();
 	private final List<AbsJump> absJumps = new LinkedList<AbsJump>();
 	
+	public Element word(int w) {
+		return add(new Normal(w));
+	}
+	
 	public Element normal(IntFunct f, Reg rs, Reg rt, Reg rd, int shamt) {
 		return add(new Normal(Encode.r(f, rs.ordinal(), rt.ordinal(), rd.ordinal(), shamt)));
 	}
@@ -102,4 +106,5 @@ public class Text extends Segment {
 		assignOffsets(l.textStartOffset());
 		rewriteRelJumps();
 	}
+
 }

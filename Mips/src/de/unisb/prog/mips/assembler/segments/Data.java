@@ -1,9 +1,12 @@
 package de.unisb.prog.mips.assembler.segments;
 
+import java.util.Collections;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.Reg;
+import de.unisb.prog.mips.assembler.segments.text.Constant;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Data extends Segment {
@@ -20,12 +23,13 @@ public class Data extends Segment {
 		return add(new Space(bytes, Reg.gp));
 	}
 	
-	public Element align(int powerOfTwo) {
-		return add(new Align(powerOfTwo, Reg.gp));
+	@Override
+	protected void relocate(int startAddress) {
 	}
 
 	@Override
-	protected void relocate(int startAddress) {
+	public Element word(int w) {
+		return values(Collections.singletonList(Expressions.constantInt(w)), Type.WORD);
 	}
 
 }

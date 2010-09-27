@@ -58,6 +58,6 @@ public class Encode {
 	}
 	
 	public static boolean immFitsJ(int value) {
-		return immFits(value, 26);
+		return value >= 0 && value < ((1 << 26) - 1);
 	}
 }

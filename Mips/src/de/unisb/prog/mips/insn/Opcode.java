@@ -9,8 +9,8 @@ public enum Opcode implements Instruction {
 	
 	/* 00 */ special,
 	/* 01 */ regimm,
-	/* 02 */ j,
-	/* 03 */ jal,
+	/* 02 */ j(JUMP),
+	/* 03 */ jal(JUMP),
 	/* 04 */ beq,
 	/* 05 */ bne,
 	/* 06 */ blez, 
@@ -92,6 +92,11 @@ public enum Opcode implements Instruction {
 	@Override
 	public boolean has(Attribute attr) {
 		return attributes.contains(attr);
+	}
+
+	@Override
+	public Set<Attribute> attributes() {
+		return attributes;
 	}
 	
 }
