@@ -9,5 +9,6 @@ public enum Attribute {
 	ZEXT_IMM_16,
 	ZEXT_IMM_26,
 	SHAMT,
+	LOAD_STORE,
 	HALT,
 }
