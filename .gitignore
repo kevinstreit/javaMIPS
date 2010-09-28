@@ -1,3 +1,6 @@
 .metadata
+de.unisb.prog.mips.core/bin
 de.unisb.prog.mips.parser/src-gen
+de.unisb.prog.mips.parser/bin
 de.unisb.prog.mips.parser.ui/src-gen
+de.unisb.prog.mips.parser.ui/bin
