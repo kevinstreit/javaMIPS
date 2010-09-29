@@ -1,8 +1,11 @@
 package de.unisb.prog.mips.parser.ui;
 
+import java.net.URL;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
@@ -58,6 +61,8 @@ public class NewMIPSProjectWizard extends Wizard implements INewWizard {
 		pageOne = new WizardNewProjectCreationPage("New MIPS Project");
 		pageOne.setTitle("MIPS Project");
 		pageOne.setDescription("Create a new MIPS project.");
+		
+		pageOne.setImageDescriptor(ImageDescriptor.createFromFile(getClass(), "/icons/wzrdHd/newmipsprj_wiz.png"));
 		
 		addPage(pageOne);
 	}

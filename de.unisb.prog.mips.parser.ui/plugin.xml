@@ -189,9 +189,18 @@
       <wizard
             category="de.unisb.prog.mips.parser.ui.mipsCategory"
             class="de.unisb.prog.mips.parser.ui.NewMIPSProjectWizard"
+            icon="icons/icn/newmipsprj_wiz.gif"
             id="de.unisb.prog.mips.parser.ui.mipsProjectWizard"
             name="MIPS Project"
             project="true">
+      </wizard>
+      <wizard
+            category="de.unisb.prog.mips.parser.ui.mipsCategory"
+            class="de.unisb.prog.mips.parser.ui.NewMIPSFileWizard"
+            icon="icons/icn/newmipsfile_wiz.gif"
+            id="de.unisb.prog.mips.parser.ui.mipsFileWizard"
+            name="MIPS File"
+            project="false">
       </wizard>
    </extension>
 
