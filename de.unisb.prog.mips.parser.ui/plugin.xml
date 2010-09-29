@@ -180,5 +180,19 @@
             class="de.unisb.prog.mips.parser.ui.MipsExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator">
       </markerResolutionGenerator>
    </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="de.unisb.prog.mips.parser.ui.mipsCategory"
+            name="MIPS">
+      </category>
+      <wizard
+            category="de.unisb.prog.mips.parser.ui.mipsCategory"
+            class="de.unisb.prog.mips.parser.ui.NewMIPSProjectWizard"
+            id="de.unisb.prog.mips.parser.ui.mipsProjectWizard"
+            name="MIPS Project"
+            project="true">
+      </wizard>
+   </extension>
 
 </plugin>
