@@ -203,5 +203,58 @@
             project="false">
       </wizard>
    </extension>
+  
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.unisb.prog.mips.parser.ui.executablemipsshortcut.run"
+            name="name">
+      </command>
+   </extension> <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="de.unisb.prog.mips.parser.ui.launching.ExecutableMIPSShortcut"
+            id="de.unisb.prog.mips.parser.ui.executablemipsshortcut"
+            label="MIPS Application"
+            modes="run,debug">
+         <contextualLaunch>
+            <enablement>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <test
+                           property="de.unisb.prog.mips.parser.ui.launching.isFileExecutable">
+                     </test>
+                  </iterate>
+               </with>
+            </enablement>
+            <contextLabel
+                  label="MIPS Application"
+                  mode="run">
+            </contextLabel>
+         </contextualLaunch>
+      </shortcut>
+      </extension>
+   <extension point="org.eclipse.ui.commands">
+      <command
+            category="org.eclipse.debug.ui.category.run"
+            description="Run a MIPS file"
+            id="de.unisb.prog.mips.parser.ui.launching.run"
+            name="Run MIPS">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="de.unisb.prog.mips.parser.ui.launching.PropertyTester"
+            id="de.unisb.prog.mips.parser.ui.launching.propertyTester"
+            namespace="de.unisb.prog.mips.parser.ui.launching"
+            properties="isFileExecutable"
+            type="org.eclipse.core.runtime.IAdaptable">
+      </propertyTester>
+   </extension>
 
 </plugin>
