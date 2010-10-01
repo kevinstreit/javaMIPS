@@ -8,7 +8,7 @@ public class PropertyTester extends org.eclipse.core.expressions.PropertyTester 
 
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-		System.out.println("PropTester test");
+		System.out.println("PropTester test: " + receiver.getClass().getCanonicalName());
 		return true;
 	}
 
