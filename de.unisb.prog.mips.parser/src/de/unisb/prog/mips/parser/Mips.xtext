@@ -1,25 +1,14 @@
-grammar de.unisb.prog.mips.parser.Mips with org.eclipse.xtext.common.Terminals
+grammar de.unisb.prog.mips.parser.Mips // with org.eclipse.xtext.common.Terminals
 
 generate mips "http://www.unisb.de/prog/mips/parser/Mips"
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore 
 
+Asm hidden(COMMENT,WHITE,NL):  (elem+=DataSegment | elem+=TextSegment)*;
+TextSegment:      ".text" (items+=TextItem)+ ;
+TextItem :  (label=Label)? item=(Insn | Align | Word);
 
-Asm hidden(WHITE, COMMENT): (elem+=DataSegment | elem+=TextSegment)*;
-TextSegment:      ".text"  NL (items+=TextItem)+ ;
-TextItem:         Label=(Label)? (NL)? item=(Insn | Align | Word) NL;
-
-Insn:           form=(RForm | IArithForm | IAddrForm | IBranchForm | JExpForm | JLabelForm | SyscallForm);
-	
-RForm:          opcode=ID rd=Reg rs=Reg rt=Reg;
-	
-IArithForm:     opcode=ID rt=Reg rs=Reg imm=PNInt;
-IAddrForm:      opcode=ID rt=Reg addr=Addr ('(' rs=Reg ')')?;
-IBranchForm:    opcode=ID rt=Reg rs=Reg label=[Label];
-
-JExpForm:       opcode=ID addr=INT;
-JLabelForm:     opcode=ID label=[Label];
-SyscallForm:    opcode=ID;
+Insn hidden(COMMENT,WHITE):    opcode=ID (regs+=Reg)* (addr=Addr ('(' base=Reg ')')?)? NL;
 	
 Reg: (INTREG | TXTREG);
 
@@ -28,9 +17,9 @@ CExpr returns Expression: Mult (({Plus.left=current} '+'| {Minus.left=current} '
 Mult  returns Expression: Prim (({Mul.left=current} '*' {Shr.left=current} ">>" | {Shl.left=current} "<<") right=Prim)*;
 Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
-DataSegment: ".data" NL {DataSegment} (items+=DataItem)* ;
+DataSegment: ".data" (items+=DataItem)+ ;
 
-DataItem: label=(Label)? data=DataDecl NL;
+DataItem: label=(Label)? data=DataDecl;
 	
 DataDecl
 	: item=(Str
@@ -53,8 +42,12 @@ PNInt returns ecore::EInt:       ('-')? INT;
 	
 terminal INTREG   : '$' ('0'..'9')+;
 terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;
-terminal COMMENT  : (';'|'#') !('\n'|'\r')* ('\r'? '\n')* ;
+terminal COMMENT  : (';'|'#') !('\n'|'\r')* ('\r'? '\n') ;
 terminal WHITE    : (' '|'\t')+;
-terminal NL       : (('\r'|'\n') WHITE*)+;
+terminal NL       : ('\r'|'\n')+;
 
+terminal ID       : '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
+terminal INT returns ecore::EInt: ('0'..'9')+;
+terminal STRING	  : '"' ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|'"') )* '"' 
+                  | "'" ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|"'") )* "'" ; 
 	
