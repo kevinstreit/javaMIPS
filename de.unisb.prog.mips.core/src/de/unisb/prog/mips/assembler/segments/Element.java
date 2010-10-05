@@ -6,7 +6,6 @@ import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.LabelRef;
-import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Element extends ListItem<Element, Element.Root> implements Expr {
