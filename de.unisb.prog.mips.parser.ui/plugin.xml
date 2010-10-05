@@ -203,14 +203,7 @@
             project="false">
       </wizard>
    </extension>
-  
    <extension
-         point="org.eclipse.ui.commands">
-      <command
-            id="de.unisb.prog.mips.parser.ui.executablemipsshortcut.run"
-            name="name">
-      </command>
-   </extension> <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="de.unisb.prog.mips.parser.ui.launching.ExecutableMIPSShortcut"
