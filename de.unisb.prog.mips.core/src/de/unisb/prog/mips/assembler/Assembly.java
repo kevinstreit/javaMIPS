@@ -1,20 +1,19 @@
 package de.unisb.prog.mips.assembler;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
+import de.unisb.prog.mips.insn.Instruction;
+import de.unisb.prog.mips.insn.Instructions;
 import de.unisb.prog.mips.simulator.Memory;
 
 public class Assembly {
 	
-	private Text text = new Text();
-	private Data data = new Data();
-	
-	private Map<String, LabelRef> refs = new HashMap<String, LabelRef>();
+	private Text text = new Text(this);
+	private Data data = new Data(this);
+	private Scope currScope = new Scope();
 	
 	public Text getText() {
 		return text;
@@ -24,25 +23,7 @@ public class Assembly {
 		return data;
 	}
 	
-	public LabelRef createLabelRef(String name) {
-		LabelRef r = refs.get(name);
-		if (r == null) {
-			r = new LabelRef(name);
-			refs.put(name, r);
-		}
-		return r;
-	}
-	
 	public void prepare(MemoryLayout layout) throws AssemblerException {
-		// connect label references to labels
-		Map<String, Element> labels = new HashMap<String, Element>();
-		data.collectLabels(labels);
-		text.collectLabels(labels);
-		
-		for (LabelRef r : refs.values()) {
-			r.patch(labels);
-		}
-		
 		data.assignOffsets(layout.dataStartOffset());
 		
 		// rewrite instructions using an address 
@@ -60,5 +41,17 @@ public class Assembly {
 		data.append(app);
 		app.append(".text\n");
 		text.append(app);
+	}
+	
+	public void addLabel(Element e) {
+		currScope.add(e.getLabel(), e);
+	}
+
+	public LabelRef createRef(String name) {
+		return currScope.createRef(name);
+	}
+	
+	public Instruction parse(String mnemonic) {
+		return Instructions.get(mnemonic);
 	}
 }

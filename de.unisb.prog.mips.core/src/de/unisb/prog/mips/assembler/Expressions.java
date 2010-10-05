@@ -42,6 +42,8 @@ public class Expressions {
 			right.append(app);
 		}
 	}
+
+	public static final Expr ZERO = constantInt(0);
 	
 	public static Expr binary(IntOp op, Expr left, Expr right) {
 		return new IntBinOp(op, left, right);
