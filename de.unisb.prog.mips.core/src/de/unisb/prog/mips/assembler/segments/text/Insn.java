@@ -13,7 +13,7 @@ class Insn extends Element {
 	protected int word;
 	
 	Insn(int word) {
-		super(Reg.zero);
+		super(Reg.zero, true);
 		this.word = word;
 	}
 

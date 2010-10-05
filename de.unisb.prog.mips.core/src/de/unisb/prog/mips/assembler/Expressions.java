@@ -19,18 +19,18 @@ public class Expressions {
 		public abstract int op(int a, int b);
 	}
 	
-	private static class IntBinOp implements Expr<Integer> {
+	private static class IntBinOp implements Expr {
 		private final IntOp op;
-		private final Expr<Integer> left, right;
+		private final Expr left, right;
 		
-		IntBinOp(IntOp op, Expr<Integer> left, Expr<Integer> right) {
+		IntBinOp(IntOp op, Expr left, Expr right) {
 			this.op = op;
 			this.left = left;
 			this.right = right;
 		}
 
 		@Override
-		public Integer eval() {
+		public int eval() {
 			return op.op(left.eval(), right.eval());
 		}
 
@@ -43,14 +43,14 @@ public class Expressions {
 		}
 	}
 	
-	public static Expr<Integer> binary(IntOp op, Expr<Integer> left, Expr<Integer> right) {
+	public static Expr binary(IntOp op, Expr left, Expr right) {
 		return new IntBinOp(op, left, right);
 	}
 	
-	public static Expr<Integer> constantInt(final int val) {
-		return new Expr<Integer>() {
+	public static Expr constantInt(final int val) {
+		return new Expr() {
 			@Override
-			public Integer eval() {
+			public int eval() {
 				return val;
 			}
 

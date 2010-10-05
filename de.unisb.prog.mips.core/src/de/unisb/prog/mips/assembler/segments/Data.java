@@ -1,17 +1,14 @@
 package de.unisb.prog.mips.assembler.segments;
 
-import java.util.Collections;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.Reg;
-import de.unisb.prog.mips.assembler.segments.text.Constant;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Data extends Segment {
 
-	public Element values(List<Expr<Integer>> vals, Type tp) {
+	public Element values(List<Expr> vals, Type tp) {
 		return add(new Values(vals, tp));
 	}
 	
@@ -20,16 +17,11 @@ public class Data extends Segment {
 	}
 	
 	public Element space(int bytes) {
-		return add(new Space(bytes, Reg.gp));
+		return add(new Space(bytes, Reg.gp, false));
 	}
 	
 	@Override
 	protected void relocate(int startAddress) {
-	}
-
-	@Override
-	public Element word(int w) {
-		return values(Collections.singletonList(Expressions.constantInt(w)), Type.WORD);
 	}
 
 }

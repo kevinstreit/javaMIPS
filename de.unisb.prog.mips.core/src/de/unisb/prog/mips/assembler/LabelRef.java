@@ -5,7 +5,7 @@ import java.util.Map;
 
 import de.unisb.prog.mips.assembler.segments.Element;
 
-public class LabelRef implements Expr<Integer> {
+public class LabelRef implements Expr {
 	private Element elm;
 	private String name;
 	
@@ -31,9 +31,19 @@ public class LabelRef implements Expr<Integer> {
 	public Element getElement() {
 		return elm;
 	}
+	
+	void connectToElement(Element elm) {
+		assert elm != null;
+		this.elm = elm;
+		elm.addReferrer(this);
+	}
+	
+	String getLabel() {
+		return name;
+	}
 
 	@Override
-	public Integer eval() {
+	public int eval() {
 		return elm.getOffset();
 	}
 

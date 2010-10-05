@@ -39,11 +39,6 @@ public abstract class Segment implements Iterable<Element> {
 		}
 	}
 	
-	public final Element align(int powerOfTwo) {
-		return add(new Align(powerOfTwo, Reg.zero));
-	}
-	
-	public abstract Element word(int w);
 	protected abstract void relocate(int startAddress);
 
 	@Override

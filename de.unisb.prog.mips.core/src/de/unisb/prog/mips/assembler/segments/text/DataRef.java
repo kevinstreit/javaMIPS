@@ -1,13 +1,13 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
-import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Address;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.insn.Opcode;
 
-public class DataRef extends AddrGen<Expr<Integer>> {
+public class DataRef extends AddrGen {
 	
-	DataRef(Opcode opc, Reg rt, Expr<Integer> e) {
-		super(opc, rt, e);
+	DataRef(Opcode opc, Reg rt, Address addr) {
+		super(opc, rt, addr);
 	}
 	
 	protected void rewrite() {

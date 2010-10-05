@@ -9,8 +9,8 @@ public class Align extends Element {
 	
 	private final int powerOfTo;
 	
-	public Align(int powerOfTo, Reg relative) {
-		super(relative);
+	public Align(int powerOfTo, Reg relative, boolean text) {
+		super(relative, text);
 		this.powerOfTo = powerOfTo;
 	}
 

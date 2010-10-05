@@ -9,21 +9,23 @@ import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
-public abstract class Element extends ListItem<Element, Element.Root> implements Expr<Integer> {
+public abstract class Element extends ListItem<Element, Element.Root> implements Expr {
 	
 	public static class Root extends Element implements Iterable<Element> {
-		Root() { super (Reg.zero); }
+		Root() { super (Reg.zero, false); }
 		@Override public int nextElementOffset(int pos) { return pos; }
 		@Override public void writeToMem(Memory mem, int addr) { } 
 		@Override protected void appendInternal(Appendable app) throws IOException { }
 	}
 	
+	private final boolean text;
 	private final Reg relative;
 	private int offset;
 	private String label = "";
 	private List<LabelRef> referers = null;
 	
-	protected Element(Reg relative) {
+	protected Element(Reg relative, boolean text) {
+		this.text = text;
 		this.relative = relative;
 	}
 
@@ -47,7 +49,7 @@ public abstract class Element extends ListItem<Element, Element.Root> implements
 		return label;
 	}
 	
-	public Integer eval() {
+	public int eval() {
 		return getOffset();
 	}
 	
@@ -79,6 +81,10 @@ public abstract class Element extends ListItem<Element, Element.Root> implements
 	
 	public Reg relativeTo() {
 		return relative;
+	}
+	
+	public boolean isText() {
+		return text;
 	}
 	
 	protected abstract void appendInternal(Appendable app) throws IOException;

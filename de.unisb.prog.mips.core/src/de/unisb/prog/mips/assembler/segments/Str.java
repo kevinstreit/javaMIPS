@@ -11,7 +11,7 @@ public class Str extends Element {
 	private final boolean zeroTerminate;
 	
 	public Str(String str, boolean zeroTerminate) {
-		super(Reg.gp);
+		super(Reg.gp, false);
 		this.str = str;
 		this.zeroTerminate = zeroTerminate;
 	}
