@@ -11,7 +11,7 @@ public class Space extends Element {
 	private final int bytes;
 
 	public Space(int bytes, Reg relative, boolean text) {
-		super(relative, text);
+		super(text);
 		this.bytes = bytes;
 	}
 

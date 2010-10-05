@@ -2,14 +2,13 @@ package de.unisb.prog.mips.assembler.segments.text;
 
 import java.io.IOException;
 
-import de.unisb.prog.mips.assembler.LabelRef;
-import de.unisb.prog.mips.insn.Opcode;
+import de.unisb.prog.mips.assembler.Address;
 
 abstract class LabelRefInsn extends Insn {
 	
-	protected final LabelRef ref;
+	protected final Address ref;
 	
-	LabelRefInsn(int word, LabelRef ref) {
+	LabelRefInsn(int word, Address ref) {
 		super(word);
 		this.ref = ref;
 	}

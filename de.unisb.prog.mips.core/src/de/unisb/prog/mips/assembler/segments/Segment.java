@@ -4,12 +4,21 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import de.unisb.prog.mips.assembler.Reg;
+import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Segment implements Iterable<Element> {
 	
 	private final Element.Root root = Element.createRoot();
+	private final Assembly assembly;
+	
+	protected Segment(Assembly asm) {
+		this.assembly = asm;
+	}
+	
+	public final Assembly getAssembly() {
+		return assembly;
+	}
 	
 	protected final Element add(Element e) {
 		root.prepend(e);

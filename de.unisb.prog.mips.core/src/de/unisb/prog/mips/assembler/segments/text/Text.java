@@ -3,20 +3,26 @@ package de.unisb.prog.mips.assembler.segments.text;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.unisb.prog.mips.assembler.Address;
+import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.MemoryLayout;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
-import de.unisb.prog.mips.insn.Encode;
-import de.unisb.prog.mips.insn.IntFunct;
+import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.Opcode;
-import de.unisb.prog.mips.insn.RegImm;
+import de.unisb.prog.mips.util.Option;
 
 public class Text extends Segment {
 	
-	private final List<AddrGen<?>> addrGenInsns = new LinkedList<AddrGen<?>>();
+	public Text(Assembly asm) {
+		super(asm);
+	}
+
+	private final List<ImmGen<?>> immGenInsns = new LinkedList<ImmGen<?>>();
 	private final List<RelJump> relJumps = new LinkedList<RelJump>();
 	private final List<AbsJump> absJumps = new LinkedList<AbsJump>();
 	
@@ -24,69 +30,72 @@ public class Text extends Segment {
 		return add(new Normal(w));
 	}
 	
-	public Element normal(IntFunct f, Reg rs, Reg rt, Reg rd, int shamt) {
-		return add(new Normal(Encode.r(f, rs.ordinal(), rt.ordinal(), rd.ordinal(), shamt)));
+	public Element normal(Instruction f, Reg rs, Reg rt, Reg rd, int shamt) {
+		int word = f.encodeOpcodeInto(0);
+		word = rd.encodeInto(word, Instruction.FIELD_RD);
+		word = rs.encodeInto(word, Instruction.FIELD_RS);
+		word = rt.encodeInto(word, Instruction.FIELD_RT);
+		return add(new Normal(word));
 	}
 	
-	public Element imm(Opcode opc, Reg rs, Reg rt, int imm) {
-		return add(new Normal(Encode.i(opc, rs.ordinal(), rt.ordinal(), imm)));
+	public Element imm(Instruction i, Reg rs, Reg rt, int imm) {
+		int word = i.encodeOpcodeInto(0);
+		word = rs.encodeInto(word, Instruction.FIELD_RS);
+		word = rt.encodeInto(word, Instruction.FIELD_RT);
+		word = Instruction.FIELD_IMM.insert(word, imm);
+		return add(new Normal(word));
 	}
 	
-	public Element constant(Reg rt, int value) {
-		AddrGen<?> e = new Constant(rt, value);
-		addrGenInsns.add(e);
+	public Element address(Reg rt, Address addr) {
+		return address(rt, new Option<Reg>(Reg.gp), addr);
+	
+	}
+	public Element address(Reg rt, Option<Reg> reg, Address addr) {
+		ImmGen<?> e = new LoadAddress(rt, reg, addr);
+		immGenInsns.add(e);
+		add(e);
+		return e;
+	}
+	
+	public Element constant(Reg rt, int val) {
+		return constant(rt, Expressions.constantInt(val));
+	}
+
+	public Element constant(Reg rt, Expr expr) {
+		ImmGen<?> e = new Constant(rt, expr);
+		immGenInsns.add(e);
 		add(e);
 		return e;
 	}
 
-	public Element address(Reg rt, LabelRef ref) {
-		AddrGen<?> e = new Address(rt, ref);
-		addrGenInsns.add(e);
-		add(e);
-		return e;
-	}
-
-	public Element constant(Reg rt, Expr<Integer> exp) {
-		AddrGen<?> e = new Constant(rt, exp);
-		addrGenInsns.add(e);
-		add(e);
-		return e;
-	}
-
-	public Element loadstore(Opcode opc, Reg rt, Expr<Integer> e) {
-		DataRef dr = new DataRef(opc, rt, e);
+	public Element loadstore(Opcode opc, Reg rt, Option<Reg> base, Address addr) {
+		DataRef dr = new DataRef(opc, rt, base, addr);
 		add(dr);
-		addrGenInsns.add(dr);
+		immGenInsns.add(dr);
 		return dr;
 	}
 
-	public Element condjump(Opcode opc, Reg rs, Reg rt, LabelRef e) {
+	public Element condjump(Instruction opc, Reg rs, Reg rt, Address e) {
 		RelJump rj = new RelJump(opc, rs, rt, e);
 		add(rj);
 		relJumps.add(rj);
 		return rj;
 	}
 
-	public Element condjump(Opcode opc, Reg rs, LabelRef e) {
+	public Element condjump(Instruction opc, Reg rs, Address e) {
 		return condjump(opc, rs, Reg.zero, e);
 	}
-
-	public Element condjump(RegImm ri, Reg rs, LabelRef e) {
-		RelJump rj = new RelJump(ri, rs, e);
-		add(rj);
-		relJumps.add(rj);
-		return rj;
-	}
 	
-	public Element absjump(Opcode opc, LabelRef exp) {
+	public Element absjump(Instruction opc, LabelRef exp) {
 		AbsJump aj = new AbsJump(opc, exp);
 		add(aj);
 		absJumps.add(aj);
 		return aj;
 	}
 	
+	
 	private void rewriteDataInsns() {
-		for (AddrGen<?> i : addrGenInsns) 
+		for (ImmGen<?> i : immGenInsns) 
 			i.rewrite();
 	}
 	

@@ -1,20 +1,18 @@
 package de.unisb.prog.mips.insn;
 
-import java.util.EnumSet;
-import java.util.Set;
 
 public enum IntFunct implements Instruction {
 	
-	/* 00 */ sll(EnumSet.of(Attribute.SHAMT)),
+	/* 00 */ sll(Kind.SHAMT),
 	/* 01 */ _01,
-	/* 02 */ srl(EnumSet.of(Attribute.SHAMT)),
-	/* 03 */ sra(EnumSet.of(Attribute.SHAMT)),
+	/* 02 */ srl(Kind.SHAMT),
+	/* 03 */ sra(Kind.SHAMT),
 	/* 04 */ sllv,
 	/* 05 */ _05,
 	/* 06 */ srlv,
 	/* 07 */ srav,
-	/* 08 */ jr(JUMP),
-	/* 09 */ jalr(JUMP),
+	/* 08 */ jr(Kind.INDIR_JUMP),
+	/* 09 */ jalr(Kind.INDIR_JUMP),
 	/* 0a */ movz,
 	/* 0b */ movn,
 	/* 0c */ syscall,
@@ -73,29 +71,58 @@ public enum IntFunct implements Instruction {
 	/* 3e */ _3e,
 	/* 3f */ _3f;
 	
-	private final Set<Attribute> attributes;
+	private final Kind kind;
 	
 	private IntFunct() {
-		this(REG);
+		this(Kind.THREE_REG);
 	}
-
-	private IntFunct(Set<Attribute> attr) {
-		this.attributes = attr;
-	}
-
-	@Override
-	public boolean has(Attribute attr) {
-		return attributes.contains(attr);
-	}
-
-	@Override
-	public Set<Attribute> attributes() {
-		return attributes;
+	
+	private IntFunct(Kind kind) {
+		this.kind = kind;
 	}
 
 	@Override
 	public boolean valid() {
 		return Instructions.valid(this);
 	}
+	
+	@Override
+	public int encodeOpcodeInto(int word) {
+		word = FIELD_OPCODE.insert(word, Opcode.special.ordinal());
+		word = FIELD_INTFUNCT.insert(word, this.ordinal());
+		return word;
+	}
+	
+	public int encode(int rs, int rt, int rd, int shamt) {
+		int word = encodeOpcodeInto(0);
+		word = FIELD_RS.insert(word, rs);
+		word = FIELD_RT.insert(word, rt);
+		word = FIELD_RD.insert(word, rd);
+		word = FIELD_SHAMT.insert(word, shamt);
+		return word;
+	}
 
+	public int encode(int rs, int rt, int rd) {
+		return encode(rs, rt, rd, 0);
+	}
+
+	@Override
+	public Opcode getOpcode() {
+		return Opcode.special;
+	}
+
+	@Override
+	public Kind getKind() {
+		return kind;
+	}
+
+	@Override
+	public Immediate getImmediate() {
+		return Immediate.NO_IMM;
+	}
+
+	@Override
+	public String toString() {
+		return name();
+	}
 }
