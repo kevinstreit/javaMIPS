@@ -1,23 +1,23 @@
 package de.unisb.prog.mips.parser.validation;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.xtext.validation.Check;
 
+import de.unisb.prog.mips.assembler.ErrorReporter;
+import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Expressions;
+import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Reg;
-import de.unisb.prog.mips.insn.Immediate;
-import de.unisb.prog.mips.insn.Instruction;
-import de.unisb.prog.mips.insn.Instructions;
-import de.unisb.prog.mips.insn.IntFunct;
-import de.unisb.prog.mips.insn.Kind;
-import de.unisb.prog.mips.insn.Opcode;
-import de.unisb.prog.mips.parser.mips.IAddrForm;
-import de.unisb.prog.mips.parser.mips.IArithForm;
-import de.unisb.prog.mips.parser.mips.IBranchForm;
+import de.unisb.prog.mips.assembler.generators.Generators;
+import de.unisb.prog.mips.assembler.generators.InstructionGenerator;
+import de.unisb.prog.mips.assembler.generators.OperandInstance;
+import de.unisb.prog.mips.assembler.generators.OperandInstance.Errors;
+import de.unisb.prog.mips.parser.mips.Addr;
+import de.unisb.prog.mips.parser.mips.Insn;
 import de.unisb.prog.mips.parser.mips.MipsPackage;
-import de.unisb.prog.mips.parser.mips.RForm;
+import de.unisb.prog.mips.util.Option;
 
 public class MipsJavaValidator extends AbstractMipsJavaValidator {
 
@@ -31,82 +31,79 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 		JLabelForm:     opcode=ID label=[Label];
 	 */
 	
-	private static final Set<Instruction> IFORM = new HashSet<Instruction>();
+	private static final Option<LabelRef> DUMMY_LABEL_REF = new Option<LabelRef>(LabelRef.NULL);
+	private static final Option<Expr>     DUMMY_EXPR      = new Option<Expr>(Expressions.ZERO);
+	private static final Option<Reg>      DUMMY_REG       = new Option<Reg>(Reg.zero);
 	
+	private final Generators generators = new Generators();
 	
-	
-	
-	static {
-		IFORM.addAll(EnumSet.range(Opcode.addi, Opcode.lui));
-		IFORM.add(IntFunct.sll);
-		IFORM.add(IntFunct.sra);
-		IFORM.add(IntFunct.srl);
-	}
-	
-	@Check
-	public void form(RForm form) {
-		String opc = form.getOpcode();
-		Instruction insn = Instructions.get(opc);
-		checkReg(form.getRd(), MipsPackage.RFORM__RD);
-		checkReg(form.getRs(), MipsPackage.RFORM__RS);
-		checkReg(form.getRt(), MipsPackage.RFORM__RT);
-		if (!insn.valid() || insn.getKind() != Kind.THREE_REG) 
-			error("not a valid R-form instruction: " + opc, MipsPackage.RFORM__OPCODE);
-	}
-	
-	private void checkImmediate(int imm, Instruction insn, Integer feature) {
-		int low = 0, high = 0;
-		if (insn.getKind() == Kind.SHAMT)
-			high = 31;
-		else if (insn.getImmediate() == Immediate.ZEXT_16) 
-			high = 65535;
-		else if (insn.getImmediate() == Immediate.SEXT_16) low = -32768;
-			high = 32767;
-		if (imm < low || imm > high) 
-			error(String.format("immediate out of range: %d..%d", low, high), feature);
-	}
-	
-	@Check
-	public void form(IArithForm form) {
-		String opc = form.getOpcode();
-		Instruction insn = Instructions.get(opc);
-		checkReg(form.getRs(), MipsPackage.IARITH_FORM__RS);
-		checkReg(form.getRt(), MipsPackage.IARITH_FORM__RT);
-		if (!IFORM.contains(insn)) {
-			error("not a valid I-Form arithmetic instruction: " + opc, MipsPackage.IARITH_FORM__OPCODE);
-			return;
+	private final ErrorReporter<OperandInstance.Errors> reporter = new ErrorReporter<OperandInstance.Errors>() {
+		
+		private int getFeature(Errors err) {
+			switch (err) {
+			case BASE_REG: return MipsPackage.INSN__BASE;
+			case EXPR:     return MipsPackage.ADDR__EXPR;
+			case LABEL:    return MipsPackage.ADDR__LABEL;
+			case REG_NO:   return MipsPackage.INSN__REGS;
+			}
+			return MipsPackage.INSN;
 		}
-		checkImmediate(form.getImm(), insn, MipsPackage.IARITH_FORM__IMM);
-	}
+
+		@Override
+		public void error(String msg, Errors arg) {
+			MipsJavaValidator.this.error(msg, getFeature(arg));
+		}
+
+		@Override
+		public void warning(String msg, Errors arg) {
+			MipsJavaValidator.this.warning(msg, getFeature(arg));
+		}
+	};
 	
 	@Check
-	public void form(IAddrForm form) {
-		String opc = form.getOpcode();
-		Instruction insn = Instructions.get(opc);
-		checkReg(form.getRs(), MipsPackage.IADDR_FORM__RS);
-		checkReg(form.getRt(), MipsPackage.IADDR_FORM__RT);
-		if (insn.getKind() != Kind.LOAD_STORE || insn.getOpcode() != Opcode.regimm)
-			error("not a valid I-Form address instruction: " + opc, MipsPackage.IADDR_FORM__OPCODE);
+	public void insn(Insn i) {
+		// System.out.println(i.getOpcode());
+		List<Reg> regs = new ArrayList<Reg>(i.getRegs().size());
+		for (String s : i.getRegs()) {
+			Reg r = checkReg(s, MipsPackage.INSN__REGS);
+			regs.add(r != null ? r : Reg.zero);
+		}
+		
+		Addr a = i.getAddr();
+		
+		Option<LabelRef> label = Option.empty(LabelRef.class);
+		Option<Expr> expr = Option.empty(Expr.class);
+		
+		if (a != null) {
+			System.out.println("addr != null");
+			if (a.getExpr() != null)
+				expr = DUMMY_EXPR;
+			if (a.getLabel() != null)
+				label = DUMMY_LABEL_REF;
+		}
+		
+		Option<Reg> base = Option.empty(Reg.class);
+		if (i.getBase() != null && checkReg(i.getBase(), MipsPackage.INSN__BASE) != null)
+			base = DUMMY_REG;
+		
+		System.out.format("label: %s, expr: %s, base; %s\n", label.isSet(), expr.isSet(), base.isSet());
+		
+		OperandInstance op = new OperandInstance(regs, label, expr, base);
+		InstructionGenerator gen = generators.get(i.getOpcode());
+		// System.out.println(gen.getAddressMode().name());
+		op.check(gen, reporter);
+		// System.out.println();
 	}
 	
-	@Check
-	public void form(IBranchForm form) {
-		String opc = form.getOpcode();
-		Instruction insn = Instructions.get(opc);
-		checkReg(form.getRs(), MipsPackage.IBRANCH_FORM__RS);
-		checkReg(form.getRt(), MipsPackage.IBRANCH_FORM__RT);
-		if (insn.getKind() != Kind.REL_JUMP || insn.getOpcode() == Opcode.regimm)
-			error("not a valid I-Form two register branch instruction: " + opc, MipsPackage.IADDR_FORM__OPCODE);
-	}
-	
-	private void checkReg(String name, int feature) {
+	private Reg checkReg(String name, int feature) {
 		try {
-			Reg.parse(name);
+			return Reg.parse(name);
 		}
 		catch (IllegalArgumentException e) {
 			error(e.getMessage(), feature);
 		}
+		return null;
 	}
-	
+
 
 }

@@ -5,6 +5,7 @@ Bundle-SymbolicName: de.unisb.prog.mips.core
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.unisb.prog.mips.assembler,
+ de.unisb.prog.mips.assembler.generators,
  de.unisb.prog.mips.assembler.segments,
  de.unisb.prog.mips.assembler.segments.text,
  de.unisb.prog.mips.insn,
