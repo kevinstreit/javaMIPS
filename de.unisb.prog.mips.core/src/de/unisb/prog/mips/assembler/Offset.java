@@ -2,38 +2,36 @@ package de.unisb.prog.mips.assembler;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.util.Option;
+
 public class Offset implements Address {
 	
-	private final Expr cnst;
-	private final LabelRef label;
+	private final Option<Expr> cnst;
+	private final Option<LabelRef> label;
 	
-	public Offset(LabelRef label, Expr cnst) {
+	public Offset(Option<LabelRef> label, Option<Expr> cnst) {
 		this.label = label;
 		this.cnst = cnst;
 	}
 	
-	public Offset(LabelRef label) {
-		this.label = label;
-		this.cnst = Expressions.ZERO;
-	}
 	
 	public void append(Appendable app) throws IOException {
-		label.append(app);
-		cnst.append(app);
+		getLabel().append(app);
+		cnst.otherwise(Expressions.ZERO).append(app);
 	}
 	
 	public LabelRef getLabel() {
-		return label;
+		return label.otherwise(LabelRef.NULL);
 	}
 	
 	@Override
 	public int eval() {
-		return cnst.eval() + (label != null ? label.eval() : 0);
+		return cnst.otherwise(Expressions.ZERO).eval() + getLabel().eval();
 	}
 
 	@Override
 	public boolean isText() {
-		return label.getElement().isText();
+		return getLabel().getElement().isText();
 	}
 
 }
