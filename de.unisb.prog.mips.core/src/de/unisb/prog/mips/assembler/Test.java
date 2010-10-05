@@ -44,10 +44,9 @@ public class Test {
 		asm.addLabel(e);
 		t.constant(Reg.t1, 0x12345678);
 		t.condjump(Opcode.beq, Reg.t5, Reg.t6, asm.createRef("test"));
-		t.loadstore(Opcode.lw, Reg.t7, Option.empty(Reg.class), new Offset(asm.createRef("arr")));
-		t.loadstore(Opcode.lw, Reg.t4, Option.empty(Reg.class), new Offset(asm.createRef("str")));
+		t.loadstore(Opcode.lw, Reg.t7, Option.empty(Reg.class), asm.createRef("arr"));
+		t.loadstore(Opcode.lw, Reg.t4, Option.empty(Reg.class), asm.createRef("str"));
 		asm.append(System.out);
-		
 		
 		Sys sys = new Sys(1000, new DefaultOS());
 		asm.prepare(sys);
