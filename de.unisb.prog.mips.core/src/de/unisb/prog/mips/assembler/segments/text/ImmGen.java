@@ -3,25 +3,25 @@ package de.unisb.prog.mips.assembler.segments.text;
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.insn.Encode;
+import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 
-public abstract class AddrGen<T extends Expr<Integer>> extends Insn {
+public abstract class ImmGen<T extends Expr> extends Insn {
 	
+	protected final T expr;
 	protected final Opcode opcode;
 	protected final Reg rt;
-	protected final T exp;
-	
-	public AddrGen(Opcode opc, Reg rt, T exp) {
-		super(Encode.i(opc, 0, rt.ordinal(), 0));
+
+	ImmGen(Opcode opc, Reg rt, T expr) {
+		super(rt.encodeInto(opc.encodeOpcodeInto(0), Instruction.FIELD_RT));
+		this.expr = expr;
 		this.opcode = opc;
 		this.rt = rt;
-		this.exp = exp;
 	}
-	
-	protected void insertAddrGen(Reg base, Reg temp) {
-		int value = exp.eval();
+
+	protected void insertImmGen(Reg base, Reg temp) {
+		int value = expr.eval();
 		
 		// get insertion point into the list and remove current instruction
 		Element.Root root = Element.createRoot();
@@ -29,7 +29,7 @@ public abstract class AddrGen<T extends Expr<Integer>> extends Insn {
 		int imm;
 		int rs;
 		
-		if (Encode.immFitsISign(value)) {
+		if (opcode.immFits(value)) {
 			imm = value;
 			rs  = base.ordinal();
 		}
@@ -40,21 +40,21 @@ public abstract class AddrGen<T extends Expr<Integer>> extends Insn {
 			
 			imm = 0;
 			rs  = temp.ordinal();
-
+	
 			// load high part of reg into assembler temp register
-			root.prepend(new Normal(Encode.i(Opcode.lui, 0, rs, hi)));
+			root.prepend(new Normal(Opcode.lui.encode(0, rs, hi)));
 			if (lo != 0) {
 				if ((lo & 0x8000) != 0) 
-					root.prepend(new Normal(Encode.i(Opcode.ori, rs, rs, lo)));
+					root.prepend(new Normal(Opcode.ori.encode(rs, rs, lo)));
 				else
 					imm = lo;
 			}
-
+	
 			if (base != Reg.zero)
-				root.prepend(new Normal(Encode.r(IntFunct.add, base.ordinal(), rs, rs)));
+				root.prepend(new Normal(IntFunct.add.encode(base.ordinal(), rs, rs)));
 		}
 		
-		root.prepend(new Normal(Encode.i(opcode, rs, rt.ordinal(), imm)));
+		root.prepend(new Normal(opcode.encode(rs, rt.ordinal(), imm)));
 		this.replaceBy(root);
 	}
 	

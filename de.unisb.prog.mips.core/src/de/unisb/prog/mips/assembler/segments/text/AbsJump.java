@@ -1,17 +1,16 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
-import de.unisb.prog.mips.assembler.LabelRef;
-import de.unisb.prog.mips.insn.Encode;
-import de.unisb.prog.mips.insn.Opcode;
+import de.unisb.prog.mips.assembler.Address;
+import de.unisb.prog.mips.insn.Instruction;
 
 class AbsJump extends LabelRefInsn {
 	
-	AbsJump(Opcode opc, LabelRef ref) {
-		super(Encode.j(opc, 0), ref);
+	AbsJump(Instruction insn, Address ref) {
+		super(insn.encodeOpcodeInto(0), ref);
 	}
 	
 	public void rewrite(int startAddress) {
-		word = Encode.setImmJ(word, startAddress + ref.eval());
+		word = Instruction.FIELD_TARGET.insert(word, startAddress + ref.eval());
 	}
 
 }

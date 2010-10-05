@@ -1,16 +1,18 @@
 package de.unisb.prog.mips.insn;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
 
 public class Instructions {
 	
 	private static final Instruction INVALID = new Instruction() {
-		@Override public boolean has(Attribute attr) { return false; }
-		@Override public Set<Attribute> attributes() { return EnumSet.noneOf(Attribute.class); }
 		@Override public boolean valid() { return false; }
+		@Override public int encodeOpcodeInto(int word) { return word; }
+		@Override public Opcode getOpcode() { return Opcode._3e; }
+		@Override public Kind getKind() { return Kind.THREE_REG; }
+		@Override public Immediate getImmediate() { return Immediate.NO_IMM; }
+		@Override public String toString() { return "<invalid>"; }
 	};
 	
 	private static final Map<String, Instruction> INSN = new HashMap<String, Instruction>();
@@ -36,5 +38,41 @@ public class Instructions {
 		return insn != null ? insn : INVALID;
 	}
 	
+	public static <T> T decode(int insn, Handler<T> h) throws IllegalOpcodeException {
+		Opcode opcode = Opcode.values()[Instruction.FIELD_OPCODE.extract(insn)];
+		int funct, shamt, rs, rt, rd, imm;
+		
+		if (! valid(opcode))
+			throw new IllegalOpcodeException(insn);
+		switch (opcode) {
+		case special: 
+			funct = Instruction.FIELD_INTFUNCT.extract(insn);
+			shamt = Instruction.FIELD_SHAMT.extract(insn);
+			rd    = Instruction.FIELD_RD.extract(insn);
+			rt    = Instruction.FIELD_RT.extract(insn);
+			rs    = Instruction.FIELD_RS.extract(insn);
+			IntFunct f = IntFunct.values()[funct];
+			if (! valid(f))
+				throw new IllegalOpcodeException(insn);
+			return h.r(IntFunct.values()[funct], rs, rt, rd, shamt);
+		case j:
+		case jal: 
+			imm = Instruction.FIELD_TARGET.extract(insn);
+			return h.j(opcode, imm);
+		default: // format I
+			imm = Instruction.FIELD_IMM.extract(insn);
+			rt    = Instruction.FIELD_RT.extract(insn);
+			rs    = Instruction.FIELD_RS.extract(insn);
+			if (opcode == Opcode.regimm) {
+				RegImm ri = RegImm.values()[rt];
+				if (! valid(ri))
+					throw new IllegalOpcodeException(insn);
+				return h.i(ri, rs, imm);
+			}
+			else
+				return h.i(opcode, rs, rt, imm);
+		}
+	}
+
 
 }

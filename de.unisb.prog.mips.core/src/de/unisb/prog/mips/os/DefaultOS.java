@@ -29,8 +29,9 @@ public class DefaultOS implements SysCallHandler {
 		switch (c) {
 		case print_int: printInt(state); return;
 		case print_string: printStr(state, mem); return;
-		case exit: return;
-		case exit2: return;
+		case exit: 
+		case exit2: 
+			return;
 		}
 	}
 

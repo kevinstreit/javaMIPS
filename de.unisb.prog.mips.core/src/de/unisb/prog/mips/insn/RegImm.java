@@ -1,7 +1,5 @@
 package de.unisb.prog.mips.insn;
 
-import java.util.Set;
-
 import de.unisb.prog.mips.simulator.Type;
 
 public enum RegImm implements Instruction {
@@ -47,17 +45,35 @@ public enum RegImm implements Instruction {
 	}
 	
 	@Override
-	public boolean has(Attribute attr) {
-		return BRANCH0.contains(attr);
-	}
-
-	@Override
-	public Set<Attribute> attributes() {
-		return BRANCH0;
-	}
-
-	@Override
 	public boolean valid() {
 		return Instructions.valid(this);
 	}
+
+	@Override
+	public int encodeOpcodeInto(int word) {
+		word = FIELD_OPCODE.insert(word, Opcode.regimm.ordinal());
+		word = FIELD_RT.insert(word, this.ordinal());
+		return word;
+	}
+
+	@Override
+	public Opcode getOpcode() {
+		return Opcode.regimm;
+	}
+
+	@Override
+	public Kind getKind() {
+		return Kind.REL_JUMP;
+	}
+
+	@Override
+	public Immediate getImmediate() {
+		return Immediate.SEXT_16;
+	}
+
+	@Override
+	public String toString() {
+		return name();
+	}
+	
 }

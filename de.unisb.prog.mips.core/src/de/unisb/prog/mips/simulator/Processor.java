@@ -1,10 +1,9 @@
 package de.unisb.prog.mips.simulator;
 
-import de.unisb.prog.mips.insn.Attribute;
-import de.unisb.prog.mips.insn.Decode;
 import de.unisb.prog.mips.insn.Handler;
 import de.unisb.prog.mips.insn.IllegalOpcodeException;
 import de.unisb.prog.mips.insn.Instruction;
+import de.unisb.prog.mips.insn.Instructions;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
@@ -33,10 +32,8 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	public boolean step() {
 		int insn = load(pc, Type.WORD, false);
 		try {
-			Instruction i = Decode.decode(insn, this);
-			if (i.has(Attribute.HALT))
-				return false;
-			if (! i.has(Attribute.CHANGES_PC))
+			Instruction i = Instructions.decode(insn, this);
+			if (! i.getKind().changesPc())
 				pc += 4;
 		} catch (IllegalOpcodeException e) {
 			exc.illegalInstruction(this, mem, pc);

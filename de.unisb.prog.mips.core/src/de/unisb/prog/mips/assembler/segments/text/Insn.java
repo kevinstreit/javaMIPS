@@ -2,7 +2,6 @@ package de.unisb.prog.mips.assembler.segments.text;
 
 import java.io.IOException;
 
-import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.RegNameDisassembler;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.simulator.Memory;
@@ -13,7 +12,7 @@ class Insn extends Element {
 	protected int word;
 	
 	Insn(int word) {
-		super(Reg.zero);
+		super(true);
 		this.word = word;
 	}
 
@@ -29,7 +28,11 @@ class Insn extends Element {
 
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
-		app.append(RegNameDisassembler.INSTANCE.disasm(word));
+		app.append(toString());
+	}
+	
+	public String toString() {
+		return RegNameDisassembler.INSTANCE.disasm(word);	
 	}
 
 }

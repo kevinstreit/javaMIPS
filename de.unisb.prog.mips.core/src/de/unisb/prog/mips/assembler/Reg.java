@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.assembler;
 
+import de.unisb.prog.mips.util.Bitfield;
+
 public enum Reg {
 	
 	/* 00 */ zero,
@@ -37,5 +39,26 @@ public enum Reg {
 	
 	public int get(int[] gp) { return gp[ordinal()]; }
 	public static Reg get(int idx) { return Reg.values()[idx & 0x1f]; }
+	
+	public int encodeInto(int word, Bitfield f) {
+		return f.insert(word, this.ordinal());
+	}
+	
+	public static Reg parse(String s) {
+		if (s.charAt(0) == '$')
+			s = s.substring(1);
+		try {
+			return Reg.valueOf(s);
+		}
+		catch (IllegalArgumentException e) {
+			try {
+				int index = Integer.parseInt(s);
+				return Reg.values()[index];
+			}
+			catch (NumberFormatException f) {
+			}
+		}
+		throw new IllegalArgumentException("Illegal register " + s);
+	}
 
 }

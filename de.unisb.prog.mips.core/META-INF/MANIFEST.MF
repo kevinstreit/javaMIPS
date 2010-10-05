@@ -9,4 +9,5 @@ Export-Package: de.unisb.prog.mips.assembler,
  de.unisb.prog.mips.assembler.segments.text,
  de.unisb.prog.mips.insn,
  de.unisb.prog.mips.os,
- de.unisb.prog.mips.simulator
+ de.unisb.prog.mips.simulator,
+ de.unisb.prog.mips.util

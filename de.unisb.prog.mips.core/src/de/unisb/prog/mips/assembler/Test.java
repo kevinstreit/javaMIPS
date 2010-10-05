@@ -12,6 +12,7 @@ import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.os.DefaultOS;
 import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.Type;
+import de.unisb.prog.mips.util.Option;
 
 public class Test {
 	
@@ -23,24 +24,28 @@ public class Test {
 		
 		e = d.string("Hallo Welt\n", true);
 		e.setLabel("str");
+		asm.addLabel(e);
 		d.align(3);
-		List<Expr<Integer>> vals = new ArrayList<Expr<Integer>>();
+		List<Expr> vals = new ArrayList<Expr>();
 		for (int i = 0; i < 10; i++)
 			vals.add(Expressions.constantInt(i));
 		e = d.values(vals, Type.WORD);
 		e.setLabel("arr");
+		asm.addLabel(e);
 		
-		e = t.address(Reg.a0, asm.createLabelRef("str"));
+		e = t.address(Reg.a0, asm.createRef("str"));
 		e = t.constant(Reg.v0, 4);
 		e = t.normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero, 0);
-		e = t.imm(Opcode.halt, Reg.zero, Reg.zero, 0);
+		e = t.constant(Reg.v0, 10);
+		e = t.normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero, 0);
 		
 		e = t.normal(IntFunct.add, Reg.v0, Reg.a0, Reg.t2, 0);
 		e.setLabel("test");
+		asm.addLabel(e);
 		t.constant(Reg.t1, 0x12345678);
-		t.condjump(Opcode.beq, Reg.t5, Reg.t6, asm.createLabelRef("test"));
-		t.loadstore(Opcode.lw, Reg.t7, asm.createLabelRef("arr"));
-		t.loadstore(Opcode.lw, Reg.t4, asm.createLabelRef("str"));
+		t.condjump(Opcode.beq, Reg.t5, Reg.t6, asm.createRef("test"));
+		t.loadstore(Opcode.lw, Reg.t7, Option.empty(Reg.class), new Offset(asm.createRef("arr")));
+		t.loadstore(Opcode.lw, Reg.t4, Option.empty(Reg.class), new Offset(asm.createRef("str")));
 		asm.append(System.out);
 		
 		
