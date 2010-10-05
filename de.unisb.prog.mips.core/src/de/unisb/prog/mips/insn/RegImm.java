@@ -63,7 +63,7 @@ public enum RegImm implements Instruction {
 
 	@Override
 	public Kind getKind() {
-		return Kind.REL_JUMP;
+		return Kind.REL_JUMP_CMP_ZERO;
 	}
 
 	@Override

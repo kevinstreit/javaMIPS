@@ -5,7 +5,8 @@ public enum Kind {
 	SHAMT,
 	IMM,
 	LOAD_STORE,
-	REL_JUMP(true),
+	REL_JUMP_CMP_REG(true),
+	REL_JUMP_CMP_ZERO(true),
 	ABS_JUMP(true),
 	INDIR_JUMP(true);
 	
@@ -21,6 +22,10 @@ public enum Kind {
 	
 	public boolean changesPc() {
 		return changesPc;
+	}
+	
+	public boolean isRelJump() {
+		return this == REL_JUMP_CMP_REG || this == REL_JUMP_CMP_ZERO;
 	}
 	
 	
