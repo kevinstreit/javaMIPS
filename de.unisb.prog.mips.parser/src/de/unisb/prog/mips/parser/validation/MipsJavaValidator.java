@@ -6,20 +6,18 @@ import java.util.Set;
 
 import org.eclipse.xtext.validation.Check;
 
-import de.unisb.prog.mips.insn.Attribute;
+import de.unisb.prog.mips.assembler.Reg;
+import de.unisb.prog.mips.insn.Immediate;
 import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.Instructions;
 import de.unisb.prog.mips.insn.IntFunct;
+import de.unisb.prog.mips.insn.Kind;
 import de.unisb.prog.mips.insn.Opcode;
+import de.unisb.prog.mips.parser.mips.IAddrForm;
 import de.unisb.prog.mips.parser.mips.IArithForm;
-import de.unisb.prog.mips.parser.mips.IExpForm;
+import de.unisb.prog.mips.parser.mips.IBranchForm;
 import de.unisb.prog.mips.parser.mips.MipsPackage;
 import de.unisb.prog.mips.parser.mips.RForm;
-import de.unisb.prog.mips.parser.mips.Reg;
- 
-import static de.unisb.prog.mips.insn.Opcode.*;
-import static de.unisb.prog.mips.insn.IntFunct.*;
-import static de.unisb.prog.mips.insn.RegImm.*;
 
 public class MipsJavaValidator extends AbstractMipsJavaValidator {
 
@@ -35,6 +33,9 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	
 	private static final Set<Instruction> IFORM = new HashSet<Instruction>();
 	
+	
+	
+	
 	static {
 		IFORM.addAll(EnumSet.range(Opcode.addi, Opcode.lui));
 		IFORM.add(IntFunct.sll);
@@ -46,20 +47,21 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	public void form(RForm form) {
 		String opc = form.getOpcode();
 		Instruction insn = Instructions.get(opc);
-		if (!insn.valid() || !insn.has(Attribute.THREE_REG))
+		checkReg(form.getRd(), MipsPackage.RFORM__RD);
+		checkReg(form.getRs(), MipsPackage.RFORM__RS);
+		checkReg(form.getRt(), MipsPackage.RFORM__RT);
+		if (!insn.valid() || insn.getKind() != Kind.THREE_REG) 
 			error("not a valid R-form instruction: " + opc, MipsPackage.RFORM__OPCODE);
 	}
 	
-	private void checkImmediate(int imm, Set<Attribute> attr, Integer feature) {
+	private void checkImmediate(int imm, Instruction insn, Integer feature) {
 		int low = 0, high = 0;
-		if (attr.contains(Attribute.SHAMT)) 
+		if (insn.getKind() == Kind.SHAMT)
 			high = 31;
-		else if (attr.contains(Attribute.ZEXT_IMM_16)) 
+		else if (insn.getImmediate() == Immediate.ZEXT_16) 
 			high = 65535;
-		else if (attr.contains(Attribute.SEXT_IMM_16)) {
-			low = -32768;
+		else if (insn.getImmediate() == Immediate.SEXT_16) low = -32768;
 			high = 32767;
-		}
 		if (imm < low || imm > high) 
 			error(String.format("immediate out of range: %d..%d", low, high), feature);
 	}
@@ -68,38 +70,43 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	public void form(IArithForm form) {
 		String opc = form.getOpcode();
 		Instruction insn = Instructions.get(opc);
+		checkReg(form.getRs(), MipsPackage.IARITH_FORM__RS);
+		checkReg(form.getRt(), MipsPackage.IARITH_FORM__RT);
 		if (!IFORM.contains(insn)) {
 			error("not a valid I-Form arithmetic instruction: " + opc, MipsPackage.IARITH_FORM__OPCODE);
 			return;
 		}
-		checkImmediate(form.getImm(), insn.attributes(), MipsPackage.IARITH_FORM__IMM);
+		checkImmediate(form.getImm(), insn, MipsPackage.IARITH_FORM__IMM);
 	}
 	
 	@Check
-	public void form(IExpForm form) {
+	public void form(IAddrForm form) {
 		String opc = form.getOpcode();
 		Instruction insn = Instructions.get(opc);
-		if (! insn.attributes().contains(Attribute.LOAD_STORE))
-			error("not a valid I-Form address instruction: " + opc, MipsPackage.IEXP_FORM__OPCODE);
-		checkImmediate(form.getImm(), insn.attributes(), MipsPackage.IEXP_FORM__IMM);
+		checkReg(form.getRs(), MipsPackage.IADDR_FORM__RS);
+		checkReg(form.getRt(), MipsPackage.IADDR_FORM__RT);
+		if (insn.getKind() != Kind.LOAD_STORE || insn.getOpcode() != Opcode.regimm)
+			error("not a valid I-Form address instruction: " + opc, MipsPackage.IADDR_FORM__OPCODE);
 	}
 	
 	@Check
-	public void registerName(Reg r) {
-		String reg = r.getReg().substring(1);
+	public void form(IBranchForm form) {
+		String opc = form.getOpcode();
+		Instruction insn = Instructions.get(opc);
+		checkReg(form.getRs(), MipsPackage.IBRANCH_FORM__RS);
+		checkReg(form.getRt(), MipsPackage.IBRANCH_FORM__RT);
+		if (insn.getKind() != Kind.REL_JUMP || insn.getOpcode() == Opcode.regimm)
+			error("not a valid I-Form two register branch instruction: " + opc, MipsPackage.IADDR_FORM__OPCODE);
+	}
+	
+	private void checkReg(String name, int feature) {
 		try {
-			int val = Integer.parseInt(reg);
-			if (val < 0 || val > 31) 
-				error("Illegal register ($0-$31)", MipsPackage.REG__REG);
-		} 
-		catch (NumberFormatException e) {
-			try {
-				de.unisb.prog.mips.assembler.Reg.valueOf(reg);
-			}
-			catch (IllegalArgumentException f) {
-				error("Illegal register", MipsPackage.REG__REG);
-			}
+			Reg.parse(name);
+		}
+		catch (IllegalArgumentException e) {
+			error(e.getMessage(), feature);
 		}
 	}
+	
 
 }

@@ -14,19 +14,19 @@ Insn:           form=(RForm | IArithForm | IAddrForm | IBranchForm | JExpForm | 
 RForm:          opcode=ID rd=Reg rs=Reg rt=Reg;
 	
 IArithForm:     opcode=ID rt=Reg rs=Reg imm=PNInt;
-IAddrForm:      opcode=ID rt=Reg expr=Add ('(' rs=Reg ')')?;
+IAddrForm:      opcode=ID rt=Reg addr=Addr ('(' rs=Reg ')')?;
 IBranchForm:    opcode=ID rt=Reg rs=Reg label=[Label];
 
 JExpForm:       opcode=ID addr=INT;
 JLabelForm:     opcode=ID label=[Label];
 SyscallForm:    opcode=ID;
 	
-Reg: reg=(INTREG | TXTREG);
+Reg: (INTREG | TXTREG);
 
-Add  returns Expression: Mult ({Add.left=current} ('+'|'-') right=Mult)*;
-Mult returns Expression: Prim ({Mult.left=current} ('*'|">>"|"<<") right=Prim)*;
-Prim returns Expression: '(' expr=Add ')' | cnst=PNInt | label=[Label];
-	
+Addr:  label=[Label] ("+"|"-") expr=CExpr | label=[Label] | expr=CExpr;
+CExpr returns Expression: Mult (({Plus.left=current} '+'| {Minus.left=current} '-') right=Mult)*;
+Mult  returns Expression: Prim (({Mul.left=current} '*' {Shr.left=current} ">>" | {Shl.left=current} "<<") right=Prim)*;
+Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
 DataSegment: ".data" NL {DataSegment} (items+=DataItem)* ;
 
