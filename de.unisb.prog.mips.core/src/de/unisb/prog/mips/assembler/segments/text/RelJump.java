@@ -1,19 +1,22 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
 
-import de.unisb.prog.mips.assembler.Address;
 import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.insn.Instruction;
 
 class RelJump extends LabelRefInsn {
 	
-	RelJump(Instruction insn, Reg rs, Reg rt, Address ref) {
+	RelJump(Instruction insn, Reg rs, Reg rt, LabelRef ref) {
 		super(rt.encodeInto(rs.encodeInto(insn.encodeOpcodeInto(0), Instruction.FIELD_RS), Instruction.FIELD_RT), ref);
 	}
 	
 	RelJump(Instruction insn, Reg rs, LabelRef ref) {
 		super(rs.encodeInto(insn.encodeOpcodeInto(0), Instruction.FIELD_RS), ref);
+	}
+	
+	RelJump(int word, LabelRef ref) {
+		super(word, ref);
 	}
 	
 	public void rewrite() throws JumpTargetNotAligned, JumpTargetOutOfRange {
