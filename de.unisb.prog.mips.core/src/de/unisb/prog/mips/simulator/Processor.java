@@ -167,6 +167,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case and:     gp[rd] = s & t; break;
 		case or:      gp[rd] = s | t; break;
 		case xor:     gp[rd] = s ^ t; break;
+		case nor:     gp[rd] = ~(s | t); break;
 		case slt:     gp[rd] = s < t ? 1 : 0; break;
 		case sltu:    gp[rd] = cmpltu(s, t); break;
 		}
