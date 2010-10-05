@@ -75,15 +75,25 @@ public class Text extends Segment {
 		return dr;
 	}
 
-	public Element condjump(Instruction opc, Reg rs, Reg rt, Address e) {
+	public Element condjump(Instruction opc, Reg rs, Reg rt, LabelRef e) {
 		RelJump rj = new RelJump(opc, rs, rt, e);
 		add(rj);
 		relJumps.add(rj);
 		return rj;
 	}
 
-	public Element condjump(Instruction opc, Reg rs, Address e) {
-		return condjump(opc, rs, Reg.zero, e);
+	public Element condjump(Instruction opc, Reg rs, LabelRef e) {
+		RelJump rj = new RelJump(opc, rs, e);
+		add(rj);
+		relJumps.add(rj);
+		return rj;
+	}
+	
+	public Element condjump(int word, LabelRef e) {
+		RelJump rj = new RelJump(word, e);
+		add(rj);
+		relJumps.add(rj);
+		return rj;
 	}
 	
 	public Element absjump(Instruction opc, LabelRef exp) {
