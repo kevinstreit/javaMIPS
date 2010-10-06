@@ -1,7 +1,5 @@
 package de.unisb.prog.mips.parser.ui;
 
-import java.net.URL;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;

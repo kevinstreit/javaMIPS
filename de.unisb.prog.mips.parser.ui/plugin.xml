@@ -249,5 +249,36 @@
             type="org.eclipse.core.runtime.IAdaptable">
       </propertyTester>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="de.unisb.prog.mips.parser.ui.views"
+            name="MIPS">
+      </category>
+      <view
+            allowMultiple="false"
+            category="de.unisb.prog.mips.parser.ui.views"
+            class="de.unisb.prog.mips.parser.ui.views.RegisterView"
+            icon="icons/icn/register_view.gif"
+            id="de.unisb.prog.mips.parser.ui.views.RegisterView"
+            name="Registers"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="de.unisb.prog.mips.parser.ui.views"
+            class="de.unisb.prog.mips.parser.ui.views.ISAView"
+            icon="icons/icn/isa_view.gif"
+            id="de.unisb.prog.mips.parser.ui.views.ISAView"
+            name="Instructions"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
 
 </plugin>
