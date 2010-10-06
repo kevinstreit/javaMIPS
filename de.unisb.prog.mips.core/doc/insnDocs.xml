@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instructions>
+	<group name="Arithmetic and Logic">
+		<insn mnemonic="addi" name="Add Immediate" example="addi $dst $src 23">
+			Reads register content from $src, adds 23 to it and stores the result in register $dst.
+		</insn>
+		
+		<insn mnemonic="subi" name="Subtract Immediate" example="subi $dst $src 23">
+			Reads register content from $src, subtracts 23 from it and stores the result in register $dst.
+		</insn>
+	</group>
+	
+	<group name="Constant-Manipulation">
+	
+	</group>
+	
+	<group name="Comparison">
+	
+	</group>
+	
+	<group name="Branching and Jumping">
+	
+	</group>
+	
+	<group name="Exceptions, Interrupts and Traps">
+		<insn mnemonic="syscall" name="System Call" example="syscall">
+			Register $v0 contains the number of the system call. 
+		</insn>
+	</group>
+	
+	<group name="Loading">
+	
+	</group>
+	
+	<group name="Storing">
+	
+	</group>
+	
+	<group name="Data Movement">
+	
+	</group>
+	
+	<group name="Floating-Point Instructions">
+	
+	</group>
+</instructions>

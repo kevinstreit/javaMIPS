@@ -1,21 +1,23 @@
-package de.unisb.prog.mips.parser.ui;
-
-import java.net.URL;
+package de.unisb.prog.mips.parser.ui.wizards;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 
-public class NewMIPSProjectWizard extends Wizard implements INewWizard {
+public class NewMIPSProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
 	
 	private WizardNewProjectCreationPage pageOne;
+	private IConfigurationElement configurationElement;
 
 	public NewMIPSProjectWizard() {
 		setWindowTitle("New MIPS Project");
@@ -51,6 +53,8 @@ public class NewMIPSProjectWizard extends Wizard implements INewWizard {
 			return false;
 		}
 		
+		BasicNewProjectResourceWizard.updatePerspective(configurationElement);
+		
 		return true;
 	}
 	
@@ -65,6 +69,11 @@ public class NewMIPSProjectWizard extends Wizard implements INewWizard {
 		pageOne.setImageDescriptor(ImageDescriptor.createFromFile(getClass(), "/icons/wzrdHd/newmipsprj_wiz.png"));
 		
 		addPage(pageOne);
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement config,	String propertyName, Object data) throws CoreException {
+		configurationElement = config;
 	}
 
 }
