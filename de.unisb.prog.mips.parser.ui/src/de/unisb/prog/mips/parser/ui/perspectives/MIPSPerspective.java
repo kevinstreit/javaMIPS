@@ -5,6 +5,7 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 import de.unisb.prog.mips.parser.ui.views.ISAView;
+import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 import de.unisb.prog.mips.parser.ui.views.RegisterView;
 
 public class MIPSPerspective implements IPerspectiveFactory {
@@ -54,6 +55,14 @@ public class MIPSPerspective implements IPerspectiveFactory {
 				0.5f,
 				"topRight");
 		bottomRight.addView(RegisterView.ID);
+		
+		IFolderLayout bottomCenter =
+			factory.createFolder(
+				"bottomCenter", //NON-NLS-1
+				IPageLayout.BOTTOM,
+				0.6f,
+				factory.getEditorArea());
+		bottomCenter.addView(MIPSConsoleView.ID);
 	}
 
 	private void addNewWizardShortcuts() {
@@ -64,6 +73,7 @@ public class MIPSPerspective implements IPerspectiveFactory {
 	private void addViewShortcuts() {
 		factory.addShowViewShortcut(ISAView.ID);
 		factory.addShowViewShortcut(RegisterView.ID);
+		factory.addShowViewShortcut(MIPSConsoleView.ID);
 		factory.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
 		factory.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 		factory.addShowViewShortcut(IPageLayout.ID_PROJECT_EXPLORER);

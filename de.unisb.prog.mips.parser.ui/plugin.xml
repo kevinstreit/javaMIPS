@@ -274,6 +274,15 @@
             name="Instructions"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            category="de.unisb.prog.mips.parser.ui.views"
+            class="de.unisb.prog.mips.parser.ui.views.MIPSConsoleView"
+            icon="icons/icn/console_view.gif"
+            id="de.unisb.prog.mips.parser.ui.views.MIPSConsoleView"
+            name="MIPS Console"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
