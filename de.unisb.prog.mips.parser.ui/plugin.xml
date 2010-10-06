@@ -188,7 +188,8 @@
       </category>
       <wizard
             category="de.unisb.prog.mips.parser.ui.mipsCategory"
-            class="de.unisb.prog.mips.parser.ui.NewMIPSProjectWizard"
+            class="de.unisb.prog.mips.parser.ui.wizards.NewMIPSProjectWizard"
+            finalPerspective="de.unisb.prog.mips.parser.ui.perspectives.MIPSPerspective"
             icon="icons/icn/newmipsprj_wiz.gif"
             id="de.unisb.prog.mips.parser.ui.mipsProjectWizard"
             name="MIPS Project"
@@ -196,7 +197,7 @@
       </wizard>
       <wizard
             category="de.unisb.prog.mips.parser.ui.mipsCategory"
-            class="de.unisb.prog.mips.parser.ui.NewMIPSFileWizard"
+            class="de.unisb.prog.mips.parser.ui.wizards.NewMIPSFileWizard"
             icon="icons/icn/newmipsfile_wiz.gif"
             id="de.unisb.prog.mips.parser.ui.mipsFileWizard"
             name="MIPS File"
@@ -279,6 +280,16 @@
       <contexts
             file="contexts.xml">
       </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.unisb.prog.mips.parser.ui.perspectives.MIPSPerspective"
+            fixed="false"
+            icon="icons/icn/releng_gears.gif"
+            id="de.unisb.prog.mips.parser.ui.perspectives.MIPSPerspective"
+            name="MIPS">
+      </perspective>
    </extension>
 
 </plugin>

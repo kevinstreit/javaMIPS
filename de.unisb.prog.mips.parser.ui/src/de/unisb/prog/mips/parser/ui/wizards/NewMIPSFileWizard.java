@@ -1,4 +1,6 @@
-package de.unisb.prog.mips.parser.ui;
+package de.unisb.prog.mips.parser.ui.wizards;
+
+import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -6,11 +8,25 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.ide.IDE;
 
 public class NewMIPSFileWizard extends Wizard implements INewWizard {
 	
-	private WizardNewFileCreationPage pageOne;
+	private class MIPSWizardNewFileCreationPage extends WizardNewFileCreationPage {
+		public MIPSWizardNewFileCreationPage(String pageName, IStructuredSelection selection) {
+			super(pageName, selection);
+		}
+		
+		@Override
+		protected InputStream getInitialContents() {
+			return NewMIPSFileWizard.class.getResourceAsStream("/config/defaultFile.mips");
+		}
+	}
+	
+	private MIPSWizardNewFileCreationPage pageOne;
 	private IStructuredSelection sel;
 
 	public NewMIPSFileWizard() {
@@ -27,7 +43,11 @@ public class NewMIPSFileWizard extends Wizard implements INewWizard {
 		IFile newFile = pageOne.createNewFile();
 		
 		if (newFile != null) {
-			// TODO: Create sample content
+			try {
+				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), newFile);
+			} catch (PartInitException e) {
+				// Nothing to do. The file was created anyway.
+			}
 			return true;
 		}
 		
@@ -38,7 +58,7 @@ public class NewMIPSFileWizard extends Wizard implements INewWizard {
 	public void addPages() {
 		super.addPages();
 		
-		pageOne = new WizardNewFileCreationPage("New MIPS File", sel);
+		pageOne = new MIPSWizardNewFileCreationPage("New MIPS File", sel);
 		pageOne.setFileExtension("mips");
 		pageOne.setFileName("hello.mips");
 		pageOne.setTitle("MIPS File");
