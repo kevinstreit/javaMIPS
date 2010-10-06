@@ -9,8 +9,8 @@ public class Space extends Element {
 	
 	private final int bytes;
 
-	public Space(int bytes, boolean text) {
-		super(text);
+	public Space(Segment seg, int bytes) {
+		super(seg);
 		this.bytes = bytes;
 	}
 

@@ -9,8 +9,8 @@ public class Str extends Element {
 	private final String str; 
 	private final boolean zeroTerminate;
 	
-	public Str(String str, boolean zeroTerminate) {
-		super(false);
+	public Str(Segment seg, String str, boolean zeroTerminate) {
+		super(seg);
 		this.str = str;
 		this.zeroTerminate = zeroTerminate;
 	}

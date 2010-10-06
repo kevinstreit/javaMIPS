@@ -3,32 +3,21 @@ package de.unisb.prog.mips.assembler;
 import java.io.IOException;
 
 import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.simulator.Memory;
+import de.unisb.prog.mips.assembler.segments.Segment;
+import de.unisb.prog.mips.assembler.segments.Space;
 
 public class LabelRef implements Address {
+	
+	private static final Assembly NULL_ASSEMBLY = new Assembly();
+	private static final Segment NULL_SEGMENT = new Segment(NULL_ASSEMBLY) {
+		@Override protected void relocate(int startAddress) { }
+		@Override public Kind getKind() { return Kind.NULL; }
+	};
+	
+	public static final LabelRef NULL = new LabelRef(new Space(NULL_SEGMENT, 0));
+	
 	private Element elm;
 	private String name;
-	
-	public static final LabelRef NULL = new LabelRef(new Element(true) {
-		
-		{
-			setLabel("@");
-		}
-		
-		@Override
-		protected void appendInternal(Appendable app) throws IOException {
-		}
-
-		@Override
-		public int nextElementOffset(int pos) {
-			return pos;
-		}
-
-		@Override
-		public void writeToMem(Memory mem, int addr) {
-		}
-		
-	});
 	
 	LabelRef(Element elm) {
 		this.elm = elm;
@@ -65,8 +54,8 @@ public class LabelRef implements Address {
 	}
 
 	@Override
-	public boolean isText() {
-		return getElement().isText();
+	public Segment getSegment() {
+		return getElement().getSegment();
 	}
 
 }

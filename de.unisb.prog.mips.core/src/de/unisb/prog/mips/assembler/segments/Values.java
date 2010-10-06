@@ -12,8 +12,8 @@ public class Values extends Element {
 	private final Type elementType;
 	private final List<Expr> values;
 	
-	Values(List<Expr> values, Type elementType) {
-		super(false);
+	Values(Segment seg, List<Expr> values, Type elementType) {
+		super(seg);
 		this.elementType = elementType;
 		this.values = values;
 	}

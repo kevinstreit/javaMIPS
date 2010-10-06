@@ -8,16 +8,22 @@ import de.unisb.prog.mips.simulator.Type;
 
 public class Data extends Segment {
 
+	private static final long serialVersionUID = 3256826055186816334L;
+
 	public Data(Assembly asm) {
 		super(asm);
 	}
 
 	public Element values(List<Expr> vals, Type tp) {
-		return add(new Values(vals, tp));
+		Element res = new Values(this, vals, tp);
+		add(res);
+		return res;
 	}
 	
 	public Element string(String str, boolean zeroTerminate) {
-		return add(new Str(str, zeroTerminate));
+		Element res = new Str(this, str, zeroTerminate);
+		add(res);
+		return res;
 	}
 	
 	@Override

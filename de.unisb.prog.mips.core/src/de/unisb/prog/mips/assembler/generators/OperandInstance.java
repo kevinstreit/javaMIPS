@@ -32,11 +32,11 @@ public class OperandInstance {
 		return base;
 	}
 
-	public Option<Expr> getExpr() {
+	public Expr getExpr() {
 		return offset.getExpr();
 	}
 
-	public Option<LabelRef> getLabel() {
+	public LabelRef getLabel() {
 		return offset.getLabel();
 	}
 	
@@ -88,9 +88,9 @@ public class OperandInstance {
 		State[] allowed = ALLOWED.get(op.getAddressMode());
 		if (!allowed[0].isOk(base))
 			report.error(String.format("instruction %s base register", allowed[0].phrase), Errors.BASE_REG);
-		if (!allowed[1].isOk(offset.getLabel()))
+		if (!allowed[1].isOk(offset.getLabelOption()))
 			report.error(String.format("instruction %s label", allowed[1].phrase), Errors.LABEL);
-		if (!allowed[2].isOk(offset.getExpr()))
+		if (!allowed[2].isOk(offset.getExprOption()))
 			report.error(String.format("instruction %s constant expression", allowed[2].phrase), Errors.EXPR);
 	}
 	
