@@ -21,16 +21,13 @@ public class Data extends Segment {
 		return add(new Str(str, zeroTerminate));
 	}
 	
-	public Element space(int bytes) {
-		return add(new Space(bytes, Reg.gp, false));
-	}
-	
 	@Override
 	protected void relocate(int startAddress) {
 	}
 
-	public Element align(int powerOfTwo) {
-		return add(new Align(powerOfTwo, false));
+	@Override
+	public Kind getKind() {
+		return Kind.DATA;
 	}
 
 }

@@ -14,24 +14,27 @@ public class Offset implements Address {
 		this.cnst = cnst;
 	}
 	
-	
 	public void append(Appendable app) throws IOException {
-		getLabel().append(app);
+		label.otherwise(LabelRef.NULL).append(app);
 		cnst.otherwise(Expressions.ZERO).append(app);
 	}
 	
-	public LabelRef getLabel() {
-		return label.otherwise(LabelRef.NULL);
+	public Option<LabelRef> getLabel() {
+		return label;
+	}
+	
+	public Option<Expr> getExpr() {
+		return cnst;
 	}
 	
 	@Override
 	public int eval() {
-		return cnst.otherwise(Expressions.ZERO).eval() + getLabel().eval();
+		return cnst.otherwise(Expressions.ZERO).eval() + label.otherwise(LabelRef.NULL).eval();
 	}
 
 	@Override
 	public boolean isText() {
-		return getLabel().getElement().isText();
+		return getLabel().otherwise(LabelRef.NULL).getElement().isText();
 	}
 
 }

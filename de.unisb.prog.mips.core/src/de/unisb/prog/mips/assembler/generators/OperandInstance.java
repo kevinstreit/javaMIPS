@@ -16,14 +16,12 @@ public class OperandInstance {
 	
 	private final List<Reg> regs;
 	private final Option<Reg> base;
-	private final Option<Expr> expr;
-	private final Option<LabelRef> label;
+	private final Offset offset;
 	
-	public OperandInstance(List<Reg> regs, Option<LabelRef> label, Option<Expr> expr, Option<Reg> base) {
+	public OperandInstance(List<Reg> regs, Offset off, Option<Reg> base) {
 		this.regs = regs;
 		this.base = base;
-		this.expr = expr;
-		this.label = label;
+		this.offset = off;
 	}
 	
 	public List<Reg> getRegisters() {
@@ -35,15 +33,15 @@ public class OperandInstance {
 	}
 
 	public Option<Expr> getExpr() {
-		return expr;
+		return offset.getExpr();
 	}
 
 	public Option<LabelRef> getLabel() {
-		return label;
+		return offset.getLabel();
 	}
 	
 	public Address genAddress() {
-		return new Offset(label, expr);
+		return offset;
 	}
 
 	enum State {
@@ -90,9 +88,9 @@ public class OperandInstance {
 		State[] allowed = ALLOWED.get(op.getAddressMode());
 		if (!allowed[0].isOk(base))
 			report.error(String.format("instruction %s base register", allowed[0].phrase), Errors.BASE_REG);
-		if (!allowed[1].isOk(label))
+		if (!allowed[1].isOk(offset.getLabel()))
 			report.error(String.format("instruction %s label", allowed[1].phrase), Errors.LABEL);
-		if (!allowed[2].isOk(expr))
+		if (!allowed[2].isOk(offset.getExpr()))
 			report.error(String.format("instruction %s constant expression", allowed[2].phrase), Errors.EXPR);
 	}
 	

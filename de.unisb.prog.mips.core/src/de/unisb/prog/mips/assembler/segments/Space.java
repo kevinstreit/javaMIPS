@@ -2,7 +2,6 @@ package de.unisb.prog.mips.assembler.segments;
 
 import java.io.IOException;
 
-import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 
 
@@ -10,7 +9,7 @@ public class Space extends Element {
 	
 	private final int bytes;
 
-	public Space(int bytes, Reg relative, boolean text) {
+	public Space(int bytes, boolean text) {
 		super(text);
 		this.bytes = bytes;
 	}

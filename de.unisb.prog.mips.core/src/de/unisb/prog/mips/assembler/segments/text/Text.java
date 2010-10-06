@@ -126,4 +126,9 @@ public class Text extends Segment {
 		rewriteRelJumps();
 	}
 
+	@Override
+	public Kind getKind() {
+		return Kind.TEXT;
+	}
+
 }

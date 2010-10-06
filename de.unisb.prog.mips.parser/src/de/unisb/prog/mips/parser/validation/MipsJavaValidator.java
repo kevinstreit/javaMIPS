@@ -9,6 +9,7 @@ import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.LabelRef;
+import de.unisb.prog.mips.assembler.Offset;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.generators.Generators;
 import de.unisb.prog.mips.assembler.generators.InstructionGenerator;
@@ -75,7 +76,6 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 		Option<Expr> expr = Option.empty(Expr.class);
 		
 		if (a != null) {
-			System.out.println("addr != null");
 			if (a.getExpr() != null)
 				expr = DUMMY_EXPR;
 			if (a.getLabel() != null)
@@ -88,7 +88,7 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 		
 		System.out.format("label: %s, expr: %s, base; %s\n", label.isSet(), expr.isSet(), base.isSet());
 		
-		OperandInstance op = new OperandInstance(regs, label, expr, base);
+		OperandInstance op = new OperandInstance(regs, new Offset(label, expr), base);
 		InstructionGenerator gen = generators.get(i.getOpcode());
 		// System.out.println(gen.getAddressMode().name());
 		op.check(gen, reporter);
