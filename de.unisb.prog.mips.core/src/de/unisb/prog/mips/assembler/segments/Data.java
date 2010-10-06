@@ -4,7 +4,6 @@ import java.util.List;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Data extends Segment {

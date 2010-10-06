@@ -1,6 +1,5 @@
 package de.unisb.prog.mips.parser.generate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -174,15 +173,6 @@ public class Generate {
 				label = new Option<LabelRef>(assembly.createRef(name));
 			}
 		}
-		
-		try {
-			expr.otherwise(Expressions.constantInt(123)).append(System.out);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.out.println();
 		
 		return new Offset(label, expr);
 	}

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.simulator.Memory;
-import de.unisb.prog.mips.util.Option;
 
 public class LabelRef implements Address {
 	private Element elm;
