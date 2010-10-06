@@ -102,7 +102,7 @@ public class ISAView extends ViewPart {
 				return 	"\n" + 
 						insn.mnemonic +	"\n" + 
 						insn.longName +	"\n\n" +
-						"Example:" + insn.example + "\n\n" + 
+						"Example: " + insn.example + "\n\n" + 
 						insn.description + 
 						"\n";
 			} else {

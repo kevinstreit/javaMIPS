@@ -2,6 +2,7 @@ package de.unisb.prog.mips.doc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,9 +16,10 @@ import org.xml.sax.SAXException;
 
 public class Documentation {
 	private static InsnDocGroup[] insnDoc = null;
-	public static InsnDocGroup[] getInsnDocumentation() {
-		if (insnDoc != null)
-			return insnDoc;
+	private static HashMap<String, InsnDoc> mnemonicDocMap = null;
+	
+	private static void readDocs() {
+		mnemonicDocMap = new HashMap<String, InsnDoc>();
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		
@@ -27,7 +29,8 @@ public class Documentation {
 			
 			if (in == null) {
 				System.err.println("Could not read instruction doc description!");
-				return null;
+				insnDoc = null;
+				mnemonicDocMap = null;
 			}
 			
 			Document document = db.parse(in);
@@ -62,7 +65,9 @@ public class Documentation {
 				    			String example = iExample==null ? "<empty>" : iExample.getNodeValue();
 				    			String desc = insn.getTextContent().trim();
 				    			
-				    			gInsnDocGroup.addInsn(new InsnDoc(gInsnDocGroup, mnemonic, name, example, desc));
+				    			InsnDoc doc = new InsnDoc(gInsnDocGroup, mnemonic, name, example, desc);
+				    			mnemonicDocMap.put(mnemonic, doc);
+				    			gInsnDocGroup.addInsn(doc);
 				    		}
 				    	}
 				    }
@@ -70,16 +75,32 @@ public class Documentation {
 			}
 			
 			insnDoc = insnDocGroups.toArray(new InsnDocGroup[insnDocGroups.size()]);
-			return insnDoc;
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-			return null;
+			insnDoc = null;
+			mnemonicDocMap = null;
 		} catch (SAXException e) {
 			e.printStackTrace();
-			return null;
+			insnDoc = null;
+			mnemonicDocMap = null;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
+			insnDoc = null;
+			mnemonicDocMap = null;
 		}
+	}
+	
+	public static InsnDocGroup[] getInsnDocumentation() {
+		if (insnDoc == null)
+			readDocs();
+		
+		return insnDoc;
+	}
+	
+	public static InsnDoc getInsnDoc(String mnemonic) {
+		if (mnemonicDocMap == null)
+			readDocs();
+		
+		return mnemonicDocMap.get(mnemonic);
 	}
 }

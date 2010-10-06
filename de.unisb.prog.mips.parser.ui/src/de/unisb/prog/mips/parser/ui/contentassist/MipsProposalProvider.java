@@ -6,9 +6,12 @@ package de.unisb.prog.mips.parser.ui.contentassist;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.xtext.RuleCall;
+import org.eclipse.xtext.ui.editor.contentassist.ConfigurableCompletionProposal;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
+import de.unisb.prog.mips.doc.Documentation;
+import de.unisb.prog.mips.doc.InsnDoc;
 import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
@@ -21,8 +24,25 @@ public class MipsProposalProvider extends AbstractMipsProposalProvider {
 	private <T extends Enum<T> & Instruction> void add(Class<T> cls, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		for (T e : cls.getEnumConstants()) {
 			if (e.valid()) {
-				ICompletionProposal proposal = createCompletionProposal(e.name(), context);
-				acceptor.accept(proposal);
+				ICompletionProposal compProposal = createCompletionProposal(e.name(), context);
+				
+				if (compProposal instanceof ConfigurableCompletionProposal) {
+					ConfigurableCompletionProposal proposal = (ConfigurableCompletionProposal) compProposal;
+					InsnDoc insn = Documentation.getInsnDoc(e.name());
+					if (insn != null) {
+						proposal.setAdditionalProposalInfo(
+							"\n" + 
+							insn.mnemonic +	"\n" + 
+							insn.longName +	"\n\n" +
+							"Example: " + insn.example + "\n\n" + 
+							insn.description + 
+							"\n"
+						);
+					}
+					acceptor.accept(proposal);
+				} else {
+					acceptor.accept(compProposal);
+				}
 			}
 		}
 	}
@@ -31,7 +51,6 @@ public class MipsProposalProvider extends AbstractMipsProposalProvider {
 	@Override
 	public void complete_TextItem(EObject model, RuleCall ruleCall,
 			ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		
 		add(Opcode.class, context, acceptor);
 		add(IntFunct.class, context, acceptor);
 		add(RegImm.class, context, acceptor);
