@@ -2,6 +2,7 @@ package de.unisb.prog.mips.assembler;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.util.Option;
 
 public class Offset implements Address {
@@ -14,24 +15,35 @@ public class Offset implements Address {
 		this.cnst = cnst;
 	}
 	
-	
 	public void append(Appendable app) throws IOException {
 		getLabel().append(app);
-		cnst.otherwise(Expressions.ZERO).append(app);
+		getExpr().append(app);
+	}
+	
+	public Option<LabelRef> getLabelOption() {
+		return label;
+	}
+	
+	public Option<Expr> getExprOption() {
+		return cnst;
 	}
 	
 	public LabelRef getLabel() {
 		return label.otherwise(LabelRef.NULL);
 	}
 	
+	public Expr getExpr() {
+		return cnst.otherwise(Expressions.constantInt(0xdeadbeaf));
+	}
+	
 	@Override
 	public int eval() {
-		return cnst.otherwise(Expressions.ZERO).eval() + getLabel().eval();
+		return getExpr().eval() + getLabel().eval();
 	}
 
 	@Override
-	public boolean isText() {
-		return getLabel().getElement().isText();
+	public Segment getSegment() {
+		return getLabel().getSegment();
 	}
 
 }

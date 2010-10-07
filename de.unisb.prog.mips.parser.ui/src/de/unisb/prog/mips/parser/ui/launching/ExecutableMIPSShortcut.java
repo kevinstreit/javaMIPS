@@ -11,8 +11,10 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
 import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.os.DefaultOS;
 import de.unisb.prog.mips.parser.generate.Generate;
 import de.unisb.prog.mips.parser.mips.Asm;
+import de.unisb.prog.mips.simulator.Sys;
 
 public class ExecutableMIPSShortcut implements ILaunchShortcut {
 
@@ -30,10 +32,12 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 		Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
 			@Override
 			public Assembly exec(XtextResource state) throws Exception {
+				Sys sys = new Sys(1024, new DefaultOS());
 				Asm a = (Asm) state.getContents().get(0);
 				Assembly asm = new Assembly();
 				Generate gen = new Generate(asm);
 				gen.generate(a);
+				asm.prepare(sys);
 				return asm;
 			}
 		});

@@ -8,8 +8,8 @@ public class Align extends Element {
 	
 	private final int powerOfTo;
 	
-	public Align(int powerOfTo, boolean text) {
-		super(text);
+	public Align(Segment seg, int powerOfTo) {
+		super(seg);
 		this.powerOfTo = powerOfTo;
 	}
 

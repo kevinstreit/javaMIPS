@@ -5,14 +5,16 @@ import java.io.IOException;
 public class Expressions {
 	
 	public static enum IntOp {
-		ADD('+') { public int op(int a, int b) { return a + b; } },
-		SUB('-') { public int op(int a, int b) { return a - b; } },
-		MUL('*') { public int op(int a, int b) { return a * b; } },
-		DIV('/') { public int op(int a, int b) { return a / b; } };
+		ADD("+") { public int op(int a, int b) { return a + b; } },
+		SUB("-") { public int op(int a, int b) { return a - b; } },
+		MUL("*") { public int op(int a, int b) { return a * b; } },
+		SHL("<<") { public int op(int a, int b) { return a << b; } },
+		SHRA(">>") { public int op(int a, int b) { return a >> b; } },
+		SHR(">>>") { public int op(int a, int b) { return a >>> b; } };
 		
-		public final char sym;
+		public final String sym;
 		
-		private IntOp(char sym) {
+		private IntOp(String sym) {
 			this.sym = sym;
 		}
 		

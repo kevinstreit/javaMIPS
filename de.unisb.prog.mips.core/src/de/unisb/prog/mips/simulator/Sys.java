@@ -10,13 +10,11 @@ public class Sys implements MemoryLayout {
 	
 	private final Memory mem;
 	private final Processor sim;
-	private final SysCallHandler sys;
 	
 	public Sys(int memPages, SysCallHandler sys) {
 		ByteMemory vm = new VirtualMemory(12);
 		this.mem = new Memory(vm, true);
 		this.sim = new Processor(mem, null, sys);
-		this.sys = sys;
 	}
 	
 	public void run(Assembly asm) {

@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.unisb.prog.mips.assembler.Expressions;
-import de.unisb.prog.mips.assembler.LabelRef;
-import de.unisb.prog.mips.assembler.Offset;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
@@ -81,14 +78,14 @@ public class Generators {
 	public static final InstructionGenerator SHAMT      = new RegGenerator(AddressMode.SHAMT, DT) {
 		@Override
 		protected int addEncoding(int word, OperandInstance inst) {
-			return Instruction.FIELD_SHAMT.insert(word, inst.getExpr().otherwise(Expressions.ZERO).eval());
+			return Instruction.FIELD_SHAMT.insert(word, inst.getExpr().eval());
 		}
 	};
 	
 	public static final InstructionGenerator IMM      = new RegGenerator(AddressMode.EXPR, TS) {
 		@Override
 		protected int addEncoding(int word, OperandInstance inst) {
-			return Instruction.FIELD_IMM.insert(word, inst.getExpr().otherwise(Expressions.ZERO).eval());
+			return Instruction.FIELD_IMM.insert(word, inst.getExpr().eval());
 		}
 	};
 	
@@ -96,7 +93,7 @@ public class Generators {
 		@Override
 		public Element generate(Text text, String opcode, OperandInstance inst) {
 			Opcode opc = Opcode.valueOf(opcode);
-			return text.absjump(opc, inst.getLabel().otherwise(LabelRef.NULL));
+			return text.absjump(opc, inst.getLabel());
 		}
 	};
 	
@@ -105,7 +102,7 @@ public class Generators {
 		public Element generate(Text text, String opcode, OperandInstance inst) {
 			Instruction i = Instructions.get(opcode);
 			List<Reg> regs = inst.getRegisters();
-			return text.condjump(i, regs.get(0), regs.get(1), null);
+			return text.condjump(i, regs.get(0), regs.get(1), inst.getLabel());
 		}
 	};
 	
@@ -114,7 +111,7 @@ public class Generators {
 		public Element generate(Text text, String opcode, OperandInstance inst) {
 			Instruction i = Instructions.get(opcode);
 			List<Reg> regs = inst.getRegisters();
-			return text.condjump(i, regs.get(0), regs.get(1), null);
+			return text.condjump(i, regs.get(0), regs.get(1), inst.getLabel());
 		}
 	};
 	
@@ -122,8 +119,7 @@ public class Generators {
 		@Override
 		public Element generate(Text text, String opcode, OperandInstance inst) {
 			Opcode opc = Opcode.valueOf(opcode);
-			return text.loadstore(opc, inst.getRegisters().get(0), inst.getBase(), 
-					new Offset(inst.getLabel(), inst.getExpr()));
+			return text.loadstore(opc, inst.getRegisters().get(0), inst.getBase(), inst.genAddress());
 		}
 	};
 	
@@ -196,7 +192,7 @@ public class Generators {
 		register("li", new InstructionGenerator(AddressMode.EXPR, T) {
 			@Override
 			public Element generate(Text text, String opcode, OperandInstance inst) {
-				return text.constant(inst.getRegisters().get(0), inst.getExpr().otherwise(Expressions.ZERO));
+				return text.constant(inst.getRegisters().get(0), inst.getExpr().eval());
 			}
 		});
 		

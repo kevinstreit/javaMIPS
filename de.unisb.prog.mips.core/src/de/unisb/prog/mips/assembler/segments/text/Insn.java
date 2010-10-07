@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import de.unisb.prog.mips.assembler.RegNameDisassembler;
 import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
@@ -11,8 +12,8 @@ class Insn extends Element {
 	
 	protected int word;
 	
-	Insn(int word) {
-		super(true);
+	Insn(Segment seg, int word) {
+		super(seg);
 		this.word = word;
 	}
 
@@ -34,5 +35,5 @@ class Insn extends Element {
 	public String toString() {
 		return RegNameDisassembler.INSTANCE.disasm(word);	
 	}
-
+	
 }

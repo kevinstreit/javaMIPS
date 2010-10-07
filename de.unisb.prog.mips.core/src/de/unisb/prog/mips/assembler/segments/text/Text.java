@@ -18,6 +18,8 @@ import de.unisb.prog.mips.util.Option;
 
 public class Text extends Segment {
 	
+	private static final long serialVersionUID = -1937181393628006820L;
+
 	public Text(Assembly asm) {
 		super(asm);
 	}
@@ -27,7 +29,9 @@ public class Text extends Segment {
 	private final List<AbsJump> absJumps = new LinkedList<AbsJump>();
 	
 	public Element word(int w) {
-		return add(new Normal(w));
+		Element res = new Insn(this, w);
+		add(res);
+		return res;
 	}
 	
 	public Element normal(Instruction f, Reg rs, Reg rt, Reg rd, int shamt) {
@@ -35,7 +39,9 @@ public class Text extends Segment {
 		word = rd.encodeInto(word, Instruction.FIELD_RD);
 		word = rs.encodeInto(word, Instruction.FIELD_RS);
 		word = rt.encodeInto(word, Instruction.FIELD_RT);
-		return add(new Normal(word));
+		Element res = new Insn(this, word);
+		add(res);
+		return res;
 	}
 	
 	public Element imm(Instruction i, Reg rs, Reg rt, int imm) {
@@ -43,7 +49,9 @@ public class Text extends Segment {
 		word = rs.encodeInto(word, Instruction.FIELD_RS);
 		word = rt.encodeInto(word, Instruction.FIELD_RT);
 		word = Instruction.FIELD_IMM.insert(word, imm);
-		return add(new Normal(word));
+		Element res = new Insn(this, word);
+		add(res);
+		return res;
 	}
 	
 	public Element address(Reg rt, Address addr) {
@@ -51,7 +59,7 @@ public class Text extends Segment {
 	
 	}
 	public Element address(Reg rt, Option<Reg> reg, Address addr) {
-		ImmGen<?> e = new LoadAddress(rt, reg, addr);
+		ImmGen<?> e = new LoadAddress(this, rt, reg, addr);
 		immGenInsns.add(e);
 		add(e);
 		return e;
@@ -62,42 +70,42 @@ public class Text extends Segment {
 	}
 
 	public Element constant(Reg rt, Expr expr) {
-		ImmGen<?> e = new Constant(rt, expr);
+		ImmGen<?> e = new Constant(this, rt, expr);
 		immGenInsns.add(e);
 		add(e);
 		return e;
 	}
 
 	public Element loadstore(Opcode opc, Reg rt, Option<Reg> base, Address addr) {
-		DataRef dr = new DataRef(opc, rt, base, addr);
+		DataRef dr = new DataRef(this, opc, rt, base, addr);
 		add(dr);
 		immGenInsns.add(dr);
 		return dr;
 	}
 
 	public Element condjump(Instruction opc, Reg rs, Reg rt, LabelRef e) {
-		RelJump rj = new RelJump(opc, rs, rt, e);
+		RelJump rj = new RelJump(this, opc, rs, rt, e);
 		add(rj);
 		relJumps.add(rj);
 		return rj;
 	}
 
 	public Element condjump(Instruction opc, Reg rs, LabelRef e) {
-		RelJump rj = new RelJump(opc, rs, e);
+		RelJump rj = new RelJump(this, opc, rs, e);
 		add(rj);
 		relJumps.add(rj);
 		return rj;
 	}
 	
 	public Element condjump(int word, LabelRef e) {
-		RelJump rj = new RelJump(word, e);
+		RelJump rj = new RelJump(this, word, e);
 		add(rj);
 		relJumps.add(rj);
 		return rj;
 	}
 	
 	public Element absjump(Instruction opc, LabelRef exp) {
-		AbsJump aj = new AbsJump(opc, exp);
+		AbsJump aj = new AbsJump(this, opc, exp);
 		add(aj);
 		absJumps.add(aj);
 		return aj;
@@ -124,6 +132,11 @@ public class Text extends Segment {
 		rewriteDataInsns();
 		assignOffsets(l.textStartOffset());
 		rewriteRelJumps();
+	}
+
+	@Override
+	public Kind getKind() {
+		return Kind.TEXT;
 	}
 
 }

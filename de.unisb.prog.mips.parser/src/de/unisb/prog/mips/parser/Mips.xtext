@@ -14,31 +14,26 @@ Reg: (INTREG | TXTREG);
 
 Addr:  label=[Label] ("+"|"-") expr=CExpr | label=[Label] | expr=CExpr;
 CExpr returns Expression: Mult (({Plus.left=current} '+'| {Minus.left=current} '-') right=Mult)*;
-Mult  returns Expression: Prim (({Mul.left=current} '*' {Shr.left=current} ">>" | {Shl.left=current} "<<") right=Prim)*;
+Mult  returns Expression: Prim (({Mul.left=current} '*' | {Shra.left=current} ">>" | {Shr.left=current} ">>>" | {Shl.left=current} "<<") right=Prim)*;
 Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
 DataSegment: ".data" (items+=DataItem)+ ;
 
 DataItem: label=(Label)? data=DataDecl;
 	
-DataDecl
-	: item=(Str
-	| Align
-	| Space
-	| Byte
-	| Half 
-	| Word);
+DataDecl : item=(Str | Align | Space | Byte | Half | Word);
 	
 Label:       ^name=ID ':' ;
 Align:       ".align" (align=INT) ;
 Space:       ".space" (bytes=INT);
-Word:        ".word" val=IntList ;
-Half:        ".half" val=IntList ;
-Byte:        ".byte" val=IntList ;
-Str:         (".asciiz" | ".ascii") val=STRING;
+Word:        ".word" vals=AddrList;
+Half:        ".half" vals=IntList;
+Byte:        ".byte" vals=IntList;
+Str:         ({Asciiz} ".asciiz" | {Ascii} ".ascii") val=STRING;
 
 IntList:     vals+=PNInt (',' vals+=PNInt)*;
-PNInt returns ecore::EInt:       ('-')? INT;
+AddrList:    vals+=Addr (',' vals+=Addr)*;
+PNInt returns ecore::EInt: ('-')? INT;
 	
 terminal INTREG   : '$' ('0'..'9')+;
 terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;
