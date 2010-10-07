@@ -9,7 +9,7 @@ import de.unisb.prog.mips.insn.Opcode;
 public class Constant extends ImmGen<Expr> {
 
 	public Constant(Segment seg, Reg rt, Expr expr) {
-		super(seg, Opcode.addi, rt, expr);
+		super(seg, Opcode.addiu, rt, expr);
 	}
 
 	public Constant(Segment seg, Reg rt, int value) {

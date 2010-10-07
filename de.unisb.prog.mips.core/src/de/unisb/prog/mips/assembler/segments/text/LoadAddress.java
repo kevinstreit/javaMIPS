@@ -12,7 +12,7 @@ public class LoadAddress extends ImmGen<Address> {
 	private final Option<Reg> base;
 	
 	public LoadAddress(Segment seg, Reg rt, Option<Reg> reg, Address addr) {
-		super(seg, Opcode.addi, rt, addr);
+		super(seg, Opcode.addiu, rt, addr);
 		this.base = reg;
 	}
 
