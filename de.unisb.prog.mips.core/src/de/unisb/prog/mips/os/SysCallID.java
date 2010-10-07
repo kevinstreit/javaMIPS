@@ -1,7 +1,6 @@
 package de.unisb.prog.mips.os;
 
-public enum Syscall {
-	
+public enum SysCallID {
 	_00,
 	print_int,
 	print_float,
@@ -20,5 +19,4 @@ public enum Syscall {
 	write,
 	close,
 	exit2
-
 }
