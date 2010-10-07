@@ -37,6 +37,16 @@ public class Memory {
 		return res;
 	}
 	
+	public CharSequence loadString(int addr) {
+		StringBuffer sb = new StringBuffer();
+		char ch = (char) load(addr++, Type.BYTE);
+		while (ch != '\0') {
+			sb.append(ch);
+			ch = (char) load(addr++, Type.BYTE);
+		}
+		return sb;
+	}
+	
 	public <T> void dump(T output, int from, int count, MemDumpFormatter<T> fmt) throws IOException {
 		Type tp = fmt.granularity();
 		int step = tp.sizeof();

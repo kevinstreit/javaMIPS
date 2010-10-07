@@ -31,12 +31,15 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			@Override
 			public Assembly exec(XtextResource state) throws Exception {
 				MIPSCore.getInstance().init(1024);
+				
 				Asm a = (Asm) state.getContents().get(0);
 				Assembly asm = new Assembly();
 				Generate gen = new Generate(asm);
 				gen.generate(a);
+
 				MIPSCore.getInstance().load(asm);
 				MIPSCore.getInstance().start();
+
 				return asm;
 			}
 		});

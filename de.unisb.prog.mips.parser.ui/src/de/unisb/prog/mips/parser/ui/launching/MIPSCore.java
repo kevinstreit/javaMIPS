@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.HashSet;
 
 import de.unisb.prog.mips.assembler.Assembly;
-import de.unisb.prog.mips.os.DefaultSysCallHandler;
+import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
@@ -83,7 +83,7 @@ public class MIPSCore implements ExecutionListener {
 	private Assembly asm = null;
 	
 	public void init(int memPages) {
-		this.sys = new Sys(memPages, new DefaultSysCallHandler(MIPSConsole));
+		this.sys = new Sys(memPages, new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
 		this.asm = null;
 	}
 	
