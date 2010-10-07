@@ -30,7 +30,7 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
+		text = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
 		text.setFont(fonts.get("code"));
 		MIPSCore.getInstance().setConsoleOut(new TextOutputStream(text));
 		MIPSCore.getInstance().addExecutionListener(this);
