@@ -7,7 +7,7 @@ import de.unisb.prog.mips.assembler.segments.Segment.Kind;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.util.Option;
 
-public class LoadAddress extends ImmGen<Address> {
+public class LoadAddress extends ImmGen<Address> implements Relocateable {
 	
 	private final Option<Reg> base;
 	
@@ -18,8 +18,15 @@ public class LoadAddress extends ImmGen<Address> {
 
 	@Override
 	protected void rewrite() {
-		Reg b = base.otherwise(expr.getSegment().getKind() == Kind.TEXT ? Reg.zero : Reg.gp);
-		setGenImm(b, rt);
+		if (expr.getSegment().getKind() == Kind.DATA) {
+			Reg b = base.otherwise(Reg.gp);
+			setGenImm(b, rt);
+		}
+	}
+
+	@Override
+	public void relocate(int startAddress) throws JumpTargetOutOfRange {
+		throw new UnsupportedOperationException("cannot take address of text segment elements yet!");
 	}
 
 }

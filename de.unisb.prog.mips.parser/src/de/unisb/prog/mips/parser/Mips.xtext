@@ -33,7 +33,7 @@ Str:         ({Asciiz} ".asciiz" | {Ascii} ".ascii") val=STRING;
 
 IntList:     vals+=PNInt (',' vals+=PNInt)*;
 AddrList:    vals+=Addr (',' vals+=Addr)*;
-PNInt returns ecore::EInt: ('-')? INT;
+PNInt returns ecore::EInt: ('-')? (INT | HEXINT);
 	
 terminal INTREG   : '$' ('0'..'9')+;
 terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;
@@ -43,6 +43,7 @@ terminal NL       : ('\r'|'\n')+;
 
 terminal ID       : '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 terminal INT returns ecore::EInt: ('0'..'9')+;
+terminal HEXINT returns ecore::EInt: '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
 terminal STRING	  : '"' ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|'"') )* '"' 
                   | "'" ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|"'") )* "'" ; 
 	

@@ -14,9 +14,18 @@ public abstract class Element implements Expr {
 	private String label = "";
 	private List<LabelRef> referers = null;
 	private final Segment segment;
+	private int lineNumber;
 	
 	protected Element(Segment seg) {
 		this.segment = seg;
+	}
+
+	public int getLineNumber() {
+		return lineNumber;
+	}
+
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
 	}
 
 	public Segment getSegment() {
@@ -56,9 +65,6 @@ public abstract class Element implements Expr {
 		}
 		appendInternal(app);
 		app.append('\n');
-	}
-	
-	public void relocate(int address) {
 	}
 	
 	protected abstract void appendInternal(Appendable app) throws IOException;

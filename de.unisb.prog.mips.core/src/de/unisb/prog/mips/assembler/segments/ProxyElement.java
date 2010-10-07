@@ -23,13 +23,26 @@ public class ProxyElement<T extends Element> extends Element {
 	public final void set(List<? extends T> elements) {
 		this.elements = elements;
 	}
-
+	
+	@Override
+	public void setOffset(int offset) {
+		super.setOffset(offset);
+		for (T element : elements) {
+			element.setOffset(offset);
+			offset = element.nextElementOffset(offset);
+		}
+	}
+	
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
 		if (comment.length() > 0)
 			app.append("; begin " + comment + "\n");
-		for (T element : elements)
-			element.append(app);
+		String sep = "";
+		for (T element : elements) {
+			app.append(sep);
+			element.appendInternal(app);
+			sep = "\n";
+		}
 		if (comment.length() > 0)
 			app.append("; end " + comment + "\n");
 	}
@@ -43,11 +56,9 @@ public class ProxyElement<T extends Element> extends Element {
 
 	@Override
 	public void writeToMem(Memory mem, int addr) {
-		if (elements.size() > 0) {
-			T start = elements.get(0);
-			int base = addr - start.getOffset();
-			for (T element : elements) 
-				element.writeToMem(mem, base + element.getOffset());
+		int base = addr - getOffset();
+		for (T element : elements) {
+			element.writeToMem(mem, base + element.getOffset());
 		}
 	}
 }

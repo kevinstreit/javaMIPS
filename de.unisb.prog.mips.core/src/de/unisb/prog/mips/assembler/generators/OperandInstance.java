@@ -69,8 +69,8 @@ public class OperandInstance {
 		ALLOWED.put(AddressMode.EXPR,            new State[] { State.NO,   State.NO,   State.MUST });
 		ALLOWED.put(AddressMode.EXPR_BASE,       new State[] { State.MAY,  State.NO,   State.MUST });
 		ALLOWED.put(AddressMode.LABEL,           new State[] { State.NO,   State.MUST, State.NO });
-		ALLOWED.put(AddressMode.LABEL_EXPR,      new State[] { State.NO,   State.MUST, State.MAY });
-		ALLOWED.put(AddressMode.LABEL_EXPR_BASE, new State[] { State.MAY,  State.MUST, State.MAY });
+		ALLOWED.put(AddressMode.LABEL_EXPR,      new State[] { State.NO,   State.MAY,  State.MAY });
+		ALLOWED.put(AddressMode.LABEL_EXPR_BASE, new State[] { State.MAY,  State.MAY,  State.MAY });
 		ALLOWED.put(AddressMode.SHAMT,           new State[] { State.NO,   State.NO,   State.MUST });
 		ALLOWED.put(AddressMode.NONE,            new State[] { State.NO,   State.NO,   State.NO });
 	}

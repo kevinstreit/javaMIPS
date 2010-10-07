@@ -80,16 +80,17 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	
 	@Override
 	public Instruction i(RegImm ri, int rs, int imm) {
+		int s = gp[rs];
 		imm = ri.extendImm(imm);
 		switch (ri) {
 		case bgezl:
-		case bgez:    if (rs >= 0)                    pc += imm << 2;   break;
+		case bgez:    pc += s >= 0 ? imm << 2 : 4; break;
 		case bgezall:
-		case bgezal:  if (rs >= 0) { gp[31] = pc + 4; pc += imm << 2; } break;
+		case bgezal:  if (s >= 0) { gp[31] = pc + 4; pc += imm << 2; } else pc += 4; break;
 		case bltzl:
-		case bltz:    if (rs < 0)                     pc += imm << 2;   break;
+		case bltz:    pc += s < 0 ? imm << 2 : 4; break;
 		case bltzall:
-		case bltzal:  if (rs < 0)  { gp[31] = pc + 4; pc += imm << 2; } break;
+		case bltzal:  if (s < 0)  { gp[31] = pc + 4; pc += imm << 2; } else pc += 4; break;
 		}
 		return ri;
 	}
@@ -101,13 +102,13 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		imm = opc.extendImm(imm);
 		switch (opc) {
 		case beql:
-		case beq:   if (s == t) pc += imm << 2; break;
+		case beq:   pc += s == t ? imm << 2 : 4; break;
 		case bnel:
-		case bne:   if (s != t) pc += imm << 2; break;
+		case bne:   pc += s != t ? imm << 2 : 4; break;
 		case blezl:
-		case blez:  if (s <= 0) pc += imm << 2; break;
+		case blez:  pc += s <= 0 ? imm << 2 : 4; break;
 		case bgtzl:
-		case bgtz:  if (s >  0) pc += imm << 2; break;
+		case bgtz:  pc += s > 0 ? imm << 2 : 4; break;
 		
 		case addi:  gp[rt] = s + imm; break;
 		case addiu: gp[rt] = s + imm; break; // TODO: Correct!

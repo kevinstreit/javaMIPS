@@ -8,6 +8,7 @@ import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.ProxyElement;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.IntFunct;
+import de.unisb.prog.mips.insn.Kind;
 import de.unisb.prog.mips.insn.Opcode;
 
 public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {

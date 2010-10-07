@@ -8,6 +8,7 @@ import java.util.Map;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.segments.text.JumpTargetOutOfRange;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
@@ -19,6 +20,8 @@ public abstract class Segment implements Iterable<Element> {
 	// private final List<Element> elements = new ArrayList<Element>(1024);
 	
 	private final Assembly assembly;
+	
+	private int size = -1;
 	
 	public static enum Kind {
 		DATA, TEXT, NULL
@@ -44,9 +47,11 @@ public abstract class Segment implements Iterable<Element> {
 			e.setOffset(ofs);
 			ofs = e.nextElementOffset(ofs);
 		}
+		
+		size = ofs - startOffset;
 	}
 	
-	public final void writeToMem(Memory mem, int addr) {
+	public final void writeToMem(Memory mem, int addr) throws JumpTargetOutOfRange {
 		relocate(addr);
 		for (Element e : this) 
 			e.writeToMem(mem, addr + e.getOffset());
@@ -84,12 +89,16 @@ public abstract class Segment implements Iterable<Element> {
 			e.append(app);
 	}
 	
+	public int size() {
+		return size;
+	}
+	
 	@Override
 	public Iterator<Element> iterator() {
 		return elements.iterator();
 	}
 	
-	protected abstract void relocate(int startAddress);
+	protected abstract void relocate(int startAddress) throws JumpTargetOutOfRange;
 	public abstract Kind getKind();
 	
 }

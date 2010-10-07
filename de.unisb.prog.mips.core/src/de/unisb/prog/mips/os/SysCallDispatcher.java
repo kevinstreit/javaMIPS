@@ -19,6 +19,8 @@ public class SysCallDispatcher implements SysCallHandler {
 	public void syscall(ProcessorState state, Memory mem) {
 		int v0 = Reg.v0.get(state.gp);
 		int a0 = Reg.a0.get(state.gp);
+		if (v0 < 0 || v0 >= SysCallID.values().length)
+			return;
 		SysCallID c = SysCallID.values()[v0];
 		switch (c) {
 		case print_int: 

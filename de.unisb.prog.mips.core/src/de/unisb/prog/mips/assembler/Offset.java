@@ -33,7 +33,7 @@ public class Offset implements Address {
 	}
 	
 	public Expr getExpr() {
-		return cnst.otherwise(Expressions.constantInt(0xdeadbeaf));
+		return cnst.otherwise(Expressions.constantInt(0));
 	}
 	
 	@Override

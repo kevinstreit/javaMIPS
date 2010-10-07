@@ -6,6 +6,7 @@ import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.assembler.segments.Space;
+import de.unisb.prog.mips.assembler.segments.text.JumpTargetOutOfRange;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.Instructions;
@@ -51,7 +52,7 @@ public class Assembly {
 		text.prepare(layout);
 	}
 	
-	public void writeToMem(Memory mem, MemoryLayout layout) {
+	public void writeToMem(Memory mem, MemoryLayout layout) throws JumpTargetOutOfRange {
 		data.writeToMem(mem, layout.dataStart() - layout.dataStartOffset());
 		text.writeToMem(mem, layout.textStart() - layout.textStartOffset());
 	}

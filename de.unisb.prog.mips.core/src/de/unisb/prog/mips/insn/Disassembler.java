@@ -6,7 +6,8 @@ public class Disassembler implements Handler<String> {
 	
 	@Override
 	public String i(Opcode opc, int rs, int rt, int imm) {
-		imm = opc.extendImm(imm);
+		if (opc.getImmediate() == Immediate.SEXT_16)
+			imm = opc.extendImm(imm);
 		return String.format("%7s %3s %3s %-6d", opc, regName(rt), regName(rs), imm);
 	}
 
@@ -22,7 +23,10 @@ public class Disassembler implements Handler<String> {
 
 	@Override
 	public String r(IntFunct funct, int rs, int rt, int rd, int shamt) {
-		return String.format("%7s %3s %3s %3s", funct, regName(rd), regName(rs), regName(rt));
+		if (funct.getKind() == Kind.SHAMT)
+			return String.format("%7s %3s %3s %3d", funct, regName(rd), regName(rt), shamt);
+		else
+			return String.format("%7s %3s %3s %3s", funct, regName(rd), regName(rs), regName(rt));
 	}
 	
 	protected String regName(int reg) {

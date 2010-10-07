@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.parsetree.NodeUtil;
 import org.eclipse.xtext.util.PolymorphicDispatcher;
 
 import de.unisb.prog.mips.assembler.Assembly;
@@ -31,7 +32,9 @@ import de.unisb.prog.mips.parser.mips.Expression;
 import de.unisb.prog.mips.parser.mips.Half;
 import de.unisb.prog.mips.parser.mips.Insn;
 import de.unisb.prog.mips.parser.mips.Label;
+import de.unisb.prog.mips.parser.mips.Minus;
 import de.unisb.prog.mips.parser.mips.Mul;
+import de.unisb.prog.mips.parser.mips.Plus;
 import de.unisb.prog.mips.parser.mips.Shl;
 import de.unisb.prog.mips.parser.mips.Shr;
 import de.unisb.prog.mips.parser.mips.Shra;
@@ -75,6 +78,8 @@ public class Generate {
 			elm.setLabel(item.getLabel().getName());
 			assembly.addLabel(elm);
 		}
+		int line = NodeUtil.getNodeAdapter(item).getParserNode().getLine();
+		elm.setLineNumber(line);
 		return elm;
 	}
 	
@@ -128,6 +133,8 @@ public class Generate {
 			e.setLabel(label.getName());
 			assembly.addLabel(e);
 		}
+		int line = NodeUtil.getNodeAdapter(i).getParserNode().getLine();
+		e.setLineNumber(line);
 		// TODO Add line number
 	}
 	
@@ -150,7 +157,6 @@ public class Generate {
 		if (i.getBase() != null)
 			base = new Option<Reg>(Reg.parse(i.getBase()));
 		
-		System.out.println(i.getOpcode());
 		Offset off = generate(i.getAddr());
 		OperandInstance op = new OperandInstance(regs, off, base);
 		InstructionGenerator gen = generators.get(i.getOpcode());
@@ -183,6 +189,14 @@ public class Generate {
 		return Expressions.binary(op, l, r);
 	}
 
+	public Expr exprGen(Plus e) {
+		return exprGenBinOp(Expressions.IntOp.ADD, e.getLeft(), e.getRight());
+	}
+	
+	public Expr exprGen(Minus e) {
+		return exprGenBinOp(Expressions.IntOp.SUB, e.getLeft(), e.getRight());
+	}
+	
 	public Expr exprGen(Mul e) {
 		return exprGenBinOp(Expressions.IntOp.MUL, e.getLeft(), e.getRight());
 	}

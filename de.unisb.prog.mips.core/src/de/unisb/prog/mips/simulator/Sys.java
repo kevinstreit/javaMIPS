@@ -19,17 +19,17 @@ public class Sys implements MemoryLayout {
 	}
 	
 	public void load(Assembly asm) {
+		vm.reset();
 		try {
 			asm.prepare(this);
+			asm.writeToMem(mem, this);
 		} catch (AssemblerException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		vm.reset();
-		asm.writeToMem(mem, this);
 		try {
-			mem.dump(System.out, dataStart(), 100, MemDumpFormatter.DATA);
-			mem.dump(System.out, textStart(), 60, MemDumpFormatter.DISASM);
+			mem.dump(System.out, dataStart(), asm.getData().size(), MemDumpFormatter.DATA);
+			mem.dump(System.out, textStart(), asm.getText().size(), MemDumpFormatter.DISASM);
 		} catch (IOException e) {
 		}
 		sim.gp[Reg.gp.ordinal()] = dataStart() - dataStartOffset();

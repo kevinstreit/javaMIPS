@@ -86,8 +86,6 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 		if (i.getBase() != null && checkReg(i.getBase(), MipsPackage.INSN__BASE) != null)
 			base = DUMMY_REG;
 		
-		System.out.format("label: %s, expr: %s, base; %s\n", label.isSet(), expr.isSet(), base.isSet());
-		
 		OperandInstance op = new OperandInstance(regs, new Offset(label, expr), base);
 		InstructionGenerator gen = generators.get(i.getOpcode());
 		if (!gen.isLegal())

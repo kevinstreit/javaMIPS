@@ -13,6 +13,7 @@ import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.Instruction;
+import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.util.Option;
 
@@ -24,9 +25,9 @@ public class Text extends Segment {
 		super(asm);
 	}
 
-	private final List<ImmGen<?>> immGenInsns = new LinkedList<ImmGen<?>>();
-	private final List<RelJump> relJumps = new LinkedList<RelJump>();
-	private final List<AbsJump> absJumps = new LinkedList<AbsJump>();
+	private final List<ImmGen<?>>    immGenInsns = new LinkedList<ImmGen<?>>();
+	private final List<RelJump>         relJumps = new LinkedList<RelJump>();
+	private final List<Relocateable>    relocate = new LinkedList<Relocateable>();
 	
 	public Element word(int w) {
 		Element res = new Insn(this, w);
@@ -107,7 +108,7 @@ public class Text extends Segment {
 	public Element absjump(Instruction opc, LabelRef exp) {
 		AbsJump aj = new AbsJump(this, opc, exp);
 		add(aj);
-		absJumps.add(aj);
+		relocate.add(aj);
 		return aj;
 	}
 	
@@ -123,12 +124,16 @@ public class Text extends Segment {
 	}
 	
 	@Override
-	public void relocate(int startAddress) {
-		for (AbsJump aj : absJumps)
-			aj.rewrite(startAddress);
+	public void relocate(int startAddress) throws JumpTargetOutOfRange {
+		for (Relocateable r : relocate)
+			r.relocate(startAddress);
 	}
 	
 	public void prepare(MemoryLayout l) throws JumpTargetNotAligned, JumpTargetOutOfRange {
+		// append an exit syscall for those who forgot it
+		imm(Opcode.ori, Reg.zero, Reg.v0, 10);
+		normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero, 0);
+		
 		rewriteDataInsns();
 		assignOffsets(l.textStartOffset());
 		rewriteRelJumps();

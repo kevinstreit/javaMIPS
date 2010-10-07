@@ -217,6 +217,34 @@ public class Generators {
 			}
 		});
 		
+		register("move", new InstructionGenerator(AddressMode.NONE, DT) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				List<Reg> regs = inst.getRegisters();
+				return text.normal(IntFunct.or, Reg.zero, regs.get(1), regs.get(0), 0);
+			}
+		});
+		
+		register("b", new InstructionGenerator(AddressMode.LABEL, NONE) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				return text.condjump(Opcode.beq, Reg.zero, Reg.zero, inst.getLabel());
+			}
+		});
+		
+		register("beqz", new InstructionGenerator(AddressMode.LABEL, S) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				return text.condjump(Opcode.beq, inst.getRegisters().get(0), Reg.zero, inst.getLabel());
+			}
+		});
+		
+		register("ret", new InstructionGenerator(AddressMode.NONE, NONE) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				return text.normal(IntFunct.jr, Reg.ra, Reg.zero, Reg.zero, 0);
+			}
+		});
 	}
 
 }

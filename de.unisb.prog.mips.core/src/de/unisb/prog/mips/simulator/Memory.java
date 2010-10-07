@@ -44,6 +44,7 @@ public class Memory {
 			sb.append(ch);
 			ch = (char) load(addr++, Type.BYTE);
 		}
+		System.out.println(sb);
 		return sb;
 	}
 	
@@ -51,7 +52,8 @@ public class Memory {
 		Type tp = fmt.granularity();
 		int step = tp.sizeof();
 		int[] chunk = new int[fmt.chunkSize()];
-		int to = from + count;
+		int cSize   = chunk.length;
+		int to = from + ((count + cSize - 1) / cSize) * cSize;
 		int i = 0;
 		int start = from;
 		for (int addr = from; addr < to; addr += step) {
@@ -65,6 +67,14 @@ public class Memory {
 				i = i + 1;
 			}
 		}
+		
+		/*
+		if (i != 0) {
+			while (i < chunk.length - 1)
+				chunk[i++] = 0;
+			fmt.emit(output, start, chunk);
+		}
+		*/
 	}
 
 }

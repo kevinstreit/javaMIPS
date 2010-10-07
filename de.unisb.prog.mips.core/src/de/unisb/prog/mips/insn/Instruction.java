@@ -9,7 +9,7 @@ public interface Instruction {
 	public static final Bitfield FIELD_RD       = Bitfield.leftOf(FIELD_SHAMT, 5);
 	public static final Bitfield FIELD_RT       = Bitfield.leftOf(FIELD_RD, 5);
 	public static final Bitfield FIELD_RS       = Bitfield.leftOf(FIELD_RT, 5);
-	public static final Bitfield FIELD_OPCODE   = Bitfield.leftOf(FIELD_RS, 5);
+	public static final Bitfield FIELD_OPCODE   = Bitfield.leftOf(FIELD_RS, 6);
 	
 	public static final Bitfield FIELD_IMM      = new Bitfield(0, 16);
 	public static final Bitfield FIELD_TARGET   = new Bitfield(0, 26);
