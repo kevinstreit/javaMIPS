@@ -54,7 +54,6 @@ public class OperandInstance {
 		}
 		
 		public boolean isOk(Option<?> there) {
-			System.out.println("" + there.isSet() + " " + this.name() );
 			return there.isSet() ? this != NO : this != MUST;
 		}
 		
@@ -84,7 +83,6 @@ public class OperandInstance {
 	public void check(InstructionGenerator op, ErrorReporter<Errors> report) {
 		if (regs.size() != op.getNumberOfRegs())
 			report.error(String.format("instruction requires %d registers not %s", op.getNumberOfRegs(), regs.size()), Errors.REG_NO);
-		System.out.println(op.getAddressMode().name());
 		State[] allowed = ALLOWED.get(op.getAddressMode());
 		if (!allowed[0].isOk(base))
 			report.error(String.format("instruction %s base register", allowed[0].phrase), Errors.BASE_REG);

@@ -2,7 +2,10 @@ package de.unisb.prog.mips.parser.ui.launching;
 
 import java.util.HashSet;
 
+import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.simulator.Processor;
+import de.unisb.prog.mips.simulator.Sys;
+import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 
 public class MIPSCore implements ExecutionListener {
 	
@@ -34,40 +37,81 @@ public class MIPSCore implements ExecutionListener {
 	}
 	
 	@Override
-	public void execStarted(Processor proc) {
+	public void execStarted(Sys sys) {
 		for (ExecutionListener l : listener)
-			l.execStarted(proc);
+			l.execStarted(sys);
 	}
 
 	@Override
-	public void execPaused(Processor proc) {
+	public void execPaused(Sys sys) {
 		for (ExecutionListener l : listener)
-			l.execPaused(proc);
+			l.execPaused(sys);
 	}
 
 	@Override
-	public void execStepped(Processor proc) {
+	public void execStepped(Sys sys) {
 		for (ExecutionListener l : listener)
-			l.execStepped(proc);
+			l.execStepped(sys);
 	}
 
 	@Override
-	public void execFinished(Processor proc) {
+	public void execFinished(Sys sys) {
 		for (ExecutionListener l : listener)
-			l.execFinished(proc);
+			l.execFinished(sys);
 	}
 
 	@Override
-	public void dbgBrkptReached(Processor proc) {
+	public void dbgBrkptReached(Sys sys) {
 		for (ExecutionListener l : listener) {
-			l.dbgBrkptReached(proc);
-			l.execPaused(proc);
+			l.dbgBrkptReached(sys);
+			l.execPaused(sys);
 		}
 	}
 	
 	// Execution Registry ======================
 	
-	private Processor proc = null;
+	private Sys sys;
+	
+	public void init(Sys sys) {
+		this.sys = sys;
+	}
+	
+	private void continueExecution(Processor proc) {
+		proc.run();
+		switch (proc.state) {
+		case BREAKPOINT:
+			dbgBrkptReached(sys);
+			break;
+		case HALTED:
+			execFinished(sys);
+			break;
+		}
+	}
+	
+	public void start() {
+		Processor proc = sys.getProcessor();
+		proc.state = ExecutionState.RUNNING;
+		execStarted(sys);
+		continueExecution(proc);
+	}
+	
+	public void cont() {
+		Processor proc = sys.getProcessor();
+		proc.setContinue();
+		continueExecution(proc);
+	}
+	
+	public void step() {
+		Processor proc = sys.getProcessor();
+		proc.setContinue();
+		boolean ran = proc.step();
+		if (ran)
+			execStepped(sys);
+	}
+	
+	public void load(Assembly asm) {
+		sys.load(asm);
+	}
 	
 	
 }

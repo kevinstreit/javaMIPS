@@ -9,7 +9,7 @@ import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
-import de.unisb.prog.mips.os.DefaultOS;
+import de.unisb.prog.mips.os.DefaultSysCallHandler;
 import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.Type;
 import de.unisb.prog.mips.util.Option;
@@ -48,7 +48,7 @@ public class Test {
 		t.loadstore(Opcode.lw, Reg.t4, Option.empty(Reg.class), asm.createRef("str"));
 		asm.append(System.out);
 		
-		Sys sys = new Sys(1000, new DefaultOS());
+		Sys sys = new Sys(1000, new DefaultSysCallHandler());
 		asm.prepare(sys);
 		asm.append(System.out);
 		sys.run(asm);

@@ -2,22 +2,30 @@ package de.unisb.prog.mips.simulator;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.AssemblerException;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.MemoryLayout;
 import de.unisb.prog.mips.assembler.Reg;
 
 public class Sys implements MemoryLayout {
 	
+	private final ByteMemory vm = new VirtualMemory(12);
 	private final Memory mem;
 	private final Processor sim;
 	
 	public Sys(int memPages, SysCallHandler sys) {
-		ByteMemory vm = new VirtualMemory(12);
 		this.mem = new Memory(vm, true);
 		this.sim = new Processor(mem, null, sys);
 	}
 	
-	public void run(Assembly asm) {
+	public void load(Assembly asm) {
+		try {
+			asm.prepare(this);
+		} catch (AssemblerException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		vm.reset();
 		asm.writeToMem(mem, this);
 		try {
 			mem.dump(System.out, dataStart(), 100, MemDumpFormatter.DATA);
@@ -27,7 +35,14 @@ public class Sys implements MemoryLayout {
 		sim.gp[Reg.gp.ordinal()] = dataStart() - dataStartOffset();
 		sim.gp[Reg.sp.ordinal()] = stackStart();
 		sim.pc = textStart();
-		sim.run();
+	}
+
+	public Memory getMemory() {
+		return mem;
+	}
+
+	public Processor getProcessor() {
+		return sim;
 	}
 
 	@Override public int dataStart()       { return 0x10000000; }

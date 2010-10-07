@@ -53,7 +53,7 @@ public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 			}
 	
 			if (base != Reg.zero)
-				res.add(new Insn(seg, IntFunct.add.encode(base.ordinal(), rs, rs)));
+				res.add(new Insn(seg, IntFunct.addu.encode(base.ordinal(), rs, rs)));
 		}
 		
 		res.add(new Insn(seg, opcode.encode(rs, rt.ordinal(), imm)));

@@ -40,4 +40,9 @@ public class VirtualMemory implements ByteMemory {
 		page[addr & inPageMask] = val;
 	}
 
+	@Override
+	public void reset() {
+		pageMap.clear();
+	}
+
 }

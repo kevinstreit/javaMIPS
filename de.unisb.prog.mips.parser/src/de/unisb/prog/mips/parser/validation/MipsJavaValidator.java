@@ -90,6 +90,8 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 		
 		OperandInstance op = new OperandInstance(regs, new Offset(label, expr), base);
 		InstructionGenerator gen = generators.get(i.getOpcode());
+		if (!gen.isLegal())
+			error("illegal opcode: " + i.getOpcode(), MipsPackage.INSN__OPCODE);
 		// System.out.println(gen.getAddressMode().name());
 		op.check(gen, reporter);
 		// System.out.println();

@@ -37,5 +37,9 @@ public abstract class InstructionGenerator {
 		return word;
 	}
 	
+	public boolean isLegal() {
+		return true;
+	}
+	
 	public abstract Element generate(Text text, String opcode, OperandInstance inst);
 }

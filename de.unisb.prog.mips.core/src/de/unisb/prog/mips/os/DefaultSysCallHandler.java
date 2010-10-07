@@ -1,23 +1,36 @@
 package de.unisb.prog.mips.os;
 
+import java.io.PrintStream;
+
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.ProcessorState;
+import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.SysCallHandler;
 import de.unisb.prog.mips.simulator.Type;
 
-public class DefaultOS implements SysCallHandler {
+public class DefaultSysCallHandler implements SysCallHandler {
+	
+	private final PrintStream os;
+	
+	public DefaultSysCallHandler(PrintStream os) {
+		this.os = os;
+	}
+	
+	public DefaultSysCallHandler() {
+		this(System.out);
+	}
 	
 	private void printInt(ProcessorState state) {
 		int a0 = Reg.a0.get(state.gp);
-		System.out.print(a0);
+		os.print(a0);
 	}
 	
 	private void printStr(ProcessorState state, Memory mem) {
 		int a0 = Reg.a0.get(state.gp);
 		char ch = (char) mem.load(a0, Type.BYTE);
 		for (int i = 1; ch != 0; i++) {
-			System.out.print(ch);
+			os.print(ch);
 			ch = (char) mem.load(a0 + i, Type.BYTE);
 		}
 	}
@@ -31,6 +44,7 @@ public class DefaultOS implements SysCallHandler {
 		case print_string: printStr(state, mem); return;
 		case exit: 
 		case exit2: 
+			state.state = ExecutionState.HALTED;
 			return;
 		}
 	}

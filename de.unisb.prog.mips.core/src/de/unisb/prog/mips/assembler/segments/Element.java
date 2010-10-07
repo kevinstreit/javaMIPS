@@ -58,6 +58,9 @@ public abstract class Element implements Expr {
 		app.append('\n');
 	}
 	
+	public void relocate(int address) {
+	}
+	
 	protected abstract void appendInternal(Appendable app) throws IOException;
 	public abstract int nextElementOffset(int pos);
 	public abstract void writeToMem(Memory mem, int addr);

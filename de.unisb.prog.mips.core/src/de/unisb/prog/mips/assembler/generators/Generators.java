@@ -128,6 +128,11 @@ public class Generators {
 		public Element generate(Text text, String opcode, OperandInstance inst) {
 			return text.word(0);
 		}
+		
+		@Override
+		public boolean isLegal() {
+			return false;
+		}
 	};
 	
 	private static final Map<Kind, InstructionGenerator> kindMap = new EnumMap<Kind, InstructionGenerator>(Kind.class);
@@ -176,6 +181,7 @@ public class Generators {
 		
 		// some exceptions :)
 		add(IntFunct.syscall, new RegGenerator(AddressMode.NONE, NONE));
+		add(IntFunct.brk,     new RegGenerator(AddressMode.NONE, NONE));
 		add(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, SD));
 		add(IntFunct.jr,      new RegGenerator(AddressMode.NONE, S));
 		add(IntFunct.mult,    new RegGenerator(AddressMode.NONE, ST));
