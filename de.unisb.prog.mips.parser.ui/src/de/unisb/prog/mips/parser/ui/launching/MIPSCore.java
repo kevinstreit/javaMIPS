@@ -71,10 +71,15 @@ public class MIPSCore implements ExecutionListener {
 	}
 	
 	// UI Component Registry ===================
+	
 	PrintStream MIPSConsole = System.out;
 	
 	public void setConsoleOut(PrintStream consoleOut) {
 		this.MIPSConsole = consoleOut != null ? consoleOut : System.out;
+	}
+	
+	public PrintStream getConsoleOut() {
+		return MIPSConsole;
 	}
 	
 	// Execution Registry ======================

@@ -44,7 +44,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			}
 		});
 		try {
-			asm.append(System.out);
+			asm.append(MIPSCore.getInstance().getConsoleOut());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
