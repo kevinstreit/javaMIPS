@@ -27,11 +27,11 @@ class RelJump extends LabelRefInsn {
 		if ((labelOffset & 3) != 0)
 			throw new JumpTargetNotAligned();
 		
-		int rel = (getOffset() - labelOffset) >>> 2;
+		int rel = (labelOffset - getOffset()) >> 2;
 		if (! Immediate.SEXT_16.fits(rel))
 			throw new JumpTargetOutOfRange();
 		
-		Instruction.FIELD_IMM.insert(word, rel);
+		word = Instruction.FIELD_IMM.insert(word, rel);
 	}
 
 }
