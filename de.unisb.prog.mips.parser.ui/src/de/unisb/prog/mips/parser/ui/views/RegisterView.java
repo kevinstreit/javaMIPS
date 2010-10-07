@@ -1,17 +1,29 @@
 package de.unisb.prog.mips.parser.ui.views;
 
 
+import java.util.Arrays;
+
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -27,6 +39,8 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 
 	private TableViewer viewer;
 	private Sys system = null;
+	private int[] lastRegValues = new int[Reg.values().length];
+	private boolean[] regChanged = new boolean[Reg.values().length];
 
 	class ViewContentProvider implements IStructuredContentProvider {
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -43,6 +57,20 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	}
 	
 	class ViewLabelProvider extends CellLabelProvider {
+		private Styler boldStyler;
+		private Image regChangedImg;
+		
+		public ViewLabelProvider(final Font boldFont) {
+			boldStyler = new Styler() {
+				@Override
+				public void applyStyles(TextStyle textStyle) {
+					textStyle.font = boldFont;
+				}
+			};
+			
+			regChangedImg = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK).createImage();
+		}
+		
 		@Override
 		public void update(ViewerCell cell) {
 			if (cell.getElement() instanceof Reg) {
@@ -57,7 +85,20 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 						cell.setText("---");
 					else {
 						Processor proc = system.getProcessor();
-						cell.setText("" + proc.gp[reg.ordinal()]);
+						StyledString sStr = new StyledString();
+						String val = "" + proc.gp[reg.ordinal()];
+						
+						if (regChanged[reg.ordinal()]) {
+							sStr.append(val, boldStyler);
+							regChanged[reg.ordinal()] = false;
+							cell.setImage(regChangedImg);
+						} else {
+							sStr.append(val);
+							cell.setImage(null);
+						}
+						
+						cell.setText(sStr.getString());
+						cell.setStyleRanges(sStr.getStyleRanges());
 					}
 					break;
 				}
@@ -72,6 +113,11 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			} else {
 				return null;
 			}
+		}
+		
+		@Override
+		public void dispose() {
+			regChangedImg.dispose();
 		}
 	}
 	
@@ -100,15 +146,25 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		table.setLinesVisible(true);
 	}
 
+	private static FontData[] getModifiedFontData(FontData[] originalData, int additionalStyle) {
+		FontData[] styleData = new FontData[originalData.length];
+		for (int i = 0; i < styleData.length; i++) {
+			FontData base = originalData[i];
+			styleData[i] = new FontData(base.getName(), base.getHeight(), base.getStyle() | additionalStyle);
+		}
+       	return styleData;
+    }
 
 	public void createPartControl(Composite parent) {
 		
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
 		createColumns(viewer);
 		ColumnViewerToolTipSupport.enableFor(viewer);
+		FontData[] boldFontData = getModifiedFontData(viewer.getControl().getFont().getFontData(), SWT.BOLD);
+		Font boldFont = new Font(Display.getCurrent(), boldFontData);
 		
 		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
+		viewer.setLabelProvider(new ViewLabelProvider(boldFont));
 		viewer.setSorter(new NameSorter());
 		viewer.setInput(getViewSite());
 
@@ -132,26 +188,56 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 
 	@Override
 	public void execStarted(Sys sys) {
+		Arrays.fill(regChanged, false);
+		for (Reg r : Reg.values())
+			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
 		this.system = sys;
 	}
 
 	@Override
 	public void execPaused(Sys sys) {
+		for (Reg r : Reg.values()) {
+			int oldVal = lastRegValues[r.ordinal()];
+			int newVal = sys.getProcessor().gp[r.ordinal()];
+			
+			if (oldVal != newVal) {
+				regChanged[r.ordinal()] = true;
+				lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
+			}
+		}
 		this.viewer.refresh();
 	}
 
 	@Override
 	public void execStepped(Sys sys) {
+		for (Reg r : Reg.values()) {
+			int oldVal = lastRegValues[r.ordinal()];
+			int newVal = sys.getProcessor().gp[r.ordinal()];
+			
+			if (oldVal != newVal) {
+				regChanged[r.ordinal()] = true;
+				lastRegValues[r.ordinal()] = newVal;
+			}
+		}
 		this.viewer.refresh();
 	}
 
 	@Override
 	public void execFinished(Sys sys) {
+		for (Reg r : Reg.values()) {
+			int oldVal = lastRegValues[r.ordinal()];
+			int newVal = sys.getProcessor().gp[r.ordinal()];
+			
+			if (oldVal != newVal) {
+				regChanged[r.ordinal()] = true;
+				lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
+			}
+		}
 		this.viewer.refresh();
 	}
 
 	@Override
 	public void dbgBrkptReached(Sys sys) {
-		this.viewer.refresh();
+		// this is done in execPaused
 	}
 }

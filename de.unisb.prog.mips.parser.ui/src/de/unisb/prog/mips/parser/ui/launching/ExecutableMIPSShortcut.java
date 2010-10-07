@@ -23,7 +23,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	}
 
 	@Override
-	public void launch(IEditorPart editor, String mode) {
+	public void launch(IEditorPart editor, final String mode) {
 		// TODO Auto-generated method stub
 		XtextEditor e = (XtextEditor) editor;
 		IXtextDocument doc = e.getDocument();
@@ -38,13 +38,13 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 				gen.generate(a);
 
 				MIPSCore.getInstance().load(asm);
-				MIPSCore.getInstance().start();
+				MIPSCore.getInstance().start("debug".equals(mode));
 
 				return asm;
 			}
 		});
 		try {
-			asm.append(MIPSCore.getInstance().getConsoleOut());
+			asm.append(System.out);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}

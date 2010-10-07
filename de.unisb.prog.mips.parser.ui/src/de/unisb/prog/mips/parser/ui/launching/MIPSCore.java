@@ -104,7 +104,7 @@ public class MIPSCore implements ExecutionListener {
 		}
 	}
 	
-	public void start() {
+	public void start(boolean dbg) {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 		
@@ -113,6 +113,7 @@ public class MIPSCore implements ExecutionListener {
 		
 		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.RUNNING;
+		proc.setIgnoreBreaks(!dbg);
 		execStarted(sys);
 		continueExecution(proc);
 	}
@@ -151,6 +152,18 @@ public class MIPSCore implements ExecutionListener {
 		Processor proc = sys.getProcessor();
 		proc.setContinue();
 		boolean ran = proc.step();
+		
+		switch (proc.state) {
+		case BREAKPOINT:
+			dbgBrkptReached(sys);
+			break;
+		case HALTED:
+			execFinished(sys);
+			break;
+		default:
+			proc.state = ExecutionState.INTERRUPT;
+		}
+			
 		if (ran)
 			execStepped(sys);
 	}
