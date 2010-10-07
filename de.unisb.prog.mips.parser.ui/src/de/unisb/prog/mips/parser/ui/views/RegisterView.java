@@ -16,11 +16,17 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import de.unisb.prog.mips.assembler.Reg;
+import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.MIPSCore;
+import de.unisb.prog.mips.simulator.Processor;
+import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
+import de.unisb.prog.mips.simulator.Sys;
 
-public class RegisterView extends ViewPart {
+public class RegisterView extends ViewPart implements ExecutionListener {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.RegisterView";
 
 	private TableViewer viewer;
+	private Sys system = null;
 
 	class ViewContentProvider implements IStructuredContentProvider {
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -47,7 +53,12 @@ public class RegisterView extends ViewPart {
 					cell.setText(reg.name());
 					break;
 				case 1:
-					cell.setText("---");
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
+						cell.setText("---");
+					else {
+						Processor proc = system.getProcessor();
+						cell.setText("" + proc.gp[reg.ordinal()]);
+					}
 					break;
 				}
 			}
@@ -103,9 +114,44 @@ public class RegisterView extends ViewPart {
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "de.unisb.prog.mips.parser.ui.viewer");
+		
+		MIPSCore.getInstance().addExecutionListener(this);
+		
 	}
 
 	public void setFocus() {
 		viewer.getControl().setFocus();
+	}
+	
+	// Execution Event Handling
+	
+	@Override
+	public void dispose() {
+		MIPSCore.getInstance().removeExecutionListener(this);
+	}
+
+	@Override
+	public void execStarted(Sys sys) {
+		this.system = sys;
+	}
+
+	@Override
+	public void execPaused(Sys sys) {
+		this.viewer.refresh();
+	}
+
+	@Override
+	public void execStepped(Sys sys) {
+		this.viewer.refresh();
+	}
+
+	@Override
+	public void execFinished(Sys sys) {
+		this.viewer.refresh();
+	}
+
+	@Override
+	public void dbgBrkptReached(Sys sys) {
+		this.viewer.refresh();
 	}
 }

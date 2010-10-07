@@ -10,8 +10,10 @@ import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.os.DefaultSysCallHandler;
+import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.Type;
+import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.util.Option;
 
 public class Test {
@@ -51,7 +53,10 @@ public class Test {
 		Sys sys = new Sys(1000, new DefaultSysCallHandler());
 		asm.prepare(sys);
 		asm.append(System.out);
-		sys.run(asm);
+		sys.load(asm);
+		Processor proc = sys.getProcessor();
+		proc.state = ExecutionState.RUNNING;
+		proc.run();
 	}
 
 }

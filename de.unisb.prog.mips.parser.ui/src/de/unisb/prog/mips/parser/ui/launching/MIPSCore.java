@@ -1,11 +1,13 @@
 package de.unisb.prog.mips.parser.ui.launching;
 
+import java.io.PrintStream;
 import java.util.HashSet;
 
 import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.os.DefaultSysCallHandler;
 import de.unisb.prog.mips.simulator.Processor;
-import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
+import de.unisb.prog.mips.simulator.Sys;
 
 public class MIPSCore implements ExecutionListener {
 	
@@ -68,12 +70,21 @@ public class MIPSCore implements ExecutionListener {
 		}
 	}
 	
+	// UI Component Registry ===================
+	PrintStream MIPSConsole = System.out;
+	
+	public void setConsoleOut(PrintStream consoleOut) {
+		this.MIPSConsole = consoleOut != null ? consoleOut : System.out;
+	}
+	
 	// Execution Registry ======================
+
+	private Sys sys = null;
+	private Assembly asm = null;
 	
-	private Sys sys;
-	
-	public void init(Sys sys) {
-		this.sys = sys;
+	public void init(int memPages) {
+		this.sys = new Sys(memPages, new DefaultSysCallHandler(MIPSConsole));
+		this.asm = null;
 	}
 	
 	private void continueExecution(Processor proc) {
@@ -89,6 +100,12 @@ public class MIPSCore implements ExecutionListener {
 	}
 	
 	public void start() {
+		if (sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+		
+		if (asm == null)
+			throw new IllegalStateException("Assembly not loaded (asm == null)");
+		
 		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.RUNNING;
 		execStarted(sys);
@@ -96,12 +113,36 @@ public class MIPSCore implements ExecutionListener {
 	}
 	
 	public void cont() {
+		if (sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+		
+		if (asm == null)
+			throw new IllegalStateException("Assembly not loaded (asm == null)");
+		
 		Processor proc = sys.getProcessor();
 		proc.setContinue();
 		continueExecution(proc);
 	}
 	
+	public void pause() {
+		if (sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+		
+		if (asm == null)
+			throw new IllegalStateException("Assembly not loaded (asm == null)");
+		
+		Processor proc = sys.getProcessor();
+		proc.state = ExecutionState.INTERRUPT;
+		execPaused(sys);
+	}
+	
 	public void step() {
+		if (sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+		
+		if (asm == null)
+			throw new IllegalStateException("Assembly not loaded (asm == null)");
+		
 		Processor proc = sys.getProcessor();
 		proc.setContinue();
 		boolean ran = proc.step();
@@ -110,8 +151,14 @@ public class MIPSCore implements ExecutionListener {
 	}
 	
 	public void load(Assembly asm) {
+		if (sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+		
+		if (asm == null)
+			throw new IllegalStateException("Assembly not loaded (asm == null)");
+		
 		sys.load(asm);
+		this.asm = asm;
 	}
-	
 	
 }
