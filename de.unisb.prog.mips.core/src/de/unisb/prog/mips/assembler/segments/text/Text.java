@@ -60,8 +60,9 @@ public class Text extends Segment {
 	
 	}
 	public Element address(Reg rt, Option<Reg> reg, Address addr) {
-		ImmGen<?> e = new LoadAddress(this, rt, reg, addr);
+		LoadAddress e = new LoadAddress(this, rt, reg, addr);
 		immGenInsns.add(e);
+		relocate.add(e);
 		add(e);
 		return e;
 	}

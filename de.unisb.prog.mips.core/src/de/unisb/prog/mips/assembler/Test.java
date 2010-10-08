@@ -49,12 +49,12 @@ public class Test {
 		t.condjump(Opcode.beq, Reg.t5, Reg.t6, asm.createRef("test"));
 		t.loadstore(Opcode.lw, Reg.t7, Option.empty(Reg.class), asm.createRef("arr"));
 		t.loadstore(Opcode.lw, Reg.t4, Option.empty(Reg.class), asm.createRef("str"));
+		t.address(Reg.a3, asm.createRef("test"));
 		asm.append(System.out);
 		
 		Sys sys = new Sys(1000, new SysCallDispatcher(SysCallImplementation.DEFAULT));
-		asm.prepare(sys);
-		asm.append(System.out);
 		sys.load(asm);
+		asm.append(System.out);
 		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.RUNNING;
 		proc.run();

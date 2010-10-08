@@ -13,7 +13,7 @@ public abstract class Element implements Expr {
 	private int offset;
 	private String label = "";
 	private List<LabelRef> referers = null;
-	private final Segment segment;
+	protected final Segment segment;
 	private int lineNumber;
 	
 	protected Element(Segment seg) {

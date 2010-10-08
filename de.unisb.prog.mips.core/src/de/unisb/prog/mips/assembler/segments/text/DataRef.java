@@ -16,7 +16,7 @@ public class DataRef extends ImmGen<Address> {
 	}
 	
 	protected void rewrite() {
-		setGenImm(base, Reg.at);
+		set(genImm(base, Reg.at));
 	}
 	
 

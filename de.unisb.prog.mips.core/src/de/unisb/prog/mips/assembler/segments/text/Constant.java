@@ -17,7 +17,7 @@ public class Constant extends ImmGen<Expr> {
 	}
 	
 	protected void rewrite() {
-		setGenImm(Reg.zero, rt);
+		set(genImm(Reg.zero, rt));
 	}
 
 }
