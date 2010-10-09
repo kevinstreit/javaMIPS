@@ -27,7 +27,7 @@ public class Data extends Segment {
 	}
 	
 	@Override
-	protected void relocate(int startAddress) {
+	protected void relocateInternal(int startAddress) {
 	}
 
 	@Override

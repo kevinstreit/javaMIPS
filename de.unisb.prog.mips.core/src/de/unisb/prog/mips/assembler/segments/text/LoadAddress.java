@@ -7,17 +7,13 @@ import de.unisb.prog.mips.assembler.Address;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.assembler.segments.Segment.Kind;
-import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.util.Option;
 
 public class LoadAddress extends ImmGen<Address> implements Relocateable {
 	
-	private final Option<Reg> base;
-	
 	public LoadAddress(Segment seg, Reg rt, Option<Reg> reg, Address addr) {
-		super(seg, Opcode.addiu, rt, addr);
-		this.base = reg;
+		super(seg, "la", Opcode.addiu, rt, reg, addr);
 	}
 	
 	@Override

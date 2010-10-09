@@ -101,7 +101,7 @@ public class Generate {
 		
 		for (Addr a : w.getVals().getVals()) {
 			Offset off = generate(a);
-			exprs.add(off);
+			exprs.add(Expressions.absolute(off));
 		}
 		return seg.word(exprs);
 	}

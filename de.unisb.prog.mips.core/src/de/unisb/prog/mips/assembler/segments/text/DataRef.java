@@ -8,15 +8,12 @@ import de.unisb.prog.mips.util.Option;
 
 public class DataRef extends ImmGen<Address> {
 	
-	private Reg base;
-	
 	DataRef(Segment seg, Opcode opc, Reg rt, Option<Reg> base, Address addr) {
-		super(seg, opc, rt, addr);
-		this.base = base.otherwise(Reg.gp);
+		super(seg, opc, rt, base, addr);
 	}
 	
 	protected void rewrite() {
-		set(genImm(base, Reg.at));
+		set(genImm(base.otherwise(Reg.gp), Reg.at));
 	}
 	
 

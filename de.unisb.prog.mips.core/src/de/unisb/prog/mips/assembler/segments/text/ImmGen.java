@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -14,12 +15,16 @@ import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Kind;
 import de.unisb.prog.mips.insn.Opcode;
+import de.unisb.prog.mips.util.Option;
 
 public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 	
 	protected final T expr;
 	protected final Opcode opcode;
 	protected final Reg rt;
+	protected final Option<Reg> base;
+	
+	private final String pseudoOpName;
 	
 	private static final Set<Opcode> compOpcodes = EnumSet.of(Opcode.addiu, Opcode.ori, Opcode.addi);
 	private static final Map<Opcode, IntFunct> opcodeMap = new EnumMap<Opcode, IntFunct>(Opcode.class);
@@ -35,11 +40,17 @@ public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 		
 	}
 	
-	ImmGen(Segment seg, Opcode opc, Reg rt, T expr) {
+	ImmGen(Segment seg, String pseudoOpName, Opcode opc, Reg rt, Option<Reg> base, T expr) {
 		super(seg);
 		this.expr = expr;
 		this.opcode = opc;
 		this.rt = rt;
+		this.base = base;
+		this.pseudoOpName = pseudoOpName;
+	}
+	
+	ImmGen(Segment seg, Opcode opc, Reg rt, Option<Reg> base, T expr) {
+		this(seg, opc.name(), opc, rt, base, expr);
 	}
 	
 	protected final List<Insn> genImm(Reg base, Reg temp) {
@@ -113,15 +124,32 @@ public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 		
 		return res;
 	}
-
 	
 	protected final List<Insn> produceImmediate(List<Insn> res, Reg rt, int addr) {
 		int tgt = rt.ordinal();
-		if ((addr & 0xffff) != 0) 
-			res.add(new Insn(segment, Opcode.ori.encode(0, tgt, addr & 0xffff)));
-		if ((addr & 0xffff0000) != 0)
+		int src = 0;
+		if ((addr & 0xffff0000) != 0) {
 			res.add(new Insn(segment, Opcode.lui.encode(0, tgt, addr >>> 16)));
+			src = tgt;
+		}
+		if ((addr & 0xffff) != 0) 
+			res.add(new Insn(segment, Opcode.ori.encode(src, tgt, addr & 0xffff)));
 		return res;
+	}
+	
+	@Override
+	protected void appendInternal(Appendable app) throws IOException {
+		if (! elements.isEmpty()) 
+			super.appendInternal(app);
+		else {
+			StringBuffer sb = new StringBuffer();
+			expr.append(sb);
+			Reg r = base.otherwise(Reg.zero);
+			String b = r != Reg.zero ? String.format("($%s)", base.otherwise(Reg.zero)) : "";
+			String t = "$" + rt.name();
+			String s = String.format("%7s %3s %s%s", pseudoOpName, t, sb.toString(), b);
+			app.append(s);
+		}
 	}
 
 	protected abstract void rewrite();

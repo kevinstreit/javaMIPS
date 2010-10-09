@@ -14,12 +14,11 @@ import de.unisb.prog.mips.simulator.Type;
 
 public abstract class Segment implements Iterable<Element> {
 	
-	private final List<Element> elements = new ArrayList<Element>(1024);
-	
 	private static final long serialVersionUID = -4901720327612312193L;
-	// private final List<Element> elements = new ArrayList<Element>(1024);
 	
+	private final List<Element> elements = new ArrayList<Element>(1024);
 	private final Assembly assembly;
+	protected int baseAddress = 0;
 	
 	private int size = -1;
 	
@@ -33,6 +32,10 @@ public abstract class Segment implements Iterable<Element> {
 	
 	public final Assembly getAssembly() {
 		return assembly;
+	}
+	
+	public final int getBase() {
+		return baseAddress;
 	}
 	
 	protected final Element add(Element e) {
@@ -52,7 +55,6 @@ public abstract class Segment implements Iterable<Element> {
 	}
 	
 	public final void writeToMem(Memory mem, int addr) throws JumpTargetOutOfRange {
-		relocate(addr);
 		for (Element e : this) 
 			e.writeToMem(mem, addr + e.getOffset());
 	}
@@ -98,7 +100,12 @@ public abstract class Segment implements Iterable<Element> {
 		return elements.iterator();
 	}
 	
-	protected abstract void relocate(int startAddress) throws JumpTargetOutOfRange;
+	public void relocate(int startAddress) throws JumpTargetOutOfRange {
+		this.baseAddress = startAddress;
+		relocateInternal(startAddress);
+	}
+	
+	protected abstract void relocateInternal(int startAddress) throws JumpTargetOutOfRange;
 	public abstract Kind getKind();
 	
 }

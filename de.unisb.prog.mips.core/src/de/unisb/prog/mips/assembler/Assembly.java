@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.assembler.segments.Segment;
-import de.unisb.prog.mips.assembler.segments.Space;
 import de.unisb.prog.mips.assembler.segments.text.JumpTargetOutOfRange;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.insn.Instruction;
@@ -18,24 +16,6 @@ public class Assembly {
 	private Data data = new Data(this);
 	private Scope currScope = new Scope();
 	
-	private static final String NULL_NAME = "@NULL";
-	
-	@SuppressWarnings({ "unused" })
-	private Segment seg0 = new Segment(this) {
-		{
-			Element elm = new Space(this, 0);
-			elm.setLabel(NULL_NAME);
-			add(elm);
-			addLabel(elm);
-		}
-		
-		@Override protected void relocate(int startAddress) { }
-		@Override public Kind getKind() { return Kind.NULL; }
-	};
-	
-	public final LabelRef nullRef = createRef(NULL_NAME);
-	
-	
 	public Text getText() {
 		return text;
 	}
@@ -46,10 +26,9 @@ public class Assembly {
 	
 	public void prepare(MemoryLayout layout) throws AssemblerException {
 		data.assignOffsets(layout.dataStartOffset());
-		
-		// rewrite instructions using an address 
-		// patch jumps
 		text.prepare(layout);
+		data.relocate(layout.dataStart());
+		text.relocate(layout.textStart());
 	}
 	
 	public void writeToMem(Memory mem, MemoryLayout layout) throws JumpTargetOutOfRange {

@@ -9,17 +9,11 @@ import de.unisb.prog.mips.simulator.Memory;
 public class ProxyElement<T extends Element> extends Element {
 
 	protected List<? extends T> elements = Collections.emptyList();
-	private final String comment;
 	
 	protected ProxyElement(Segment seg) {
-		this(seg, "");
+		super(seg);
 	}
 
-	protected ProxyElement(Segment seg, String comment) {
-		super(seg);
-		this.comment = comment;
-	}
-	
 	public final void set(List<? extends T> elements) {
 		this.elements = elements;
 	}
@@ -35,16 +29,12 @@ public class ProxyElement<T extends Element> extends Element {
 	
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
-		if (comment.length() > 0)
-			app.append("; begin " + comment + "\n");
 		String sep = "";
 		for (T element : elements) {
 			app.append(sep);
 			element.appendInternal(app);
 			sep = "\n";
 		}
-		if (comment.length() > 0)
-			app.append("; end " + comment + "\n");
 	}
 
 	@Override
@@ -56,9 +46,9 @@ public class ProxyElement<T extends Element> extends Element {
 
 	@Override
 	public void writeToMem(Memory mem, int addr) {
-		int base = addr - getOffset();
 		for (T element : elements) {
-			element.writeToMem(mem, base + element.getOffset());
+			element.writeToMem(mem, addr);
+			addr = element.nextElementOffset(addr);
 		}
 	}
 }

@@ -14,6 +14,8 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	private final SysCallHandler os;
 	private final ExceptionHandler exc;
 	private boolean ignoreBreaks = true;
+	private int subsequentNops = 0;
+	private int haltAfterSeenNops = 20;
 	
 	public boolean ignoresBreak() {
 		return ignoreBreaks;
@@ -41,7 +43,17 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	public boolean step() {
 		if (state != ExecutionState.RUNNING)
 			return false;
+		
 		int insn = load(pc, Type.WORD, false);
+		
+		// count nops executed in a row 
+		// to stop after we have seen HALT_AFTER_NOPS
+		subsequentNops = insn == 0 ? subsequentNops + 1 : 0;
+		if (subsequentNops == haltAfterSeenNops) {
+			state = ExecutionState.HALTED;
+			return false;
+		}
+			
 		try {
 			Instruction i = Instructions.decode(insn, this);
 			if (! i.getKind().changesPc())
@@ -151,7 +163,13 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case movz:    if (t == 0) gp[rd] = s; break;
 		case movn:    if (t != 0) gp[rd] = s; break;
 		case syscall: os.syscall(this, mem); break;
-		case brk:     if (!ignoreBreaks) state = ExecutionState.BREAKPOINT; break;
+		case brk:     {
+			if (!ignoreBreaks) {
+				state = ExecutionState.BREAKPOINT; 
+				exc.breakpoint(this, mem);
+			}
+		}
+		break;
 		case mfhi:    gp[rd] = hi; break;
 		case mthi:    hi = s; break;
 		case mflo:    gp[rd] = lo; break;
@@ -161,6 +179,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 			lo = (int) (ld & 0xffffffff);
 			hi = (int) ((ld >> 32) & 0xffffffff);
 		}
+		break;
 		// TODO: Check, if this is ok.
 		case multu:   {
 			long a = (long) s & 0xffffffffL;
@@ -169,6 +188,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 			lo = (int) (r & 0xffffffff);
 			hi = (int) ((r >> 32) & 0xffffffff);
 		}
+		break;
 		case div:     lo = s / t; hi = s % t; break;
 		// TODO: Check, if this is ok.
 		case divu:    lo = s / t; hi = s % t; break;

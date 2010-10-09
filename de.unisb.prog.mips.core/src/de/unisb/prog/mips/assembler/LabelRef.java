@@ -10,7 +10,7 @@ public class LabelRef implements Address {
 	
 	private static final Assembly NULL_ASSEMBLY = new Assembly();
 	private static final Segment NULL_SEGMENT = new Segment(NULL_ASSEMBLY) {
-		@Override protected void relocate(int startAddress) { }
+		@Override protected void relocateInternal(int startAddress) { }
 		@Override public Kind getKind() { return Kind.NULL; }
 	};
 	

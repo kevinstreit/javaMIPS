@@ -34,8 +34,8 @@ public class Generators {
 		Instruction.FIELD_RT, Instruction.FIELD_RS, 
 	};
 	
-	public static final Bitfield[] SD = new Bitfield[] {
-		Instruction.FIELD_RS, Instruction.FIELD_RD, 
+	public static final Bitfield[] DS = new Bitfield[] {
+		Instruction.FIELD_RD, Instruction.FIELD_RS, 
 	};
 	
 	public static final Bitfield[] S = new Bitfield[] {
@@ -182,7 +182,7 @@ public class Generators {
 		// some exceptions :)
 		add(IntFunct.syscall, new RegGenerator(AddressMode.NONE, NONE));
 		add(IntFunct.brk,     new RegGenerator(AddressMode.NONE, NONE));
-		add(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, SD));
+		add(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, DS));
 		add(IntFunct.jr,      new RegGenerator(AddressMode.NONE, S));
 		add(IntFunct.mult,    new RegGenerator(AddressMode.NONE, ST));
 		add(IntFunct.multu,   new RegGenerator(AddressMode.NONE, ST));

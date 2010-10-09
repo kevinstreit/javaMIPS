@@ -65,5 +65,23 @@ public class Expressions {
 		};
 	}
 	
+	public static final Expr relative(Address addr) {
+		return addr;
+	}
+	
+	public static final Expr absolute(final Address addr) {
+		return new Expr() {
+			@Override
+			public int eval() {
+				return addr.getSegment().getBase() + addr.eval();
+			}
+
+			@Override
+			public void append(Appendable app) throws IOException {
+				addr.append(app);
+			}
+			
+		};
+	}
 
 }

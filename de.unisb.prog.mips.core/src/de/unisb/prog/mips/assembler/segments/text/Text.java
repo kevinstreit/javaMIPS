@@ -56,7 +56,7 @@ public class Text extends Segment {
 	}
 	
 	public Element address(Reg rt, Address addr) {
-		return address(rt, new Option<Reg>(Reg.gp), addr);
+		return address(rt, Option.empty(Reg.class), addr);
 	
 	}
 	public Element address(Reg rt, Option<Reg> reg, Address addr) {
@@ -125,16 +125,12 @@ public class Text extends Segment {
 	}
 	
 	@Override
-	public void relocate(int startAddress) throws JumpTargetOutOfRange {
+	public void relocateInternal(int startAddress) throws JumpTargetOutOfRange {
 		for (Relocateable r : relocate)
 			r.relocate(startAddress);
 	}
 	
 	public void prepare(MemoryLayout l) throws JumpTargetNotAligned, JumpTargetOutOfRange {
-		// append an exit syscall for those who forgot it
-		imm(Opcode.ori, Reg.zero, Reg.v0, 10);
-		normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero, 0);
-		
 		rewriteDataInsns();
 		assignOffsets(l.textStartOffset());
 		rewriteRelJumps();
