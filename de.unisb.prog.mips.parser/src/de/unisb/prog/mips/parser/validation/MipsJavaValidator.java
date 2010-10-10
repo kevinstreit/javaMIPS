@@ -14,7 +14,6 @@ import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.generators.Generators;
 import de.unisb.prog.mips.assembler.generators.InstructionGenerator;
 import de.unisb.prog.mips.assembler.generators.OperandInstance;
-import de.unisb.prog.mips.assembler.generators.OperandInstance.Errors;
 import de.unisb.prog.mips.parser.mips.Addr;
 import de.unisb.prog.mips.parser.mips.Insn;
 import de.unisb.prog.mips.parser.mips.MipsPackage;
@@ -38,26 +37,16 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	
 	private final Generators generators = new Generators();
 	
-	private final ErrorReporter<OperandInstance.Errors> reporter = new ErrorReporter<OperandInstance.Errors>() {
+	private final ErrorReporter<?> reporter = new ErrorReporter<Void>() {
 		
-		private int getFeature(Errors err) {
-			switch (err) {
-			case BASE_REG: return MipsPackage.INSN__BASE;
-			case EXPR:     return MipsPackage.ADDR__EXPR;
-			case LABEL:    return MipsPackage.ADDR__LABEL;
-			case REG_NO:   return MipsPackage.INSN__REGS;
-			}
-			return MipsPackage.INSN;
+		@Override
+		public void error(String msg, Void arg) {
+			MipsJavaValidator.this.error(msg, MipsPackage.INSN);
 		}
 
 		@Override
-		public void error(String msg, Errors arg) {
-			MipsJavaValidator.this.error(msg, getFeature(arg));
-		}
-
-		@Override
-		public void warning(String msg, Errors arg) {
-			MipsJavaValidator.this.warning(msg, getFeature(arg));
+		public void warning(String msg, Void arg) {
+			MipsJavaValidator.this.warning(msg, MipsPackage.INSN);
 		}
 	};
 	
@@ -87,12 +76,8 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 			base = DUMMY_REG;
 		
 		OperandInstance op = new OperandInstance(regs, new Offset(label, expr), base);
-		InstructionGenerator gen = generators.get(i.getOpcode());
-		if (!gen.isLegal())
-			error("illegal opcode: " + i.getOpcode(), MipsPackage.INSN__OPCODE);
-		// System.out.println(gen.getAddressMode().name());
-		op.check(gen, reporter);
-		// System.out.println();
+		List<InstructionGenerator> gens = generators.get(i.getOpcode());
+		op.check(gens, reporter);
 	}
 	
 	private Reg checkReg(String name, int feature) {

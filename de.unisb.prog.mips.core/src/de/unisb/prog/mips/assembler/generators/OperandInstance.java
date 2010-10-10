@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.assembler.generators;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,18 @@ public class OperandInstance {
 
 	public LabelRef getLabel() {
 		return offset.getLabel();
+	}
+	
+	public boolean hasLabel() {
+		return offset.getLabelOption().isSet();
+	}
+	
+	public boolean hasExpr() {
+		return offset.getExprOption().isSet();
+	}
+	
+	public boolean hasBase() {
+		return base.isSet();
 	}
 	
 	public Address genAddress() {
@@ -80,16 +93,43 @@ public class OperandInstance {
 		REG_NO, BASE_REG, LABEL, EXPR
 	}
 	
-	public void check(InstructionGenerator op, ErrorReporter<Errors> report) {
-		if (regs.size() != op.getNumberOfRegs())
-			report.error(String.format("instruction requires %d registers not %s", op.getNumberOfRegs(), regs.size()), Errors.REG_NO);
-		State[] allowed = ALLOWED.get(op.getAddressMode());
-		if (!allowed[0].isOk(base))
-			report.error(String.format("instruction %s base register", allowed[0].phrase), Errors.BASE_REG);
-		if (!allowed[1].isOk(offset.getLabelOption()))
-			report.error(String.format("instruction %s label", allowed[1].phrase), Errors.LABEL);
-		if (!allowed[2].isOk(offset.getExprOption()))
-			report.error(String.format("instruction %s constant expression", allowed[2].phrase), Errors.EXPR);
+	public InstructionGenerator select(List<InstructionGenerator> gens) {
+		for (InstructionGenerator g : gens) 
+			if (fits(g))
+				return g;
+		throw new IllegalStateException("No valid instruction set generator found");
+	}
+	
+	public boolean fits(InstructionGenerator g) {
+		return regs.size() == g.getNumberOfRegs() && g.getAddressMode().fits(this);
+	}
+	
+	private String check(InstructionGenerator g) {
+		if (! fits(g)) {
+			String sep = "";
+			String regs = "";
+			for (int i = g.getNumberOfRegs(); i > 0; i--) {
+				regs += sep + "reg";
+				sep = " ";
+			}
+			return String.format("illegal instruction format. required: opcode %s %s", regs, g.getAddressMode().stringRepr());
+		}
+		return "";
+	}
+	
+	public boolean check(List<InstructionGenerator> gens, ErrorReporter<?> report) {
+		List<String> errors = new ArrayList<String>(gens.size());
+		for (InstructionGenerator gen : gens)  {
+			String err = check(gen);
+			if (err.length() == 0)
+				return true;
+			else 
+				errors.add(err);
+		}
+		for (String e : errors)
+			report.error(e, null);
+		
+		return false;
 	}
 	
 }

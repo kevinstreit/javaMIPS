@@ -159,7 +159,7 @@ public class Generate {
 		
 		Offset off = generate(i.getAddr());
 		OperandInstance op = new OperandInstance(regs, off, base);
-		InstructionGenerator gen = generators.get(i.getOpcode());
+		InstructionGenerator gen = op.select(generators.get(i.getOpcode()));
 		return gen.generate(assembly.getText(), i.getOpcode(), op);
 	}
 	

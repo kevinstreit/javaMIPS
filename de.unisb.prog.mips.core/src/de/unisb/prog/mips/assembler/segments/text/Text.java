@@ -13,7 +13,6 @@ import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.Instruction;
-import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.util.Option;
 

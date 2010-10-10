@@ -2,6 +2,7 @@ package de.unisb.prog.mips.assembler.generators;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -148,25 +149,32 @@ public class Generators {
 		kindMap.put(Kind.LOAD_STORE, LOAD_STORE);
 	}
 	
-	private final Map<String, InstructionGenerator> registry = new HashMap<String, InstructionGenerator>();
+	private final Map<String, List<InstructionGenerator>> registry = new HashMap<String, List<InstructionGenerator>>();
 	
-	private final <T extends Enum<T>> void add(T v, InstructionGenerator o) {
-		registry.put(v.name(), o);
+	private final <T extends Enum<T>> void register(T v, InstructionGenerator op) {
+		register(v.name(), op);
 	}
 	
-	private final <T extends Enum<T> & Instruction> void add(Class<T> cls) {
+	private final <T extends Enum<T> & Instruction> void register(Class<T> cls) {
 		for (T e : cls.getEnumConstants()) 
 			if (e.valid())
-				add(e, kindMap.get(e.getKind()));
+				register(e, kindMap.get(e.getKind()));
 	}
 	
 	public void register(String name, InstructionGenerator op) {
-		registry.put(name, op);
+		List<InstructionGenerator> list = registry.get(name);
+		if (list == null) {
+			list = new LinkedList<InstructionGenerator>();
+			registry.put(name, list);
+		}
+		list.add(op);
 	}
 	
-	public InstructionGenerator get(String str) {
-		InstructionGenerator res = registry.get(str);
-		return res != null ? res : NOP;
+	public List<InstructionGenerator> get(String str) {
+		List<InstructionGenerator> res = registry.get(str);
+		if (res == null)
+			throw new IllegalStateException("No instruction generator for: " + str);
+		return res;
 	}
 	
 	public Generators() {
@@ -175,23 +183,29 @@ public class Generators {
 	}
 	
 	private void addMachine() {
-		add(Opcode.class);
-		add(IntFunct.class);
-		add(RegImm.class);
+		register(Opcode.class);
+		register(IntFunct.class);
+		register(RegImm.class);
 		
 		// some exceptions :)
-		add(IntFunct.syscall, new RegGenerator(AddressMode.NONE, NONE));
-		add(IntFunct.brk,     new RegGenerator(AddressMode.NONE, NONE));
-		add(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, DS));
-		add(IntFunct.jr,      new RegGenerator(AddressMode.NONE, S));
-		add(IntFunct.mult,    new RegGenerator(AddressMode.NONE, ST));
-		add(IntFunct.multu,   new RegGenerator(AddressMode.NONE, ST));
-		add(IntFunct.div,     new RegGenerator(AddressMode.NONE, ST));
-		add(IntFunct.divu,    new RegGenerator(AddressMode.NONE, ST));
-		add(IntFunct.mfhi,    new RegGenerator(AddressMode.NONE, D));
-		add(IntFunct.mflo,    new RegGenerator(AddressMode.NONE, D));
-		add(IntFunct.mthi,    new RegGenerator(AddressMode.NONE, S));
-		add(IntFunct.mtlo,    new RegGenerator(AddressMode.NONE, S));
+		register(IntFunct.syscall, new RegGenerator(AddressMode.NONE, NONE));
+		register(IntFunct.brk,     new RegGenerator(AddressMode.NONE, NONE));
+		register(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, DS));
+		register(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, S) {
+			@Override
+			protected int addEncoding(int word, OperandInstance inst) {
+				return Instruction.FIELD_RD.insert(word, Reg.ra.ordinal());
+			}
+		});
+		register(IntFunct.jr,      new RegGenerator(AddressMode.NONE, S));
+		register(IntFunct.mult,    new RegGenerator(AddressMode.NONE, ST));
+		register(IntFunct.multu,   new RegGenerator(AddressMode.NONE, ST));
+		register(IntFunct.div,     new RegGenerator(AddressMode.NONE, ST));
+		register(IntFunct.divu,    new RegGenerator(AddressMode.NONE, ST));
+		register(IntFunct.mfhi,    new RegGenerator(AddressMode.NONE, D));
+		register(IntFunct.mflo,    new RegGenerator(AddressMode.NONE, D));
+		register(IntFunct.mthi,    new RegGenerator(AddressMode.NONE, S));
+		register(IntFunct.mtlo,    new RegGenerator(AddressMode.NONE, S));
 	}
 	
 	private void addPseudos() {
