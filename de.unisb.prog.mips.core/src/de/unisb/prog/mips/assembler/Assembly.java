@@ -12,9 +12,16 @@ import de.unisb.prog.mips.simulator.Memory;
 
 public class Assembly {
 	
+	public static enum State {
+		RELOACTED
+	}
+	
 	private Text text = new Text(this);
 	private Data data = new Data(this);
 	private Scope currScope = new Scope();
+	
+	public final void assertState(State s) {
+	}
 	
 	public Text getText() {
 		return text;
@@ -53,5 +60,14 @@ public class Assembly {
 	
 	public Instruction parse(String mnemonic) {
 		return Instructions.get(mnemonic);
+	}
+	
+	public Position getPosition(int addr) {
+		assertState(State.RELOACTED);
+		if (text.isInside(addr))
+			return text.getElementAt(addr);
+		if (data.isInside(addr))
+			return data.getElementAt(addr);
+		return Position.ILLEGAL;
 	}
 }
