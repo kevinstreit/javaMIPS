@@ -1,10 +1,12 @@
 package de.unisb.prog.mips.assembler.generators;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
@@ -175,6 +177,10 @@ public class Generators {
 		if (res == null)
 			throw new IllegalStateException("No instruction generator for: " + str);
 		return res;
+	}
+	
+	public Set<String> getAvailableOpcodes() {
+		return Collections.unmodifiableSet(registry.keySet());
 	}
 	
 	public Generators() {
