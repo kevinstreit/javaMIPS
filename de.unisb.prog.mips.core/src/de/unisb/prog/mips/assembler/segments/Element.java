@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Position;
@@ -67,6 +68,11 @@ public abstract class Element implements Expr, Position {
 			referers = new LinkedList<LabelRef>();
 		referers.add(r);
 	}
+	
+	public boolean validate(ErrorReporter<Position> reporter) {
+		return true;
+	}
+
 	
 	public final void append(Appendable app) throws IOException {
 		if (! label.isEmpty()) {

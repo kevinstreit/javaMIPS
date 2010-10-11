@@ -36,9 +36,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	private boolean[] pregChanged = new boolean[PReg.values().length];
 	
 	private enum PReg {
-		PC ("The current program counter"), 
-		Lo ("TODO"), // TODO
-		Hi ("TODO"); // TODO
+		pc ("The program counter"), 
+		lo ("low part of multiplication / division"), 
+		hi ("high  part of multiplication / division"); 
 		
 		public final String description;
 		PReg(String desc) {
@@ -59,9 +59,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			int gpSize = Reg.values().length;
 			Object[] objects = new Object[Reg.values().length + 3];
 			System.arraycopy(Reg.values(), 0, objects, 0, Reg.values().length);
-			objects[gpSize] = PReg.PC;
-			objects[gpSize+1] = PReg.Lo;
-			objects[gpSize+2] = PReg.Hi;
+			objects[gpSize] = PReg.pc;
+			objects[gpSize+1] = PReg.lo;
+			objects[gpSize+2] = PReg.hi;
 			return objects;
 		}
 	}
@@ -110,13 +110,13 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 				
 				if (system != null) {
 					switch (reg) {
-					case PC:
+					case pc:
 						val = system.getProcessor().pc;
 						break;
-					case Hi:
+					case hi:
 						val = system.getProcessor().hi;
 						break;
-					case Lo:
+					case lo:
 						val = system.getProcessor().lo;
 						break;
 					}
@@ -213,9 +213,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		
 		for (Reg r : Reg.values())
 			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-		lastPRegValues[PReg.PC.ordinal()] = proc.pc;
-		lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
-		lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
+		lastPRegValues[PReg.pc.ordinal()] = proc.pc;
+		lastPRegValues[PReg.hi.ordinal()] = proc.hi;
+		lastPRegValues[PReg.lo.ordinal()] = proc.lo;
 	}
 
 	private void checkChangedRegs(Sys sys) {
@@ -227,9 +227,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			regChanged[r.ordinal()] = oldVal != newVal;
 		}
 		
-		pregChanged[PReg.PC.ordinal()] = lastPRegValues[PReg.PC.ordinal()] != proc.pc;
-		pregChanged[PReg.Lo.ordinal()] = lastPRegValues[PReg.Lo.ordinal()] != proc.lo;
-		pregChanged[PReg.Hi.ordinal()] = lastPRegValues[PReg.Hi.ordinal()] != proc.hi;
+		pregChanged[PReg.pc.ordinal()] = lastPRegValues[PReg.pc.ordinal()] != proc.pc;
+		pregChanged[PReg.lo.ordinal()] = lastPRegValues[PReg.lo.ordinal()] != proc.lo;
+		pregChanged[PReg.hi.ordinal()] = lastPRegValues[PReg.hi.ordinal()] != proc.hi;
 	}
 	
 	// Execution Event Handling

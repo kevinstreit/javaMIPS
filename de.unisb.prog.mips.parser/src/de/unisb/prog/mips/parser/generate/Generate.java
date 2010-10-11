@@ -135,7 +135,7 @@ public class Generate {
 		}
 		int line = NodeUtil.getNodeAdapter(i).getParserNode().getLine();
 		e.setLineNumber(line);
-		// TODO Add line number
+		// TODO Set file name (where to get it?)
 	}
 	
 	public Element generate(Space space, Segment s) {

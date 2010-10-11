@@ -5,5 +5,6 @@ import de.unisb.prog.mips.assembler.segments.Segment;
 public interface Address extends Expr {
 	
 	Segment getSegment();
+	boolean isValid();
 
 }

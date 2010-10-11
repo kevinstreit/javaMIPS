@@ -18,7 +18,6 @@ import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.util.Option;
 
 public class Test {
-	
 	public static void main(String[] args) throws IOException, AssemblerException {
 		Assembly asm = new Assembly();
 		Text t = asm.getText();
@@ -54,7 +53,14 @@ public class Test {
 		
 		// TODO
 		Sys sys = new Sys(1000, null, new SysCallDispatcher(SysCallImplementation.DEFAULT));
-		sys.load(asm);
+		sys.load(asm, new ErrorReporter<Position>() {
+			private int errs = 0;
+			@Override public void warning(String msg, Position arg) {
+				System.out.format("%s(%d): %s\n", arg.getFilename(), arg.getLineNumber(), msg);
+			}
+			@Override public int errorsReported() { return errs; }
+			@Override public void error(String msg, Position arg) { errs++; warning(msg, arg); }
+		});
 		asm.append(System.out);
 		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.RUNNING;

@@ -38,15 +38,22 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	private final Generators generators = new Generators();
 	
 	private final ErrorReporter<?> reporter = new ErrorReporter<Void>() {
+		private int errs = 0;
 		
 		@Override
 		public void error(String msg, Void arg) {
 			MipsJavaValidator.this.error(msg, MipsPackage.INSN);
+			errs += 1;
 		}
 
 		@Override
 		public void warning(String msg, Void arg) {
 			MipsJavaValidator.this.warning(msg, MipsPackage.INSN);
+		}
+
+		@Override
+		public int errorsReported() {
+			return errs;
 		}
 	};
 	

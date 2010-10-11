@@ -3,7 +3,9 @@ package de.unisb.prog.mips.assembler.segments;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Data extends Segment {
@@ -27,12 +29,20 @@ public class Data extends Segment {
 	}
 	
 	@Override
-	protected void relocateInternal(int startAddress) {
+	public Kind getKind() {
+		return Kind.DATA;
 	}
 
 	@Override
-	public Kind getKind() {
-		return Kind.DATA;
+	protected void relocateInternal(int addr, ErrorReporter<Position> reporter) {
+		assertStateAtLeast(State.RELATIVE_ADDRESSES_PATCHED);
+	}
+
+	@Override
+	public void prepare(ErrorReporter<Position> reporter) {
+		state = State.PSEUDOS_EXPANDED;
+		assignOffsets();
+		state = State.RELATIVE_ADDRESSES_PATCHED;
 	}
 
 }

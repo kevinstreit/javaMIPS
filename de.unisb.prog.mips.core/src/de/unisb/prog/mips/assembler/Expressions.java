@@ -51,20 +51,20 @@ public class Expressions {
 		return new IntBinOp(op, left, right);
 	}
 	
-	public static Expr constantInt(final int val) {
+	public static Expr constantInt(final int i) {
 		return new Expr() {
 			@Override
 			public int eval() {
-				return val;
+				return i;
 			}
 
 			@Override
 			public void append(Appendable app) throws IOException {
-				app.append(String.format("%d", val));
+				app.append(Integer.toString(i));
 			}
 		};
 	}
-	
+
 	public static final Expr relative(Address addr) {
 		return addr;
 	}
@@ -80,8 +80,16 @@ public class Expressions {
 			public void append(Appendable app) throws IOException {
 				addr.append(app);
 			}
-			
 		};
+	}
+	
+	public static String toString(Expr e) {
+		StringBuffer sb = new StringBuffer();
+		try {
+			e.append(sb);
+		} catch (IOException e1) {
+		}
+		return sb.toString();
 	}
 
 }
