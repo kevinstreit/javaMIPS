@@ -37,9 +37,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	private boolean[] pregChanged = new boolean[PReg.values().length];
 	
 	private enum PReg {
-		PC ("The current program counter"), 
-		Lo ("TODO"), // TODO
-		Hi ("TODO"); // TODO
+		pc ("The program counter"), 
+		lo ("low part of multiplication / division"), 
+		hi ("high  part of multiplication / division"); 
 		
 		public final String description;
 		PReg(String desc) {
@@ -60,9 +60,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			int gpSize = Reg.values().length;
 			Object[] objects = new Object[Reg.values().length + 3];
 			System.arraycopy(Reg.values(), 0, objects, 0, Reg.values().length);
-			objects[gpSize] = PReg.PC;
-			objects[gpSize+1] = PReg.Lo;
-			objects[gpSize+2] = PReg.Hi;
+			objects[gpSize] = PReg.pc;
+			objects[gpSize+1] = PReg.lo;
+			objects[gpSize+2] = PReg.hi;
 			return objects;
 		}
 	}
@@ -111,13 +111,13 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 				
 				if (system != null) {
 					switch (reg) {
-					case PC:
+					case pc:
 						val = system.getProcessor().pc;
 						break;
-					case Hi:
+					case hi:
 						val = system.getProcessor().hi;
 						break;
-					case Lo:
+					case lo:
 						val = system.getProcessor().lo;
 						break;
 					}
@@ -232,17 +232,17 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			}
 		}
 		
-		if (lastPRegValues[PReg.PC.ordinal()] != proc.pc) {
-			lastPRegValues[PReg.PC.ordinal()] = proc.pc;
-			pregChanged[PReg.PC.ordinal()] = true;
+		if (lastPRegValues[PReg.pc.ordinal()] != proc.pc) {
+			lastPRegValues[PReg.pc.ordinal()] = proc.pc;
+			pregChanged[PReg.pc.ordinal()] = true;
 		}
-		if (lastPRegValues[PReg.Lo.ordinal()] != proc.lo) {
-			lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
-			pregChanged[PReg.Lo.ordinal()] = true;
+		if (lastPRegValues[PReg.lo.ordinal()] != proc.lo) {
+			lastPRegValues[PReg.lo.ordinal()] = proc.lo;
+			pregChanged[PReg.lo.ordinal()] = true;
 		}
-		if (lastPRegValues[PReg.Hi.ordinal()] != proc.hi) {
-			lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
-			pregChanged[PReg.Hi.ordinal()] = true;
+		if (lastPRegValues[PReg.hi.ordinal()] != proc.hi) {
+			lastPRegValues[PReg.hi.ordinal()] = proc.hi;
+			pregChanged[PReg.hi.ordinal()] = true;
 		}
 	}
 	
@@ -253,9 +253,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		Processor proc = sys.getProcessor();
 		for (Reg r : Reg.values())
 			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-		lastPRegValues[PReg.PC.ordinal()] = proc.pc;
-		lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
-		lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
+		lastPRegValues[PReg.pc.ordinal()] = proc.pc;
+		lastPRegValues[PReg.hi.ordinal()] = proc.hi;
+		lastPRegValues[PReg.lo.ordinal()] = proc.lo;
 		this.system = sys;
 		resetChangedRegs();
 	}
