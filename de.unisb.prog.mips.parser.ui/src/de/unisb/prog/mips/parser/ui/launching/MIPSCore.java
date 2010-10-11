@@ -86,10 +86,24 @@ public class MIPSCore implements ExecutionListener {
 
 	private Sys sys = null;
 	private Assembly asm = null;
+	private int exitCode;
 	
+	public int getExitCode() {
+		return exitCode;
+	}
+
+	public void setExitCode(int exitCode) {
+		if (sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+		
+		if (asm == null)
+			throw new IllegalStateException("Assembly not loaded (asm == null)");
+
+		this.exitCode = exitCode;
+	}
+
 	public void init(int memPages) {
-		// TODO
-		this.sys = new Sys(memPages, null , new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
+		this.sys = new Sys(memPages, new UIExceptionHandler(), new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
 		this.asm = null;
 	}
 	

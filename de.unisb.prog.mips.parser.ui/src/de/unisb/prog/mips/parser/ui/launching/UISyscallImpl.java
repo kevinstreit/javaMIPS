@@ -32,8 +32,7 @@ public class UISyscallImpl implements SysCallImplementation {
 
 	@Override
 	public void exit(int ret) {
-		// TODO Auto-generated method stub
-		
+		MIPSCore.getInstance().setExitCode(ret);
 	}
 
 }
