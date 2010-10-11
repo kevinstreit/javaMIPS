@@ -2,6 +2,9 @@ package de.unisb.prog.mips.assembler.segments;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -86,13 +89,49 @@ public abstract class Segment implements Iterable<Element> {
 	}
 	
 
-	public void append(Appendable app) throws IOException {
+	public final void append(Appendable app) throws IOException {
 		for (Element e : this)
 			e.append(app);
 	}
 	
-	public int size() {
+	public final int size() {
 		return size;
+	}
+	
+	public final boolean isInside(int address) {
+		assembly.assertState(Assembly.State.RELOACTED);
+		int offset = address - getBase();
+		return 0 <= offset && offset < size();
+	}
+	
+	/**
+	 * Get element that sits at a given memory offset.
+	 * @param offset The offset of the element in the segment. 
+	 * This is not the absolute address but the offset relative to the segment base address.
+	 * @return The element at that address, or null if there is no such element.
+	 */
+	public Element getElementAt(final int addr) {
+		Element dummy = new Element(this) {
+			@Override protected void appendInternal(Appendable app) throws IOException { }
+			@Override public int nextElementOffset(int pos) { return pos; }
+			@Override public void writeToMem(Memory mem, int addr) {  }
+		};
+		int offset = addr - getBase();
+		dummy.setOffset(offset);
+		
+		int index = Collections.binarySearch(elements, dummy, new Comparator<Element>() {
+			@Override
+			public int compare(Element p, Element q) {
+				int l = p.getOffset();
+				int r = q.getOffset();
+				return (r < l ? 1 : 0) - (l < r ? 1 : 0);
+			}
+		});
+		
+		if (index < 0)
+			index = -index - 1;
+		
+		return elements.get(index);
 	}
 	
 	@Override
