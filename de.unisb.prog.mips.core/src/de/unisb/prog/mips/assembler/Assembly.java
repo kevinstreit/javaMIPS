@@ -32,8 +32,8 @@ public class Assembly {
 	}
 	
 	public void writeToMem(Memory mem, MemoryLayout layout) throws JumpTargetOutOfRange {
-		data.writeToMem(mem, layout.dataStart() - layout.dataStartOffset());
-		text.writeToMem(mem, layout.textStart() - layout.textStartOffset());
+		data.writeToMem(mem, layout.dataStart());
+		text.writeToMem(mem, layout.textStart());
 	}
 	
 	public void append(Appendable app) throws IOException {

@@ -54,6 +54,10 @@ public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 	}
 	
 	protected final List<Insn> genImm(Reg base, Reg temp) {
+		return genImm(base, temp, expr);
+	}
+	
+	protected final List<Insn> genImm(Reg base, Reg temp, T expr) {
 		List<Insn> res;
 		int addr = expr.eval();
 		

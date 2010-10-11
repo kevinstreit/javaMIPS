@@ -2,6 +2,8 @@ package de.unisb.prog.mips.assembler;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.segments.Segment;
+
 public class Expressions {
 	
 	public static enum IntOp {
@@ -79,6 +81,35 @@ public class Expressions {
 			@Override
 			public void append(Appendable app) throws IOException {
 				addr.append(app);
+			}
+		};
+	}
+	
+	public static final Address offset(final Address addr, final int offset) {
+		return new Address() {
+			
+			@Override
+			public int eval() {
+				return addr.eval() + offset;
+			}
+			
+			@Override
+			public void append(Appendable app) throws IOException {
+				addr.append(app);
+				if (offset > 0) 
+					app.append('+');
+				if (offset != 0)
+					app.append(Integer.toString(offset));
+			}
+			
+			@Override
+			public boolean isValid() {
+				return addr.isValid();
+			}
+			
+			@Override
+			public Segment getSegment() {
+				return addr.getSegment();
 			}
 		};
 	}

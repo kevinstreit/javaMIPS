@@ -16,12 +16,16 @@ public class Option<T> {
 		this.elm = elm;
 	}
 	
-	public T otherwise(T opt) {
+	public final T otherwise(T opt) {
 		return elm != null ? elm : opt;
 	}
 	
-	public boolean isSet() {
+	public final boolean isSet() {
 		return elm != null;
+	}
+	
+	public final <S> S ifthenelse(S t, S f) {
+		return elm != null ? t : f;
 	}
 
 }

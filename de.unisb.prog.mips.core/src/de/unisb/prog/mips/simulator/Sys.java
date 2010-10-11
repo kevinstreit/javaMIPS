@@ -34,7 +34,7 @@ public class Sys implements MemoryLayout {
 			mem.dump(System.out, textStart(), asm.getText().size(), MemDumpFormatter.DISASM);
 		} catch (IOException e) {
 		}
-		sim.gp[Reg.gp.ordinal()] = dataStart() - dataStartOffset();
+		sim.gp[Reg.gp.ordinal()] = dataStart() + 32768;
 		sim.gp[Reg.sp.ordinal()] = stackStart();
 		sim.pc = textStart();
 	}
@@ -50,7 +50,5 @@ public class Sys implements MemoryLayout {
 	@Override public int dataStart()       { return 0x10000000; }
 	@Override public int textStart()       { return 0x400000; }
 	@Override public int stackStart()      { return 0x7ffffffc; }
-	@Override public int dataStartOffset() { return -0x8000; }
-	@Override public int textStartOffset() { return 0; }
 
 }

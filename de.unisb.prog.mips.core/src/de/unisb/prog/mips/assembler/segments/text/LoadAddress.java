@@ -5,6 +5,7 @@ import java.util.List;
 
 import de.unisb.prog.mips.assembler.Address;
 import de.unisb.prog.mips.assembler.ErrorReporter;
+import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Segment;
@@ -22,7 +23,8 @@ public class LoadAddress extends ImmGen<Address> implements Relocateable {
 	protected void rewrite() {
 		if (expr.getSegment().getKind() == Kind.DATA) {
 			Reg b = base.otherwise(Reg.gp);
-			set(genImm(b, rt));
+			Address a = base.ifthenelse(expr, Expressions.offset(expr, -32768));
+			set(genImm(b, rt, a));
 		}
 		
 		else {
