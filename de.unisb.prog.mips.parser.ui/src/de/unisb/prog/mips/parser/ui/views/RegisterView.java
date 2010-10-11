@@ -32,7 +32,20 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	private TableViewer viewer;
 	private Sys system = null;
 	private int[] lastRegValues = new int[Reg.values().length];
+	private int[] lastPRegValues = new int[PReg.values().length];
 	private boolean[] regChanged = new boolean[Reg.values().length];
+	private boolean[] pregChanged = new boolean[PReg.values().length];
+	
+	private enum PReg {
+		PC ("The current program counter"), 
+		Lo ("TODO"), // TODO
+		Hi ("TODO"); // TODO
+		
+		public final String description;
+		PReg(String desc) {
+			this.description = desc;
+		}
+	}
 
 	class ViewContentProvider implements IStructuredContentProvider {
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -44,7 +57,13 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		}
 		
 		public Object[] getElements(Object parent) {
-			return Reg.values();
+			int gpSize = Reg.values().length;
+			Object[] objects = new Object[Reg.values().length + 3];
+			System.arraycopy(Reg.values(), 0, objects, 0, Reg.values().length);
+			objects[gpSize] = PReg.PC;
+			objects[gpSize+1] = PReg.Lo;
+			objects[gpSize+2] = PReg.Hi;
+			return objects;
 		}
 	}
 	
@@ -58,9 +77,10 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		
 		@Override
 		public void update(ViewerCell cell) {
+			Processor proc = (system == null) ? null : system.getProcessor();
+			
 			if (cell.getElement() instanceof Reg) {
 				Reg reg = (Reg) cell.getElement();
-				Processor proc = (system == null) ? null : system.getProcessor();
 				cell.setFont(regChanged[reg.ordinal()] ? changedFont : regFont);
 				
 				switch (cell.getColumnIndex()) {
@@ -84,6 +104,44 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 					}
 					break;
 				}
+			} else if (cell.getElement() instanceof PReg) {
+				int val = -1;
+				PReg reg = (PReg) cell.getElement();
+				cell.setFont(pregChanged[reg.ordinal()] ? changedFont : regFont);
+				
+				if (system != null) {
+					switch (reg) {
+					case PC:
+						val = system.getProcessor().pc;
+						break;
+					case Hi:
+						val = system.getProcessor().hi;
+						break;
+					case Lo:
+						val = system.getProcessor().lo;
+						break;
+					}
+				}
+				
+				switch (cell.getColumnIndex()) {
+				case 0:
+					cell.setText(reg.name());
+					break;
+				case 1:
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
+						cell.setText("---");
+					else {
+						cell.setText("" + val);
+					}
+					break;
+				case 2:
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
+						cell.setText("---");
+					else {
+						cell.setText(String.format("0x%08x", val));
+					}
+					break;
+				}
 			}
 		}
 		
@@ -91,6 +149,9 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		public String getToolTipText(Object element) {
 			if (element instanceof Reg) {
 				Reg reg = (Reg) element;
+				return reg.description;
+			} else if (element instanceof PReg) {
+				PReg reg = (PReg) element;
 				return reg.description;
 			} else {
 				return null;
@@ -136,10 +197,8 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider(regFont, boldFont));
-		//viewer.setSorter(new NameSorter());
 		viewer.setInput(getViewSite());
 
-		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "de.unisb.prog.mips.parser.ui.viewer");
 		
 		MIPSCore.getInstance().addExecutionListener(this);
@@ -150,64 +209,76 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		viewer.getControl().setFocus();
 	}
 	
-	// Execution Event Handling
-	
 	@Override
 	public void dispose() {
 		MIPSCore.getInstance().removeExecutionListener(this);
 	}
-
-	@Override
-	public void execStarted(Sys sys) {
+	
+	private void resetChangedRegs() {
 		Arrays.fill(regChanged, false);
-		for (Reg r : Reg.values())
-			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-		this.system = sys;
+		Arrays.fill(pregChanged, false);
 	}
 
-	@Override
-	public void execPaused(Sys sys) {
+	private void checkChangedRegs(Sys sys) {
+		Processor proc = sys.getProcessor();
+		
 		for (Reg r : Reg.values()) {
 			int oldVal = lastRegValues[r.ordinal()];
-			int newVal = sys.getProcessor().gp[r.ordinal()];
-			
-			if (oldVal != newVal) {
-				regChanged[r.ordinal()] = true;
-				lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-			}
-		}
-		this.viewer.refresh();
-		Arrays.fill(regChanged, false);
-	}
-
-	@Override
-	public void execStepped(Sys sys) {
-		for (Reg r : Reg.values()) {
-			int oldVal = lastRegValues[r.ordinal()];
-			int newVal = sys.getProcessor().gp[r.ordinal()];
+			int newVal = proc.gp[r.ordinal()];
 			
 			if (oldVal != newVal) {
 				regChanged[r.ordinal()] = true;
 				lastRegValues[r.ordinal()] = newVal;
 			}
 		}
+		
+		if (lastPRegValues[PReg.PC.ordinal()] != proc.pc) {
+			lastPRegValues[PReg.PC.ordinal()] = proc.pc;
+			pregChanged[PReg.PC.ordinal()] = true;
+		}
+		if (lastPRegValues[PReg.Lo.ordinal()] != proc.lo) {
+			lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
+			pregChanged[PReg.Lo.ordinal()] = true;
+		}
+		if (lastPRegValues[PReg.Hi.ordinal()] != proc.hi) {
+			lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
+			pregChanged[PReg.Hi.ordinal()] = true;
+		}
+	}
+	
+	// Execution Event Handling
+
+	@Override
+	public void execStarted(Sys sys) {
+		Processor proc = sys.getProcessor();
+		for (Reg r : Reg.values())
+			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
+		lastPRegValues[PReg.PC.ordinal()] = proc.pc;
+		lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
+		lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
+		this.system = sys;
+		resetChangedRegs();
+	}
+
+	@Override
+	public void execPaused(Sys sys) {
+		checkChangedRegs(sys);
 		this.viewer.refresh();
-		Arrays.fill(regChanged, false);
+		resetChangedRegs();
+	}
+
+	@Override
+	public void execStepped(Sys sys) {
+		checkChangedRegs(sys);
+		this.viewer.refresh();
+		resetChangedRegs();
 	}
 
 	@Override
 	public void execFinished(Sys sys) {
-		for (Reg r : Reg.values()) {
-			int oldVal = lastRegValues[r.ordinal()];
-			int newVal = sys.getProcessor().gp[r.ordinal()];
-			
-			if (oldVal != newVal) {
-				regChanged[r.ordinal()] = true;
-				lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-			}
-		}
+		checkChangedRegs(sys);
 		this.viewer.refresh();
-		Arrays.fill(regChanged, false);
+		resetChangedRegs();
 	}
 
 	@Override
