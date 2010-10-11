@@ -57,42 +57,6 @@ public class OperandInstance {
 		return offset;
 	}
 
-	enum State {
-		MUST("requires"), MAY("allows"), NO("forbids");
-		
-		private final String phrase;
-		
-		private State(String phrase) {
-			this.phrase = phrase;
-		}
-		
-		public boolean isOk(Option<?> there) {
-			return there.isSet() ? this != NO : this != MUST;
-		}
-		
-		public String phrase() {
-			return phrase;
-		}
-	}
-	
-	private static final Map<AddressMode, State[]> ALLOWED = new EnumMap<AddressMode, State[]>(AddressMode.class);
-	
-	static { 
-		//                                                     base        label       expr
-		ALLOWED.put(AddressMode.EXPR,            new State[] { State.NO,   State.NO,   State.MUST });
-		ALLOWED.put(AddressMode.EXPR_BASE,       new State[] { State.MAY,  State.NO,   State.MUST });
-		ALLOWED.put(AddressMode.LABEL,           new State[] { State.NO,   State.MUST, State.NO });
-		ALLOWED.put(AddressMode.LABEL_EXPR,      new State[] { State.NO,   State.MAY,  State.MAY });
-		ALLOWED.put(AddressMode.LABEL_EXPR_BASE, new State[] { State.MAY,  State.MAY,  State.MAY });
-		ALLOWED.put(AddressMode.SHAMT,           new State[] { State.NO,   State.NO,   State.MUST });
-		ALLOWED.put(AddressMode.NONE,            new State[] { State.NO,   State.NO,   State.NO });
-	}
-	
-	
-	public static enum Errors {
-		REG_NO, BASE_REG, LABEL, EXPR
-	}
-	
 	public InstructionGenerator select(List<InstructionGenerator> gens) {
 		for (InstructionGenerator g : gens) 
 			if (fits(g))

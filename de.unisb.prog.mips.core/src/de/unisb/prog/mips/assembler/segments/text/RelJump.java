@@ -1,7 +1,10 @@
 package de.unisb.prog.mips.assembler.segments.text;
 
 
+import de.unisb.prog.mips.assembler.ErrorReporter;
+import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.LabelRef;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.Immediate;
@@ -21,15 +24,15 @@ class RelJump extends LabelRefInsn {
 		super(seg, word, ref);
 	}
 	
-	public void rewrite() throws JumpTargetNotAligned, JumpTargetOutOfRange {
+	public void rewrite(ErrorReporter<Position> reporter) {
 		int labelOffset = ref.eval();
 		
 		if ((labelOffset & 3) != 0)
-			throw new JumpTargetNotAligned();
+			reporter.error(String.format("jump target \"%s\" is not aligned", Expressions.toString(ref)), this);
 		
 		int rel = (labelOffset - getOffset()) >> 2;
 		if (! Immediate.SEXT_16.fits(rel))
-			throw new JumpTargetOutOfRange();
+			reporter.error(String.format("jump target \"%s\" out of range", Expressions.toString(ref)), this);
 		
 		word = Instruction.FIELD_IMM.insert(word, rel);
 	}

@@ -43,7 +43,7 @@ public class Scope {
 		if (elm == null && parent != null)
 			elm = parent.lookup(name);
 		if (elm == null)
-			throw new LabelNotDefinedException();
+			throw new LabelNotDefinedException(name);
 		return elm;
 	}
 	

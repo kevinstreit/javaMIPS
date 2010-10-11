@@ -2,6 +2,10 @@ package de.unisb.prog.mips.assembler.segments.text;
 
 import java.io.IOException;
 
+import de.unisb.prog.mips.assembler.Address;
+import de.unisb.prog.mips.assembler.ErrorReporter;
+import de.unisb.prog.mips.assembler.Expressions;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.assembler.RegNameDisassembler;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
@@ -34,6 +38,14 @@ class Insn extends Element {
 	
 	public String toString() {
 		return RegNameDisassembler.INSTANCE.disasm(word);	
+	}
+	
+	protected static final boolean validateAddress(Position p, Address addr, ErrorReporter<Position> reporter) {
+		if (! addr.isValid()) {
+			reporter.error("invalid address: " + Expressions.toString(addr), p);
+			return false;
+		}
+		return true;
 	}
 	
 }

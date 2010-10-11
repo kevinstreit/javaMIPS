@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.prog.mips.assembler.Address;
+import de.unisb.prog.mips.assembler.ErrorReporter;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.assembler.segments.Segment.Kind;
@@ -35,18 +37,21 @@ public class LoadAddress extends ImmGen<Address> implements Relocateable {
 	}
 
 	@Override
-	public void relocate(int startAddress) throws JumpTargetOutOfRange {
-		System.out.println("segment: " + expr.getSegment().getKind().name());
-		if (expr.getSegment().getKind() == Kind.DATA)
+	public void relocate(int startAddress, ErrorReporter<Position> reporter) {
+		if (expr.getSegment().getKind() == Segment.Kind.DATA) 
 			return;
+		
 		List<Insn> res = new ArrayList<Insn>(2);
 		produceImmediate(res, rt, startAddress + expr.eval());
 		// if address generation takes less than two instructions
 		// insert nops to pad it to the right size
-		System.out.format("relocate to: %x\n", startAddress + expr.eval());
 		for (int i = res.size(); i < 2; i++)
 			res.add(new Insn(segment, 0));
 		set(res);
 	}
 
+	@Override
+	public boolean validate(ErrorReporter<Position> reporter) {
+		return Insn.validateAddress(this, expr, reporter);
+	}
 }

@@ -5,10 +5,11 @@ import java.util.List;
 
 import de.unisb.prog.mips.assembler.Address;
 import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.LabelRef;
-import de.unisb.prog.mips.assembler.MemoryLayout;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
@@ -114,25 +115,30 @@ public class Text extends Segment {
 	
 	
 	private void rewriteDataInsns() {
+		assertState(State.BUILDING);
 		for (ImmGen<?> i : immGenInsns) 
 			i.rewrite();
+		state = State.PSEUDOS_EXPANDED;
 	}
 	
-	private void rewriteRelJumps() throws JumpTargetNotAligned, JumpTargetOutOfRange {
+	private void rewriteRelJumps(ErrorReporter<Position> reporter) {
+		assertState(State.OFFSETS_ASSIGNED);
 		for (RelJump rj : relJumps)
-			rj.rewrite();
+			rj.rewrite(reporter);
+		state = State.RELATIVE_ADDRESSES_PATCHED;
 	}
 	
 	@Override
-	public void relocateInternal(int startAddress) throws JumpTargetOutOfRange {
+	public void relocateInternal(int startAddress, ErrorReporter<Position> reporter) {
 		for (Relocateable r : relocate)
-			r.relocate(startAddress);
+			r.relocate(startAddress, reporter);
 	}
 	
-	public void prepare(MemoryLayout l) throws JumpTargetNotAligned, JumpTargetOutOfRange {
+	public void prepare(ErrorReporter<Position> reporter) {
+		validateElements(reporter);
 		rewriteDataInsns();
-		assignOffsets(l.textStartOffset());
-		rewriteRelJumps();
+		assignOffsets();
+		rewriteRelJumps(reporter);
 	}
 
 	@Override

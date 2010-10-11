@@ -4,5 +4,6 @@ public interface ErrorReporter<T> {
 	
 	public void error(String msg, T arg);
 	public void warning(String msg, T arg);
-
+	public int errorsReported();
+	
 }

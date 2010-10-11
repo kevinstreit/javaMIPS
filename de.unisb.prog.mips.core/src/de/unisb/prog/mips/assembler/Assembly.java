@@ -12,16 +12,9 @@ import de.unisb.prog.mips.simulator.Memory;
 
 public class Assembly {
 	
-	public static enum State {
-		RELOACTED
-	}
-	
 	private Text text = new Text(this);
 	private Data data = new Data(this);
 	private Scope currScope = new Scope();
-	
-	public final void assertState(State s) {
-	}
 	
 	public Text getText() {
 		return text;
@@ -31,11 +24,11 @@ public class Assembly {
 		return data;
 	}
 	
-	public void prepare(MemoryLayout layout) throws AssemblerException {
-		data.assignOffsets(layout.dataStartOffset());
-		text.prepare(layout);
-		data.relocate(layout.dataStart());
-		text.relocate(layout.textStart());
+	public void prepare(MemoryLayout layout, ErrorReporter<Position> reporter) throws AssemblerException {
+		data.prepare(reporter);
+		text.prepare(reporter);
+		data.relocate(layout.dataStart(), reporter);
+		text.relocate(layout.textStart(), reporter);
 	}
 	
 	public void writeToMem(Memory mem, MemoryLayout layout) throws JumpTargetOutOfRange {
@@ -63,7 +56,6 @@ public class Assembly {
 	}
 	
 	public Position getPosition(int addr) {
-		assertState(State.RELOACTED);
 		if (text.isInside(addr))
 			return text.getElementAt(addr);
 		if (data.isInside(addr))

@@ -46,4 +46,9 @@ public class Offset implements Address {
 		return getLabel().getSegment();
 	}
 
+	@Override
+	public boolean isValid() {
+		return label.otherwise(LabelRef.NULL).isValid();
+	}
+
 }

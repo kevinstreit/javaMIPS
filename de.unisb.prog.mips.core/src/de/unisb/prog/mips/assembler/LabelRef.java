@@ -10,8 +10,9 @@ public class LabelRef implements Address {
 	
 	private static final Assembly NULL_ASSEMBLY = new Assembly();
 	private static final Segment NULL_SEGMENT = new Segment(NULL_ASSEMBLY) {
-		@Override protected void relocateInternal(int startAddress) { }
 		@Override public Kind getKind() { return Kind.NULL; }
+		@Override protected void relocateInternal(int addr, ErrorReporter<Position> reporter) { }
+		@Override public void prepare(ErrorReporter<Position> reporter) { }
 	};
 	
 	public static final LabelRef NULL = new LabelRef(new Space(NULL_SEGMENT, 0));
@@ -30,6 +31,8 @@ public class LabelRef implements Address {
 	}
 
 	public Element getElement() {
+		if (elm == null)
+			throw new IllegalStateException("tried to reference label \"" + name + "\"");
 		return elm;
 	}
 	
@@ -56,6 +59,11 @@ public class LabelRef implements Address {
 	@Override
 	public Segment getSegment() {
 		return getElement().getSegment();
+	}
+
+	@Override
+	public boolean isValid() {
+		return elm != null;
 	}
 
 }

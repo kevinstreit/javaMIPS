@@ -3,6 +3,8 @@ package de.unisb.prog.mips.parser.ui.launching;
 import java.util.HashSet;
 
 import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.assembler.ErrorReporter;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.simulator.Processor;
@@ -176,7 +178,15 @@ public class MIPSCore implements ExecutionListener {
 		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 		
-		sys.load(asm);
+		// TODO Make the error reporter communicate with the GUI
+		sys.load(asm, new ErrorReporter<Position>() {
+			@Override
+			public void warning(String msg, Position arg) {
+				System.out.format("%s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg);
+			}
+			@Override public void error(String msg, Position arg) { warning(msg, arg); }
+			@Override public int errorsReported() { return 0; }
+		});
 		this.asm = asm;
 	}
 	
