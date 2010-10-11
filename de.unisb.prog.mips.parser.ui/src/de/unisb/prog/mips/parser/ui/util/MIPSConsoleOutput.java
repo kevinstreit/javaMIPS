@@ -28,7 +28,7 @@ public class MIPSConsoleOutput extends PrintStream {
 	}
 	
 	public void print(final String s, final boolean debug) {
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				textField.append(s);
@@ -83,8 +83,13 @@ public class MIPSConsoleOutput extends PrintStream {
 	}
 	
 	public void clear() {
-		textField.setText("");
-		textField.setStyleRange(null);
+		textField.getDisplay().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				textField.setText("");
+				textField.setStyleRange(null);
+			}
+		});
 	}
 	
 }

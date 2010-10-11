@@ -11,7 +11,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
@@ -159,14 +158,6 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		}
 	}
 	
-	class NameSorter extends ViewerSorter {
-	
-	}
-
-	public RegisterView() {
-	
-	}
-	
 	private void createColumns(TableViewer viewer) {
 		String[] titles = { "Reg", "Dec", "Hex"};
 		int[] bounds = { 50, 80, 80 };
@@ -214,9 +205,17 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		MIPSCore.getInstance().removeExecutionListener(this);
 	}
 	
-	private void resetChangedRegs() {
+	private void resetChangedRegs(Sys sys) {
 		Arrays.fill(regChanged, false);
 		Arrays.fill(pregChanged, false);
+		
+		Processor proc = sys.getProcessor();
+		
+		for (Reg r : Reg.values())
+			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
+		lastPRegValues[PReg.PC.ordinal()] = proc.pc;
+		lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
+		lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
 	}
 
 	private void checkChangedRegs(Sys sys) {
@@ -225,60 +224,49 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		for (Reg r : Reg.values()) {
 			int oldVal = lastRegValues[r.ordinal()];
 			int newVal = proc.gp[r.ordinal()];
-			
-			if (oldVal != newVal) {
-				regChanged[r.ordinal()] = true;
-				lastRegValues[r.ordinal()] = newVal;
-			}
+			regChanged[r.ordinal()] = oldVal != newVal;
 		}
 		
-		if (lastPRegValues[PReg.PC.ordinal()] != proc.pc) {
-			lastPRegValues[PReg.PC.ordinal()] = proc.pc;
-			pregChanged[PReg.PC.ordinal()] = true;
-		}
-		if (lastPRegValues[PReg.Lo.ordinal()] != proc.lo) {
-			lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
-			pregChanged[PReg.Lo.ordinal()] = true;
-		}
-		if (lastPRegValues[PReg.Hi.ordinal()] != proc.hi) {
-			lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
-			pregChanged[PReg.Hi.ordinal()] = true;
-		}
+		pregChanged[PReg.PC.ordinal()] = lastPRegValues[PReg.PC.ordinal()] != proc.pc;
+		pregChanged[PReg.Lo.ordinal()] = lastPRegValues[PReg.Lo.ordinal()] != proc.lo;
+		pregChanged[PReg.Hi.ordinal()] = lastPRegValues[PReg.Hi.ordinal()] != proc.hi;
 	}
 	
 	// Execution Event Handling
 
 	@Override
 	public void execStarted(Sys sys) {
-		Processor proc = sys.getProcessor();
-		for (Reg r : Reg.values())
-			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-		lastPRegValues[PReg.PC.ordinal()] = proc.pc;
-		lastPRegValues[PReg.Hi.ordinal()] = proc.hi;
-		lastPRegValues[PReg.Lo.ordinal()] = proc.lo;
 		this.system = sys;
-		resetChangedRegs();
+		resetChangedRegs(sys);
 	}
 
 	@Override
 	public void execPaused(Sys sys) {
 		checkChangedRegs(sys);
-		this.viewer.refresh();
-		resetChangedRegs();
+		
+		this.viewer.getTable().getDisplay().syncExec(new Runnable() {	
+			@Override
+			public void run() {
+				viewer.refresh();
+			}
+		});
+		
+		resetChangedRegs(sys);
+	}
+	
+	@Override
+	public void execContinued(Sys sys) {
+		execStarted(sys); // Does the same
 	}
 
 	@Override
 	public void execStepped(Sys sys) {
-		checkChangedRegs(sys);
-		this.viewer.refresh();
-		resetChangedRegs();
+		execPaused(sys); // Does the same
 	}
 
 	@Override
-	public void execFinished(Sys sys) {
-		checkChangedRegs(sys);
-		this.viewer.refresh();
-		resetChangedRegs();
+	public void execFinished(Sys sys, boolean interrupted) {
+		execPaused(sys); // Does the same
 	}
 
 	@Override
