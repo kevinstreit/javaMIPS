@@ -45,6 +45,10 @@ public class Text extends Segment {
 		return res;
 	}
 	
+	public Element normal(Instruction f, Reg rs, Reg rt, Reg rd) {
+		return normal(f, rs, rt, rd);
+	}
+	
 	public Element imm(Instruction i, Reg rs, Reg rt, int imm) {
 		int word = i.encodeOpcodeInto(0);
 		word = rs.encodeInto(word, Instruction.FIELD_RS);

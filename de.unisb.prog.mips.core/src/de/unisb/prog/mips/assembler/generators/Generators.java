@@ -233,7 +233,23 @@ public class Generators {
 			@Override
 			public Element generate(Text text, String opcode, OperandInstance inst) {
 				List<Reg> regs = inst.getRegisters();
-				return text.normal(IntFunct.nor, Reg.zero, regs.get(1), regs.get(0), 0);
+				return text.normal(IntFunct.nor, Reg.zero, regs.get(1), regs.get(0));
+			}
+		});
+		
+		register("neg", new InstructionGenerator(AddressMode.NONE, DT) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				List<Reg> regs = inst.getRegisters();
+				return text.normal(IntFunct.sub, Reg.zero, regs.get(1), regs.get(0));
+			}
+		});
+		
+		register("negu", new InstructionGenerator(AddressMode.NONE, DT) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				List<Reg> regs = inst.getRegisters();
+				return text.normal(IntFunct.subu, Reg.zero, regs.get(1), regs.get(0));
 			}
 		});
 		
