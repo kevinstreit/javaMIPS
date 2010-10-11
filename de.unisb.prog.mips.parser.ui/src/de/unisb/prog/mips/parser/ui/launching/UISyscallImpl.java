@@ -30,4 +30,10 @@ public class UISyscallImpl implements SysCallImplementation {
 		this.out.flush();
 	}
 
+	@Override
+	public void exit(int ret) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

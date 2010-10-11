@@ -32,9 +32,13 @@ public class SysCallDispatcher implements SysCallHandler {
 		case print_char:
 			impl.print((char) a0);
 			break;
-		case exit: 
+		case exit:
+			state.state = ExecutionState.HALTED;
+			impl.exit(0);
+			return;
 		case exit2: 
 			state.state = ExecutionState.HALTED;
+			impl.exit(a0);
 			return;
 		}
 	}

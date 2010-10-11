@@ -6,6 +6,8 @@ public interface SysCallImplementation {
 	void print(char ch);
 	void print(CharSequence s);
 	
+	void exit(int ret);
+	
 	public static SysCallImplementation DEFAULT = new SysCallImplementation() {
 		
 		@Override
@@ -21,6 +23,11 @@ public interface SysCallImplementation {
 		@Override
 		public void print(int v) {
 			System.out.print(v);
+		}
+
+		@Override
+		public void exit(int ret) {
+			// Nothing to do
 		}
 	};
 

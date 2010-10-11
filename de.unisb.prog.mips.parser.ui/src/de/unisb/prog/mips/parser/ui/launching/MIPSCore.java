@@ -1,10 +1,10 @@
 package de.unisb.prog.mips.parser.ui.launching;
 
-import java.io.PrintStream;
 import java.util.HashSet;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.os.SysCallDispatcher;
+import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
@@ -72,13 +72,13 @@ public class MIPSCore implements ExecutionListener {
 	
 	// UI Component Registry ===================
 	
-	PrintStream MIPSConsole = System.out;
+	MIPSConsoleOutput MIPSConsole = null;
 	
-	public void setConsoleOut(PrintStream consoleOut) {
-		this.MIPSConsole = consoleOut != null ? consoleOut : System.out;
+	public void setConsoleOut(MIPSConsoleOutput consoleOut) {
+		this.MIPSConsole = consoleOut;
 	}
 	
-	public PrintStream getConsoleOut() {
+	public MIPSConsoleOutput getConsoleOut() {
 		return MIPSConsole;
 	}
 	
@@ -88,7 +88,8 @@ public class MIPSCore implements ExecutionListener {
 	private Assembly asm = null;
 	
 	public void init(int memPages) {
-		this.sys = new Sys(memPages, new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
+		// TODO
+		this.sys = new Sys(memPages, null , new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
 		this.asm = null;
 	}
 	

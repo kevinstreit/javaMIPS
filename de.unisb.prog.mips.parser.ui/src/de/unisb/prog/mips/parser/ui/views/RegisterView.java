@@ -3,12 +3,10 @@ package de.unisb.prog.mips.parser.ui.views;
 
 import java.util.Arrays;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.StyledString.Styler;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -16,14 +14,8 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -51,30 +43,25 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			
 		}
 		
-		public Object[] getElements(Object parent) { 
+		public Object[] getElements(Object parent) {
 			return Reg.values();
 		}
 	}
 	
-	class ViewLabelProvider extends CellLabelProvider {
-		private Styler boldStyler;
-		private Image regChangedImg;
+	class ViewLabelProvider extends StyledCellLabelProvider {
+		private Font regFont, changedFont;
 		
-		public ViewLabelProvider(final Font boldFont) {
-			boldStyler = new Styler() {
-				@Override
-				public void applyStyles(TextStyle textStyle) {
-					textStyle.font = boldFont;
-				}
-			};
-			
-			regChangedImg = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK).createImage();
+		public ViewLabelProvider(final Font regFont, final Font changedFont) {
+			this.regFont = regFont;
+			this.changedFont = changedFont;
 		}
 		
 		@Override
 		public void update(ViewerCell cell) {
 			if (cell.getElement() instanceof Reg) {
 				Reg reg = (Reg) cell.getElement();
+				Processor proc = (system == null) ? null : system.getProcessor();
+				cell.setFont(regChanged[reg.ordinal()] ? changedFont : regFont);
 				
 				switch (cell.getColumnIndex()) {
 				case 0:
@@ -84,21 +71,16 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
 						cell.setText("---");
 					else {
-						Processor proc = system.getProcessor();
-						StyledString sStr = new StyledString();
-						String val = "" + proc.gp[reg.ordinal()];
-						
-						if (regChanged[reg.ordinal()]) {
-							sStr.append(val, boldStyler);
-							regChanged[reg.ordinal()] = false;
-							cell.setImage(regChangedImg);
-						} else {
-							sStr.append(val);
-							cell.setImage(null);
-						}
-						
-						cell.setText(sStr.getString());
-						cell.setStyleRanges(sStr.getStyleRanges());
+						int val = proc.gp[reg.ordinal()];
+						cell.setText("" + val);
+					}
+					break;
+				case 2:
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
+						cell.setText("---");
+					else {
+						int val = proc.gp[reg.ordinal()];
+						cell.setText(String.format("0x%08x", val));
 					}
 					break;
 				}
@@ -114,11 +96,6 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 				return null;
 			}
 		}
-		
-		@Override
-		public void dispose() {
-			regChangedImg.dispose();
-		}
 	}
 	
 	class NameSorter extends ViewerSorter {
@@ -130,8 +107,8 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	}
 	
 	private void createColumns(TableViewer viewer) {
-		String[] titles = { "Register", "Value"};
-		int[] bounds = { 60, 140 };
+		String[] titles = { "Reg", "Dec", "Hex"};
+		int[] bounds = { 50, 80, 80 };
 
 		for (int i = 0; i < titles.length; i++) {
 			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
@@ -139,33 +116,27 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			column.getColumn().setWidth(bounds[i]);
 			column.getColumn().setResizable(true);
 			column.getColumn().setMoveable(false);
+			column.getColumn().setAlignment(SWT.RIGHT);
 		}
 		
 		Table table = viewer.getTable();
+		table.setFont(JFaceResources.getTextFont());
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 	}
-
-	private static FontData[] getModifiedFontData(FontData[] originalData, int additionalStyle) {
-		FontData[] styleData = new FontData[originalData.length];
-		for (int i = 0; i < styleData.length; i++) {
-			FontData base = originalData[i];
-			styleData[i] = new FontData(base.getName(), base.getHeight(), base.getStyle() | additionalStyle);
-		}
-       	return styleData;
-    }
 
 	public void createPartControl(Composite parent) {
 		
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
 		createColumns(viewer);
 		ColumnViewerToolTipSupport.enableFor(viewer);
-		FontData[] boldFontData = getModifiedFontData(viewer.getControl().getFont().getFontData(), SWT.BOLD);
-		Font boldFont = new Font(Display.getCurrent(), boldFontData);
+		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.TEXT_FONT);
+		Font regFont = JFaceResources.getTextFont();
+		viewer.getTable().setFont(regFont);
 		
 		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider(boldFont));
-		viewer.setSorter(new NameSorter());
+		viewer.setLabelProvider(new ViewLabelProvider(regFont, boldFont));
+		//viewer.setSorter(new NameSorter());
 		viewer.setInput(getViewSite());
 
 		// Create the help context id for the viewer's control
@@ -206,6 +177,7 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			}
 		}
 		this.viewer.refresh();
+		Arrays.fill(regChanged, false);
 	}
 
 	@Override
@@ -220,6 +192,7 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			}
 		}
 		this.viewer.refresh();
+		Arrays.fill(regChanged, false);
 	}
 
 	@Override
@@ -234,6 +207,7 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			}
 		}
 		this.viewer.refresh();
+		Arrays.fill(regChanged, false);
 	}
 
 	@Override

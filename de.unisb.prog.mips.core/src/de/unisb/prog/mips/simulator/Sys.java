@@ -13,9 +13,9 @@ public class Sys implements MemoryLayout {
 	private final Memory mem;
 	private final Processor sim;
 	
-	public Sys(int memPages, SysCallHandler sys) {
+	public Sys(int memPages, ExceptionHandler exch, SysCallHandler sys) {
 		this.mem = new Memory(vm, true);
-		this.sim = new Processor(mem, null, sys);
+		this.sim = new Processor(mem, exch, sys);
 	}
 	
 	public void load(Assembly asm) {
