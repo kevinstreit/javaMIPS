@@ -85,7 +85,7 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 		this.stepAction.setEnabled(false);
 		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET_TERMINATED));
 		// TODO: Where is the return code?
-		this.out.println("[ Execution finished with return code " + sys.getProcessor().gp[Reg.a0.ordinal()] + " ]", true);
+		this.out.println("[ Execution finished with return code " + MIPSCore.getInstance().getExitCode() + " ]", true);
 	}
 
 	@Override
