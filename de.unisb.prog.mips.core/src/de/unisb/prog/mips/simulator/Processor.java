@@ -59,7 +59,8 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 			if (! i.getKind().changesPc())
 				pc += 4;
 		} catch (IllegalOpcodeException e) {
-			exc.illegalInstruction(this, mem, pc);
+			if (exc != null)
+				exc.illegalInstruction(this, mem, pc);
 		}
 		
 		return true;
@@ -165,8 +166,9 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case syscall: os.syscall(this, mem); break;
 		case brk:     {
 			if (!ignoreBreaks) {
-				state = ExecutionState.BREAKPOINT; 
-				exc.breakpoint(this, mem);
+				state = ExecutionState.BREAKPOINT;
+				if (exc != null)
+					exc.breakpoint(this, mem);
 			}
 		}
 		break;

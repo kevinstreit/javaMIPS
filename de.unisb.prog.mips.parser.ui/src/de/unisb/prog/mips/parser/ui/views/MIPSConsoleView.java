@@ -6,32 +6,27 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.MIPSCore;
-import de.unisb.prog.mips.parser.ui.util.TextOutputStream;
+import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
 public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.MIPSConsoleView";
 	
-	private static FontRegistry fonts;
-	static {
-		fonts = new FontRegistry(PlatformUI.getWorkbench().getDisplay());
-		fonts.put("code", new FontData[]{new FontData("Courier New", 10, SWT.NORMAL)});
-	}
-	
-	private Text text;
+	private StyledText text;
+	private MIPSConsoleOutput out;
 	
 	private Action continueAction;
 	private Action stepAction;
@@ -44,11 +39,11 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		text = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
-		text.setFont(fonts.get("code"));
-		MIPSCore.getInstance().setConsoleOut(new TextOutputStream(text));
+		text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
+		text.setFont(JFaceResources.getTextFont());
+		this.out = new MIPSConsoleOutput(text);
+		MIPSCore.getInstance().setConsoleOut(this.out);
 		MIPSCore.getInstance().addExecutionListener(this);
-		
 		makeActions();
 		contributeToActionBars();
 	}
@@ -65,7 +60,8 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 
 	@Override
 	public void execStarted(Sys sys) {
-		this.text.setText("");
+		this.out.clear();
+		this.out.println("[ Execution started in " + (sys.getProcessor().ignoresBreak() ? "normal" : "debug") + " mode ]", true);
 		this.sys = sys;
 		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET));
 	}
@@ -88,6 +84,8 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 		this.continueAction.setEnabled(false);
 		this.stepAction.setEnabled(false);
 		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET_TERMINATED));
+		// TODO: Where is the return code?
+		this.out.println("[ Execution finished with return code " + sys.getProcessor().gp[Reg.a0.ordinal()] + " ]", true);
 	}
 
 	@Override
