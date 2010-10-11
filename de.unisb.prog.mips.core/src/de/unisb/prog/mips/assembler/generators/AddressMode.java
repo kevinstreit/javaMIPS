@@ -22,7 +22,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "label | label+expression | expression";
+			return "address | address [+|-] offset | offset";
 		}
 	},
 	
@@ -34,7 +34,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "{" + LABEL_EXPR.stringRepr() + "}? (base_register)?";
+			return "[" + LABEL_EXPR.stringRepr() + "] [($base)]";
 		}
 	},
 	
@@ -46,7 +46,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "expression";
+			return "immediate";
 		}
 	},
 	
@@ -58,7 +58,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "expression(base_register)?";
+			return "offset[($base)]";
 		}
 	},
 		
@@ -70,7 +70,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "expression";
+			return "shift_count";
 		}
 	},
 	
