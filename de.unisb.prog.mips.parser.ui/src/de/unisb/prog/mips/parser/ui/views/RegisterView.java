@@ -43,7 +43,7 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 			
 		}
 		
-		public Object[] getElements(Object parent) { 
+		public Object[] getElements(Object parent) {
 			return Reg.values();
 		}
 	}
@@ -136,7 +136,7 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 		
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider(regFont, boldFont));
-		viewer.setSorter(new NameSorter());
+		//viewer.setSorter(new NameSorter());
 		viewer.setInput(getViewSite());
 
 		// Create the help context id for the viewer's control

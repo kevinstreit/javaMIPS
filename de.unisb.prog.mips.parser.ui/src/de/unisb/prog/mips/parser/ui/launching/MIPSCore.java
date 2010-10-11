@@ -88,7 +88,8 @@ public class MIPSCore implements ExecutionListener {
 	private Assembly asm = null;
 	
 	public void init(int memPages) {
-		this.sys = new Sys(memPages, new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
+		// TODO
+		this.sys = new Sys(memPages, null , new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
 		this.asm = null;
 	}
 	

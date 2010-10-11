@@ -52,7 +52,8 @@ public class Test {
 		t.address(Reg.a3, asm.createRef("test"));
 		asm.append(System.out);
 		
-		Sys sys = new Sys(1000, new SysCallDispatcher(SysCallImplementation.DEFAULT));
+		// TODO
+		Sys sys = new Sys(1000, null, new SysCallDispatcher(SysCallImplementation.DEFAULT));
 		sys.load(asm);
 		asm.append(System.out);
 		Processor proc = sys.getProcessor();
