@@ -1,37 +1,46 @@
 package de.unisb.prog.mips.parser.ui.views;
 
-import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.assembler.Position;
+import de.unisb.prog.mips.parser.ui.MIPSCore;
 import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
-import de.unisb.prog.mips.parser.ui.launching.MIPSCore;
+import de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
-public class MIPSConsoleView extends ViewPart implements ExecutionListener {
+public class MIPSConsoleView extends ViewPart implements ExecutionListener, IActiveEditorProvider {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.MIPSConsoleView";
 	
 	private StyledText text;
 	private MIPSConsoleOutput out;
 	
+	private RunMIPSAction runAction;
+	private RunMIPSAction debugAction;
+	
 	private Action stopAction;
 	private Action continueAction;
 	private Action stepAction;
 	
+	private IEditorPart lastActiveEditor = null;
+	private EditorOpenListener editorListener = null;
+	
 	private Sys sys = null;
+	private Assembly asm = null;
 
 	public MIPSConsoleView() {
 		
@@ -46,6 +55,40 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 		MIPSCore.getInstance().addExecutionListener(this);
 		makeActions();
 		contributeToActionBars();
+		
+		editorListener = new EditorOpenListener() {
+			@Override
+			public void editorActivated(IEditorPart editor) {
+				lastActiveEditor = RunnableMIPSPropTester.isMIPSRunnable(editor) ? editor : null;
+				MIPSConsoleView.this.checkActionEnablement();
+			}
+
+			@Override
+			public void editorDeactivated(IEditorPart editor) {
+				// Nothing
+			}
+
+			@Override
+			public void editorOpened(IEditorPart editor) {
+				// Nothing
+			}
+
+			@Override
+			public void editorClosed(IEditorPart editor) {
+				if (editor == lastActiveEditor) {
+					lastActiveEditor = null;
+					MIPSConsoleView.this.checkActionEnablement();
+				}
+			}
+		};
+		
+		PlatformUI.getWorkbench().addWindowListener(editorListener);
+		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null) {
+			editorListener.windowOpened(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+			editorListener.windowActivated(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+		}
+		
+		checkActionEnablement();
 	}
 
 	@Override
@@ -55,7 +98,30 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	
 	@Override
 	public void dispose() {
+		ExecutionState state = MIPSCore.getInstance().getExecutionState();
+		
+		if (state != null)
+			MIPSCore.getInstance().stopExec();
+		
 		MIPSCore.getInstance().removeExecutionListener(this);
+		PlatformUI.getWorkbench().removeWindowListener(editorListener);
+	}
+	
+	private void checkActionEnablement() {
+		runAction.checkEnablement();
+		debugAction.checkEnablement();
+		
+		ExecutionState state = MIPSCore.getInstance().getExecutionState();
+		
+		if (state != null) {
+			this.stopAction.setEnabled(state != ExecutionState.HALTED);
+			this.continueAction.setEnabled(state != ExecutionState.HALTED);
+			this.stepAction.setEnabled(state == ExecutionState.INTERRUPT || state == ExecutionState.BREAKPOINT);
+		} else {
+			this.stopAction.setEnabled(false);
+			this.continueAction.setEnabled(false);
+			this.stepAction.setEnabled(false);
+		}
 	}
 
 	@Override
@@ -63,46 +129,46 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 		this.out.clear();
 		this.out.println("[ Execution started in " + (sys.getProcessor().ignoresBreak() ? "normal" : "debug") + " mode ]", true);
 		this.sys = sys;
-		this.continueAction.setEnabled(true);
-		this.stepAction.setEnabled(true);
-		this.stopAction.setEnabled(true);
-		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET));
+		this.asm = asm;
+		continueAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_SUSPEND_MIPS));
+		checkActionEnablement();
 	}
 
 	@Override
 	public void execPaused(Sys sys, Assembly asm) {
-		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET_SUSPENDED));
-		this.stopAction.setEnabled(true);
-		this.continueAction.setEnabled(true);
-		this.stepAction.setEnabled(true);
+		this.sys = sys;
+		this.asm = asm;
+		continueAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_RESUME_MIPS));
+		checkActionEnablement();
 	}
 	
 	@Override
 	public void execContinued(Sys sys, Assembly asm) {
 		this.sys = sys;
-		this.stopAction.setEnabled(true);
-		this.continueAction.setEnabled(true);
-		this.stepAction.setEnabled(true);
-		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET));
+		this.asm = asm;
+		continueAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_SUSPEND_MIPS));
+		checkActionEnablement();
 	}
 
 	@Override
 	public void execStepped(Sys sys, Assembly asm) {
-		
+		this.sys = sys;
+		this.asm = asm;
+		checkActionEnablement();
 	}
 
 	@Override
 	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
-		this.sys = null;
-		this.continueAction.setEnabled(false);
-		this.stepAction.setEnabled(false);
-		this.stopAction.setEnabled(false);
-		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET_TERMINATED));
+		this.sys = sys;
+		this.asm = asm;
+		continueAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_RESUME_MIPS));
 		
 		if (interrupted)
 			this.out.println("[ Execution interrupted ]", true);
 		else
 			this.out.println("[ Execution finished with return code " + MIPSCore.getInstance().getExitCode() + " ]", true);
+		
+		checkActionEnablement();
 	}
 
 	@Override
@@ -117,18 +183,31 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
+		manager.add(runAction);
+		manager.add(debugAction);
+		
+		manager.add(new Separator());
+		
 		manager.add(stopAction);
 		manager.add(continueAction);
 		manager.add(stepAction);
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
+		manager.add(runAction);
+		manager.add(debugAction);
+		
+		manager.add(new Separator());
+		
 		manager.add(stopAction);
 		manager.add(continueAction);
 		manager.add(stepAction);
 	}
 
 	private void makeActions() {
+		runAction = new RunMIPSAction(this, false);
+		debugAction = new RunMIPSAction(this, true);
+		
 		continueAction = new Action() {
 			public void run() {
 				if (sys != null) {
@@ -141,21 +220,25 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 		};
 		continueAction.setText("Continue");
 		continueAction.setToolTipText("Continue a paused MIPS execution");
-		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET_TERMINATED));
-		continueAction.setEnabled(false);
+		continueAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_RESUME_MIPS));
 		
 		stepAction = new Action() {
 			public void run() {
 				if (sys != null) {
-					MIPSCore.getInstance().step();
+					Position pos = asm.getPosition(sys.getProcessor().pc);
+					int origLine = pos.getLineNumber();
+					
+					// TODO: What if we are at an instruction that jumps to itself?
+					do {
+						MIPSCore.getInstance().step();
+						pos = asm.getPosition(sys.getProcessor().pc);
+					} while (pos.getLineNumber() == origLine);
 				}
 			}
 		};
 		stepAction.setText("Step");
 		stepAction.setToolTipText("Perform one step in a paused MIPS execution");
-		stepAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD));
-		stepAction.setDisabledImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD_DISABLED));
-		stepAction.setEnabled(false);
+		stepAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_STEP_MIPS));
 		
 		stopAction = new Action() {
 			public void run() {
@@ -168,6 +251,10 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 		stopAction.setToolTipText("Stop the currently running execution");
 		stopAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_STOP));
 		stopAction.setDisabledImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_STOP_DISABLED));
-		stopAction.setEnabled(false);
+	}
+
+	@Override
+	public IEditorPart getActiveEditor() {
+		return lastActiveEditor;
 	}
 }

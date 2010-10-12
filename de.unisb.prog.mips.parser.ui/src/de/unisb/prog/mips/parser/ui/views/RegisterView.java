@@ -20,8 +20,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Reg;
+import de.unisb.prog.mips.parser.ui.MIPSCore;
 import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
-import de.unisb.prog.mips.parser.ui.launching.MIPSCore;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;

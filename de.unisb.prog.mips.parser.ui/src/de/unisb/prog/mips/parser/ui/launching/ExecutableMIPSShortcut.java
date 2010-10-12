@@ -13,18 +13,21 @@ import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.parser.generate.Generate;
 import de.unisb.prog.mips.parser.mips.Asm;
+import de.unisb.prog.mips.parser.ui.MIPSCore;
 
 public class ExecutableMIPSShortcut implements ILaunchShortcut {
 
 	@Override
 	public void launch(ISelection selection, String mode) {
-		// TODO Auto-generated method stub
 		System.out.println("Launch Selection");
 	}
 
 	@Override
 	public void launch(IEditorPart editor, final String mode) {
-		// TODO Auto-generated method stub
+		launch(editor, "debug".equals(mode));
+	}
+	
+	public static void launch(IEditorPart editor, final boolean debug) {
 		XtextEditor e = (XtextEditor) editor;
 		
 		IXtextDocument doc = e.getDocument();
@@ -39,7 +42,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 				gen.generate(a);
 
 				MIPSCore.getInstance().load(asm);
-				MIPSCore.getInstance().start("debug".equals(mode));
+				MIPSCore.getInstance().start(debug);
 
 				return asm;
 			}

@@ -31,19 +31,21 @@ public class MIPSConsoleOutput extends PrintStream {
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				textField.append(s);
-				
-				if (debug)
-					textField.setStyleRange(
-						new StyleRange(
-							textField.getText().length() - s.length(), 
-							s.length(), 
-							JFaceResources.getColorRegistry().get("m_red"), 
-							JFaceResources.getColorRegistry().get("m_white")
-						)
-					);
-				
-				textField.setSelection(textField.getText().length()-1);
+				if (!textField.isDisposed()) {
+					textField.append(s);
+					
+					if (debug)
+						textField.setStyleRange(
+							new StyleRange(
+								textField.getText().length() - s.length(), 
+								s.length(), 
+								JFaceResources.getColorRegistry().get("m_red"), 
+								JFaceResources.getColorRegistry().get("m_white")
+							)
+						);
+					
+					textField.setSelection(textField.getText().length()-1);
+				}
 			}
 		});
 	}
@@ -85,13 +87,15 @@ public class MIPSConsoleOutput extends PrintStream {
 	}
 	
 	public void clear() {
-		textField.getDisplay().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				textField.setText("");
-				textField.setStyleRange(null);
-			}
-		});
+		if (!textField.isDisposed()) {
+			textField.getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					textField.setText("");
+					textField.setStyleRange(null);
+				}
+			});
+		}
 	}
 	
 }

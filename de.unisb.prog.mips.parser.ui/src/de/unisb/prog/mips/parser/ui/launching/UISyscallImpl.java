@@ -3,6 +3,7 @@ package de.unisb.prog.mips.parser.ui.launching;
 import java.io.PrintStream;
 
 import de.unisb.prog.mips.os.SysCallImplementation;
+import de.unisb.prog.mips.parser.ui.MIPSCore;
 
 public class UISyscallImpl implements SysCallImplementation {
 

@@ -208,6 +208,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="de.unisb.prog.mips.parser.ui.launching.ExecutableMIPSShortcut"
+            icon="icons/icn/run.gif"
             id="de.unisb.prog.mips.parser.ui.executablemipsshortcut"
             label="MIPS Application"
             modes="run,debug">
@@ -243,7 +244,7 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="de.unisb.prog.mips.parser.ui.launching.PropertyTester"
+            class="de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester"
             id="de.unisb.prog.mips.parser.ui.launching.propertyTester"
             namespace="de.unisb.prog.mips.parser.ui.launching"
             properties="isFileExecutable"

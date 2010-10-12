@@ -1,4 +1,4 @@
-package de.unisb.prog.mips.parser.ui.launching;
+package de.unisb.prog.mips.parser.ui;
 
 import java.util.HashSet;
 
@@ -6,17 +6,50 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.swt.graphics.ImageData;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.os.SysCallDispatcher;
+import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.UIExceptionHandler;
+import de.unisb.prog.mips.parser.ui.launching.UISyscallImpl;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
 public class MIPSCore implements ExecutionListener {
+	
+	// Some shared images ======================
+	
+	public static final String ICN_RUN_MIPS = "de.unisb.cs.prog.mips.runmips";
+	public static final String ICN_RESUME_MIPS = "de.unisb.cs.prog.mips.resumemips";
+	public static final String ICN_STEP_MIPS = "de.unisb.cs.prog.mips.stepmips";
+	public static final String ICN_SUSPEND_MIPS = "de.unisb.cs.prog.mips.suspendmips";
+	public static final String ICN_MIPS_CONSOLE = "de.unisb.cs.prog.mips.mipsconsole";
+	public static final String ICN_DEBUG_MIPS = "de.unisb.cs.prog.mips.dbgmips";
+	public static final String ICN_REGISTER_VIEW = "de.unisb.cs.prog.mips.registerview";
+	
+	private static ImageDescriptor createImageDesc(String path) {
+		return ImageDescriptor.createFromImageData(new ImageData(MIPSCore.class.getResourceAsStream(path)));
+	}
+	
+	static {
+		ImageRegistry imgReg = JFaceResources.getImageRegistry();
+		
+		imgReg.put(ICN_RUN_MIPS, createImageDesc("/icons/icn/run.gif"));
+		imgReg.put(ICN_RESUME_MIPS, createImageDesc("/icons/icn/resume_co.gif"));
+		imgReg.put(ICN_STEP_MIPS, createImageDesc("/icons/icn/stepover_co.gif"));
+		imgReg.put(ICN_SUSPEND_MIPS, createImageDesc("/icons/icn/suspend_co.gif"));
+		imgReg.put(ICN_MIPS_CONSOLE, createImageDesc("/icons/icn/console_view.gif"));
+		imgReg.put(ICN_DEBUG_MIPS, createImageDesc("/icons/icn/debug.gif"));
+		imgReg.put(ICN_REGISTER_VIEW, createImageDesc("/icons/icn/register_view.gif"));
+	}
 	
 	// Singleton management ====================
 	
@@ -102,11 +135,26 @@ public class MIPSCore implements ExecutionListener {
 	private int exitCode;
 	private Job runningJob = null;
 	
+	public synchronized ExecutionState getExecutionState() {
+		if (sys == null || sys.getProcessor() == null) 
+			return null;
+		else
+			return sys.getProcessor().state;
+	}
+	
+	public Sys getSys() {
+		return sys;
+	}
+
+	public Assembly getAsm() {
+		return asm;
+	}
+	
 	public int getExitCode() {
 		return exitCode;
 	}
 
-	public void setExitCode(int exitCode) {
+	public synchronized void setExitCode(int exitCode) {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 		
@@ -116,7 +164,7 @@ public class MIPSCore implements ExecutionListener {
 		this.exitCode = exitCode;
 	}
 
-	public void init(int memPages) {
+	public synchronized void init(int memPages) {
 		this.sys = new Sys(memPages, new UIExceptionHandler(), new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
 		this.asm = null;
 	}
@@ -190,7 +238,8 @@ public class MIPSCore implements ExecutionListener {
 			@Override
 			protected void canceling() {
 				Processor proc = sys.getProcessor();
-				proc.state = ExecutionState.INTERRUPT;
+				proc.state = ExecutionState.HALTED;
+				execFinished(sys, asm, true);
 			}
 		};
 		
@@ -203,7 +252,7 @@ public class MIPSCore implements ExecutionListener {
 			pause();
 		
 		Processor proc = sys.getProcessor();
-		proc.state = ExecutionState.INTERRUPT;
+		proc.state = ExecutionState.HALTED;
 		
 		if (runningJob != null)
 			try {
@@ -261,7 +310,7 @@ public class MIPSCore implements ExecutionListener {
 			execStepped(sys, asm);
 	}
 	
-	public void load(Assembly asm) {
+	public synchronized void load(Assembly asm) {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 		
