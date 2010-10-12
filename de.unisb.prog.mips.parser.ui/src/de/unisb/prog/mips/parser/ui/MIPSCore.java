@@ -15,7 +15,8 @@ import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.os.SysCallDispatcher;
-import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
+import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.UIExceptionHandler;
 import de.unisb.prog.mips.parser.ui.launching.UISyscallImpl;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
@@ -23,7 +24,7 @@ import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
-public class MIPSCore implements ExecutionListener {
+public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	
 	// Some shared images ======================
 	
@@ -68,52 +69,74 @@ public class MIPSCore implements ExecutionListener {
 	
 	// Listener Management =====================
 	
-	private HashSet<ExecutionListener> listener = new HashSet<ExecutionListener>();
+	private HashSet<IExecutionListener> execListener = new HashSet<IExecutionListener>();
 	
-	public void addExecutionListener(ExecutionListener l) {
-		listener.add(l);
+	public void addExecutionListener(IExecutionListener l) {
+		execListener.add(l);
 	}
 	
-	public void removeExecutionListener(ExecutionListener l) {
-		listener.remove(l);
+	public void removeExecutionListener(IExecutionListener l) {
+		execListener.remove(l);
 	}
 	
 	@Override
 	public void execStarted(Sys sys, Assembly asm) {
-		for (ExecutionListener l : listener)
+		for (IExecutionListener l : execListener)
 			l.execStarted(sys, asm);
 	}
 
 	@Override
 	public void execPaused(Sys sys, Assembly asm) {
-		for (ExecutionListener l : listener)
+		for (IExecutionListener l : execListener)
 			l.execPaused(sys, asm);
 	}
 	
 	@Override
 	public void execContinued(Sys sys, Assembly asm) {
-		for (ExecutionListener l : listener)
+		for (IExecutionListener l : execListener)
 			l.execContinued(sys, asm);
 	}
 
 	@Override
 	public void execStepped(Sys sys, Assembly asm) {
-		for (ExecutionListener l : listener)
+		for (IExecutionListener l : execListener)
 			l.execStepped(sys, asm);
 	}
 
 	@Override
 	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
-		for (ExecutionListener l : listener)
+		for (IExecutionListener l : execListener)
 			l.execFinished(sys, asm, interrupted);
 	}
 
 	@Override
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
-		for (ExecutionListener l : listener) {
+		for (IExecutionListener l : execListener) {
 			l.dbgBrkptReached(sys, asm);
 			l.execPaused(sys, asm);
 		}
+	}
+	
+	private HashSet<IAssemblyLoadListener> loadListener = new HashSet<IAssemblyLoadListener>();
+	
+	public void addAssemblyLoadListener(IAssemblyLoadListener l) {
+		loadListener.add(l);
+	}
+	
+	public void removeAssemblyLoadListener(IAssemblyLoadListener l) {
+		loadListener.remove(l);
+	}
+	
+	@Override
+	public void assemblyLoaded(Assembly asm, Sys sys) {
+		for (IAssemblyLoadListener l : loadListener)
+			l.assemblyLoaded(asm, sys);
+	}
+
+	@Override
+	public void assemblyReset() {
+		for (IAssemblyLoadListener l : loadListener)
+			l.assemblyReset();
 	}
 	
 	// UI Component Registry ===================
@@ -327,6 +350,8 @@ public class MIPSCore implements ExecutionListener {
 			@Override public int errorsReported() { return 0; }
 		});
 		this.asm = asm;
+		
+		assemblyLoaded(this.asm, sys);
 	}
 	
 }

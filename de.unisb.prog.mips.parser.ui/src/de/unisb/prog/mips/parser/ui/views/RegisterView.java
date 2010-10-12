@@ -21,12 +21,12 @@ import org.eclipse.ui.part.ViewPart;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.parser.ui.MIPSCore;
-import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
-public class RegisterView extends ViewPart implements ExecutionListener {
+public class RegisterView extends ViewPart implements IExecutionListener {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.RegisterView";
 
 	private TableViewer viewer;

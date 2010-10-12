@@ -17,13 +17,13 @@ import org.eclipse.ui.part.ViewPart;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.parser.ui.MIPSCore;
-import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
-public class MIPSConsoleView extends ViewPart implements ExecutionListener, IActiveEditorProvider {
+public class MIPSConsoleView extends ViewPart implements IExecutionListener, IActiveEditorProvider {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.MIPSConsoleView";
 	
 	private StyledText text;

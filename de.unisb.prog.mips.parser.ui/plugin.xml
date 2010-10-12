@@ -284,6 +284,24 @@
             name="MIPS Console"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            category="de.unisb.prog.mips.parser.ui.views"
+            class="de.unisb.prog.mips.parser.ui.views.DataSegmentView"
+            icon="icons/icn/datasegment.gif"
+            id="de.unisb.prog.mips.parser.ui.views.DataSegmentView"
+            name="Data Segment"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="de.unisb.prog.mips.parser.ui.views"
+            class="de.unisb.prog.mips.parser.ui.views.DisassCodeView"
+            icon="icons/icn/disass.gif"
+            id="de.unisb.prog.mips.parser.ui.views.DisassCodeView"
+            name="Disassembly"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
