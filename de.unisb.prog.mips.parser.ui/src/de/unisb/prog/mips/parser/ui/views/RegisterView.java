@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.MIPSCore;
@@ -235,13 +236,13 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	// Execution Event Handling
 
 	@Override
-	public void execStarted(Sys sys) {
+	public void execStarted(Sys sys, Assembly asm) {
 		this.system = sys;
 		resetChangedRegs(sys);
 	}
 
 	@Override
-	public void execPaused(Sys sys) {
+	public void execPaused(Sys sys, Assembly asm) {
 		checkChangedRegs(sys);
 		
 		this.viewer.getTable().getDisplay().syncExec(new Runnable() {	
@@ -255,22 +256,22 @@ public class RegisterView extends ViewPart implements ExecutionListener {
 	}
 	
 	@Override
-	public void execContinued(Sys sys) {
-		execStarted(sys); // Does the same
+	public void execContinued(Sys sys, Assembly asm) {
+		execStarted(sys, asm); // Does the same
 	}
 
 	@Override
-	public void execStepped(Sys sys) {
-		execPaused(sys); // Does the same
+	public void execStepped(Sys sys, Assembly asm) {
+		execPaused(sys, asm); // Does the same
 	}
 
 	@Override
-	public void execFinished(Sys sys, boolean interrupted) {
-		execPaused(sys); // Does the same
+	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
+		execPaused(sys, asm); // Does the same
 	}
 
 	@Override
-	public void dbgBrkptReached(Sys sys) {
+	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		// this is done in execPaused
 	}
 }

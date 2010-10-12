@@ -14,6 +14,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.parser.ui.launching.ExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.MIPSCore;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
@@ -58,7 +59,7 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	}
 
 	@Override
-	public void execStarted(Sys sys) {
+	public void execStarted(Sys sys, Assembly asm) {
 		this.out.clear();
 		this.out.println("[ Execution started in " + (sys.getProcessor().ignoresBreak() ? "normal" : "debug") + " mode ]", true);
 		this.sys = sys;
@@ -69,7 +70,7 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	}
 
 	@Override
-	public void execPaused(Sys sys) {
+	public void execPaused(Sys sys, Assembly asm) {
 		continueAction.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_OBJS_DEBUG_TARGET_SUSPENDED));
 		this.stopAction.setEnabled(true);
 		this.continueAction.setEnabled(true);
@@ -77,8 +78,7 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	}
 	
 	@Override
-	public void execContinued(Sys sys) {
-		// TODO Auto-generated method stub
+	public void execContinued(Sys sys, Assembly asm) {
 		this.sys = sys;
 		this.stopAction.setEnabled(true);
 		this.continueAction.setEnabled(true);
@@ -87,12 +87,12 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	}
 
 	@Override
-	public void execStepped(Sys sys) {
+	public void execStepped(Sys sys, Assembly asm) {
 		
 	}
 
 	@Override
-	public void execFinished(Sys sys, boolean interrupted) {
+	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
 		this.sys = null;
 		this.continueAction.setEnabled(false);
 		this.stepAction.setEnabled(false);
@@ -106,7 +106,7 @@ public class MIPSConsoleView extends ViewPart implements ExecutionListener {
 	}
 
 	@Override
-	public void dbgBrkptReached(Sys sys) {
+	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		// Done in execPaused
 	}
 

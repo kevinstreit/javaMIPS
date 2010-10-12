@@ -46,40 +46,40 @@ public class MIPSCore implements ExecutionListener {
 	}
 	
 	@Override
-	public void execStarted(Sys sys) {
+	public void execStarted(Sys sys, Assembly asm) {
 		for (ExecutionListener l : listener)
-			l.execStarted(sys);
+			l.execStarted(sys, asm);
 	}
 
 	@Override
-	public void execPaused(Sys sys) {
+	public void execPaused(Sys sys, Assembly asm) {
 		for (ExecutionListener l : listener)
-			l.execPaused(sys);
+			l.execPaused(sys, asm);
 	}
 	
 	@Override
-	public void execContinued(Sys sys) {
+	public void execContinued(Sys sys, Assembly asm) {
 		for (ExecutionListener l : listener)
-			l.execContinued(sys);
+			l.execContinued(sys, asm);
 	}
 
 	@Override
-	public void execStepped(Sys sys) {
+	public void execStepped(Sys sys, Assembly asm) {
 		for (ExecutionListener l : listener)
-			l.execStepped(sys);
+			l.execStepped(sys, asm);
 	}
 
 	@Override
-	public void execFinished(Sys sys, boolean interrupted) {
+	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
 		for (ExecutionListener l : listener)
-			l.execFinished(sys, interrupted);
+			l.execFinished(sys, asm, interrupted);
 	}
 
 	@Override
-	public void dbgBrkptReached(Sys sys) {
+	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		for (ExecutionListener l : listener) {
-			l.dbgBrkptReached(sys);
-			l.execPaused(sys);
+			l.dbgBrkptReached(sys, asm);
+			l.execPaused(sys, asm);
 		}
 	}
 	
@@ -125,10 +125,10 @@ public class MIPSCore implements ExecutionListener {
 		proc.run();
 		switch (proc.state) {
 		case BREAKPOINT:
-			dbgBrkptReached(sys);
+			dbgBrkptReached(sys, asm);
 			break;
 		case HALTED:
-			execFinished(sys, false);
+			execFinished(sys, asm, false);
 			break;
 		}
 	}
@@ -142,7 +142,7 @@ public class MIPSCore implements ExecutionListener {
 		
 		if (runningJob != null) {
 			runningJob.cancel();
-			execFinished(sys, true);
+			execFinished(sys, asm, true);
 		}
 		
 		runningJob = new Job("Run MIPS") {
@@ -151,7 +151,7 @@ public class MIPSCore implements ExecutionListener {
 				Processor proc = sys.getProcessor();
 				proc.state = ExecutionState.RUNNING;
 				proc.setIgnoreBreaks(!dbg);
-				execStarted(sys);
+				execStarted(sys, asm);
 				continueExecution(proc);
 				return Status.OK_STATUS;
 			}
@@ -182,7 +182,7 @@ public class MIPSCore implements ExecutionListener {
 			protected IStatus run(IProgressMonitor monitor) {
 				Processor proc = sys.getProcessor();
 				proc.setContinue();
-				execContinued(sys);
+				execContinued(sys, asm);
 				continueExecution(proc);
 				return Status.OK_STATUS;
 			}
@@ -212,7 +212,7 @@ public class MIPSCore implements ExecutionListener {
 				// WHat shall we do?
 			}
 		
-		execFinished(sys, true);
+		execFinished(sys, asm, true);
 	}
 	
 	public synchronized void pause() {
@@ -232,7 +232,7 @@ public class MIPSCore implements ExecutionListener {
 				// WHat shall we do?
 			}
 		
-		execPaused(sys);
+		execPaused(sys, asm);
 	}
 	
 	public synchronized void step() {
@@ -248,17 +248,17 @@ public class MIPSCore implements ExecutionListener {
 		
 		switch (proc.state) {
 		case BREAKPOINT:
-			dbgBrkptReached(sys);
+			dbgBrkptReached(sys, asm);
 			break;
 		case HALTED:
-			execFinished(sys, false);
+			execFinished(sys, asm, false);
 			break;
 		default:
 			proc.state = ExecutionState.INTERRUPT;
 		}
 			
 		if (ran)
-			execStepped(sys);
+			execStepped(sys, asm);
 	}
 	
 	public void load(Assembly asm) {
