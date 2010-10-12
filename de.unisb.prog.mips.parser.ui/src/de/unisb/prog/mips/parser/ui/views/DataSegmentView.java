@@ -2,6 +2,7 @@ package de.unisb.prog.mips.parser.ui.views;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -125,15 +126,15 @@ public class DataSegmentView extends DisassemblyView {
 		if (asm == null || sys == null)
 			return null;
 		
-		ArrayList<DataSegLine> data = new ArrayList<DataSegLine>();
+		final ArrayList<DataSegLine> datalines = new ArrayList<DataSegLine>();
 		
 		try {
-			sys.getMemory().dump(data, sys.dataStart(), asm.getData().size(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
+			sys.getMemory().dump(datalines, sys.dataStart(), asm.getData().size(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
 				@Override public Type granularity() { return Type.BYTE; }
 				@Override public int chunkSize() { return 16; }
 				@Override
 				public void emit(ArrayList<DataSegLine> output, int addr, int[] data) throws IOException {
-					output.add(new DataSegLine(addr, data));
+					output.add(new DataSegLine(addr, Arrays.copyOf(data, data.length)));
 				}
 			});
 		} catch (IOException e) {
@@ -141,6 +142,6 @@ public class DataSegmentView extends DisassemblyView {
 			return null;
 		}
 		
-		return data.toArray(new DataSegLine[data.size()]);
+		return datalines.toArray(new DataSegLine[datalines.size()]);
 	}
 }
