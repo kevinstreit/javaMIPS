@@ -42,6 +42,8 @@ public class MIPSConsoleOutput extends PrintStream {
 							JFaceResources.getColorRegistry().get("m_white")
 						)
 					);
+				
+				textField.setSelection(textField.getText().length()-1);
 			}
 		});
 	}

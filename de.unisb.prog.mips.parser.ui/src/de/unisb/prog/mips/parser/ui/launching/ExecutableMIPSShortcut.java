@@ -26,6 +26,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	public void launch(IEditorPart editor, final String mode) {
 		// TODO Auto-generated method stub
 		XtextEditor e = (XtextEditor) editor;
+		
 		IXtextDocument doc = e.getDocument();
 		Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
 			@Override

@@ -140,8 +140,10 @@ public class MIPSCore implements ExecutionListener {
 		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 		
-		if (runningJob != null)
+		if (runningJob != null) {
 			runningJob.cancel();
+			execFinished(sys, true);
+		}
 		
 		runningJob = new Job("Run MIPS") {
 			@Override
@@ -187,8 +189,8 @@ public class MIPSCore implements ExecutionListener {
 			
 			@Override
 			protected void canceling() {
-				MIPSCore.getInstance().pause();
-				runningJob = null;
+				Processor proc = sys.getProcessor();
+				proc.state = ExecutionState.INTERRUPT;
 			}
 		};
 		
@@ -270,7 +272,7 @@ public class MIPSCore implements ExecutionListener {
 		sys.load(asm, new ErrorReporter<Position>() {
 			@Override
 			public void warning(String msg, Position arg) {
-				System.out.format("%s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg);
+				MIPSCore.getInstance().getConsoleOut().println(String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg), true);
 			}
 			@Override public void error(String msg, Position arg) { warning(msg, arg); }
 			@Override public int errorsReported() { return 0; }
