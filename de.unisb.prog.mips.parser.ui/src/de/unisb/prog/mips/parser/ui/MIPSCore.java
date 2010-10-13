@@ -2,6 +2,7 @@ package de.unisb.prog.mips.parser.ui;
 
 import java.util.HashSet;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -15,6 +16,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.Assembly;
@@ -195,8 +198,14 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				if (res != null) {
 					try {
 						IMarker m = res.createMarker(CurrentIPMarker.ID);
+
 						m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
 						m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
+
+						if (res instanceof IFile)
+							IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), (IFile) res, false);
+						else
+							IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), m, false);
 					} catch (CoreException e) {
 						// We can't do anything
 					}
@@ -393,7 +402,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		if (this.sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		// TODO Eventually create error markers
+		// TODO Create error markers
 		this.sys.load(asm, new ErrorReporter<Position>() {
 			@Override
 			public void warning(String msg, Position arg) {
