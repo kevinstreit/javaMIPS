@@ -22,6 +22,7 @@ import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.parser.generate.Generate;
 import de.unisb.prog.mips.parser.mips.Asm;
 import de.unisb.prog.mips.parser.ui.MIPSCore;
+import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 
 public class ExecutableMIPSShortcut implements ILaunchShortcut {
 
@@ -34,17 +35,17 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	public void launch(IEditorPart editor, final String mode) {
 		launch(editor, "debug".equals(mode));
 	}
-	
+
 	private static boolean askToSave(XtextEditor editor) {
 		MessageDialog saveConfirmation =
 			new MessageDialog(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-				"Save resource", 
-				null,
-				"'" + editor.getEditorInput().getName() + "'" + " has been modified. You need to save the changes before running. Save changes?",
-				MessageDialog.QUESTION,
-				new String[] { "Yes", "No", "Cancel" },
-				0);
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					"Save resource",
+					null,
+					"'" + editor.getEditorInput().getName() + "'" + " has been modified. You need to save the changes before running. Save changes?",
+					MessageDialog.QUESTION,
+					new String[] { "Yes", "No", "Cancel" },
+					0);
 
 		saveConfirmation.open();
 
@@ -58,18 +59,18 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			}
 			return true;
 		}
-			
+
 		return false;
 	}
-	
+
 	public static void launch(IEditorPart editor, final boolean debug) {
 		final XtextEditor e = (XtextEditor) editor;
-		
+
 		if (e.isDirty() && !askToSave(e))
 			return;
-		
+
 		while (e.isDirty()){}
-		
+
 		if (e.getEditorInput().exists()) {
 			IResource res = (IResource) e.getEditorInput().getAdapter(IResource.class);
 			if (res != null) {
@@ -85,9 +86,9 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 				}
 			}
 		}
-		
+
 		IXtextDocument doc = e.getDocument();
-		
+
 		Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
 			@Override
 			public Assembly exec(XtextResource state) throws Exception {
@@ -96,12 +97,14 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
 					return null;
 				}
-				
-				
+
+
 				Asm a = (Asm) state.getContents().get(0);
 				Assembly asm = new Assembly();
 				Generate gen = new Generate(asm);
 				gen.generate(a);
+
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
 
 				MIPSCore.getInstance().init(1024);
 				MIPSCore.getInstance().load(asm);
@@ -110,7 +113,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 				return asm;
 			}
 		});
-		
+
 		if (asm != null) {
 			try {
 				asm.append(System.out);
