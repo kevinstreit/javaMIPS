@@ -1,7 +1,7 @@
 package de.unisb.prog.mips.assembler.generators;
 
 public enum AddressMode {
-	
+
 	LABEL {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -13,7 +13,7 @@ public enum AddressMode {
 			return "label";
 		}
 	},
-	
+
 	LABEL_EXPR {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -22,10 +22,10 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "address | address [+|-] offset | offset";
+			return "address";
 		}
 	},
-	
+
 	LABEL_EXPR_BASE {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -34,10 +34,10 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "[" + LABEL_EXPR.stringRepr() + "] [($base)]";
+			return LABEL_EXPR.stringRepr() + "($base)";
 		}
 	},
-	
+
 	EXPR {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -49,7 +49,7 @@ public enum AddressMode {
 			return "immediate";
 		}
 	},
-	
+
 	EXPR_BASE {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -58,10 +58,10 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "offset[($base)]";
+			return "offset($base)";
 		}
 	},
-		
+
 	SHAMT {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -73,7 +73,7 @@ public enum AddressMode {
 			return "shift_count";
 		}
 	},
-	
+
 	NONE {
 		@Override
 		public boolean fits(OperandInstance inst) {
@@ -85,7 +85,7 @@ public enum AddressMode {
 			return "";
 		}
 	};
-	
+
 	public abstract boolean fits(OperandInstance inst);
 	public abstract String stringRepr();
 

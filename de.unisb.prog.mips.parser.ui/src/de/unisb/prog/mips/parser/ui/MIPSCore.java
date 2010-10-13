@@ -1,7 +1,9 @@
 package de.unisb.prog.mips.parser.ui;
 
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -15,6 +17,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.Assembly;
@@ -134,6 +140,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			l.dbgBrkptReached(sys, asm);
 			l.execPaused(sys, asm);
 		}
+
+		createExecutionMarker(asm, sys);
 	}
 
 	private final HashSet<IAssemblyLoadListener> loadListener = new HashSet<IAssemblyLoadListener>();
@@ -177,13 +185,11 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	private int exitCode;
 	private Job runningJob = null;
 
-	private void createExecutionMarker(Assembly asm, Sys sys) {
+	private IMarker createMarker(Position pos, String markerID) {
 		// Remove old markers
 		cleanExecutionMarker();
 
 		// Create debugging marker
-		Position pos = asm.getPosition(sys.getProcessor().pc);
-
 		String pathStr = pos.getFilename();
 
 		if (pathStr != null) {
@@ -193,19 +199,50 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				if (res != null) {
 					try {
 						IMarker m = res.createMarker(CurrentIPMarker.ID);
-						m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
-						m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
+						return m;
 					} catch (CoreException e) {
+						e.printStackTrace();
 						// We can't do anything
 					}
-
 				}
+			}
+		}
+
+		return null;
+	}
+
+	private void createExecutionMarker(Assembly asm, Sys sys) {
+		// Remove old markers
+		cleanExecutionMarker();
+
+		// Create debugging marker
+		Position pos = asm.getPosition(sys.getProcessor().pc);
+		IMarker m = createMarker(pos, CurrentIPMarker.ID);
+
+		if (m != null) {
+			IResource res = m.getResource();
+
+			try {
+				m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
+				m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
+
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				IWorkbenchPage page = window != null ? window.getActivePage() : null;
+
+				if (res instanceof IFile) {
+					if (page != null)
+						IDE.openEditor(page, (IFile) res, false);
+				} else {
+					if (page != null)
+						IDE.openEditor(page, m, false);
+				}
+			} catch (CoreException e) {
+				// No need to do something
 			}
 		}
 	}
 
 	private void cleanExecutionMarker() {
-		// TODO: Eventually put into workspace task (depending on performance)
 		try {
 			ResourcesPlugin.getWorkspace().getRoot().deleteMarkers(CurrentIPMarker.ID, true, IResource.DEPTH_INFINITE);
 		} catch (CoreException e) {
@@ -392,22 +429,44 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		if (this.sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		// TODO Eventually create error markers
+		final AtomicBoolean hasErrors = new AtomicBoolean(false);
 		this.sys.load(asm, new ErrorReporter<Position>() {
+			private void createMarker(String msg, Position arg, int severity) throws CoreException {
+				IMarker m = MIPSCore.this.createMarker(arg, IMarker.PROBLEM);
+				m.setAttribute(IMarker.LINE_NUMBER, arg.getLineNumber());
+				m.setAttribute(IMarker.CHAR_START, arg.getCharStart());
+				m.setAttribute(IMarker.CHAR_END, arg.getCharEnd());
+				m.setAttribute(IMarker.MESSAGE, String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
+				m.setAttribute(IMarker.SEVERITY, severity);
+			}
+
 			@Override
 			public void warning(String msg, Position arg) {
-				Status stat = new Status(Status.WARNING, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-				StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+				try {
+					createMarker(msg, arg, IMarker.SEVERITY_WARNING);
+				} catch (CoreException e) {
+					Status stat = new Status(Status.WARNING, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:WARNING ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
+					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+				}
 			}
+
 			@Override public void error(String msg, Position arg) {
-				Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-				StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+				hasErrors.set(true);
+				try {
+					createMarker(msg, arg, IMarker.SEVERITY_ERROR);
+				} catch (CoreException e) {
+					Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
+					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+				}
 			}
+
 			@Override public int errorsReported() { return 0; }
 		});
-		this.asm = asm;
 
-		assemblyLoaded(this.asm, this.sys);
+		if (!hasErrors.get()) {
+			this.asm = asm;
+			assemblyLoaded(this.asm, this.sys);
+		}
 	}
 
 }

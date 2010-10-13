@@ -17,6 +17,9 @@ public class EObjectPosition implements Position {
 
 	@Override
 	public String getFilename() {
+		if (this.obj.eResource() == null)
+			return null;
+
 		String uri = this.obj.eResource().getURI().toString();
 		String worspaceRootRelativePath = uri.startsWith("platform:/resource") ? uri.substring("platform:/resource".length()) : null;
 		return worspaceRootRelativePath;
@@ -29,13 +32,13 @@ public class EObjectPosition implements Position {
 
 	@Override
 	public int getCharStart() {
-		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getTotalOffset();
+		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getOffset();
 	}
 
 	@Override
 	public int getCharEnd() {
 		CompositeNode node = NodeUtil.getNodeAdapter(this.obj).getParserNode();
-		return node.getTotalOffset() + node.getTotalLength();
+		return node.getOffset() + node.getLength();
 	}
 
 }

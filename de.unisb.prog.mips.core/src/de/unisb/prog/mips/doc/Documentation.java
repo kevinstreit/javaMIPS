@@ -17,55 +17,53 @@ import org.xml.sax.SAXException;
 public class Documentation {
 	private static InsnDocGroup[] insnDoc = null;
 	private static HashMap<String, InsnDoc> mnemonicDocMap = null;
-	
+
 	private static void readDocs() {
 		mnemonicDocMap = new HashMap<String, InsnDoc>();
-		
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		
+
 		try {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			InputStream in = Documentation.class.getResourceAsStream("/doc/insnDocs.xml");
-			
+
 			if (in == null) {
 				System.err.println("Could not read instruction doc description!");
 				insnDoc = null;
 				mnemonicDocMap = null;
 			}
-			
+
 			Document document = db.parse(in);
 			document.getDocumentElement().normalize();
-			
+
 			Vector<InsnDocGroup> insnDocGroups = new Vector<InsnDocGroup>();
-			
+
 			Node docRoot = document.getFirstChild();
 			docRoot.normalize();
 			NodeList groups = docRoot.getChildNodes();
-			
+
 			for (int g = 0; g < groups.getLength(); ++g) {
 			    Node group = groups.item(g);
-			    
+
 			    if (group.hasAttributes()) {
 				    Node gName = group.getAttributes().getNamedItem("name");
 				    if (gName != null) {
 				    	InsnDocGroup gInsnDocGroup = new InsnDocGroup(gName.getNodeValue());
 				    	insnDocGroups.add(gInsnDocGroup);
-				    	
+
 				    	NodeList insnsInGroup = group.getChildNodes();
 				    	for (int i = 0; i < insnsInGroup.getLength(); ++i) {
 				    		Node insn = insnsInGroup.item(i);
-				    		
+
 				    		if (insn.hasAttributes()) {
 				    			Node iMnemonic = insn.getAttributes().getNamedItem("mnemonic");
-				    			Node iName = insn.getAttributes().getNamedItem("name");
-				    			Node iExample = insn.getAttributes().getNamedItem("example");
-				    			
+				    			Node iName = insn.getAttributes().getNamedItem("purpose");
+
 				    			String mnemonic = iMnemonic==null ? "<empty>" : iMnemonic.getNodeValue();
 				    			String name = iName==null ? "<empty>" : iName.getNodeValue();
-				    			String example = iExample==null ? "<empty>" : iExample.getNodeValue();
 				    			String desc = insn.getTextContent().trim();
-				    			
-				    			InsnDoc doc = new InsnDoc(gInsnDocGroup, mnemonic, name, example, desc);
+
+				    			InsnDoc doc = new InsnDoc(gInsnDocGroup, mnemonic, name, desc);
 				    			mnemonicDocMap.put(mnemonic, doc);
 				    			gInsnDocGroup.addInsn(doc);
 				    		}
@@ -73,7 +71,7 @@ public class Documentation {
 				    }
 			    }
 			}
-			
+
 			insnDoc = insnDocGroups.toArray(new InsnDocGroup[insnDocGroups.size()]);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
@@ -89,18 +87,18 @@ public class Documentation {
 			mnemonicDocMap = null;
 		}
 	}
-	
+
 	public static InsnDocGroup[] getInsnDocumentation() {
 		if (insnDoc == null)
 			readDocs();
-		
+
 		return insnDoc;
 	}
-	
+
 	public static InsnDoc getInsnDoc(String mnemonic) {
 		if (mnemonicDocMap == null)
 			readDocs();
-		
+
 		return mnemonicDocMap.get(mnemonic);
 	}
 }
