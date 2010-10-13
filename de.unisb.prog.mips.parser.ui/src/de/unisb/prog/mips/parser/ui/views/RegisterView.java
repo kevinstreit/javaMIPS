@@ -225,12 +225,12 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 		for (Reg r : Reg.values()) {
 			int oldVal = lastRegValues[r.ordinal()];
 			int newVal = proc.gp[r.ordinal()];
-			regChanged[r.ordinal()] = oldVal != newVal;
+			regChanged[r.ordinal()] = (oldVal != newVal);
 		}
 		
-		pregChanged[PReg.pc.ordinal()] = lastPRegValues[PReg.pc.ordinal()] != proc.pc;
-		pregChanged[PReg.lo.ordinal()] = lastPRegValues[PReg.lo.ordinal()] != proc.lo;
-		pregChanged[PReg.hi.ordinal()] = lastPRegValues[PReg.hi.ordinal()] != proc.hi;
+		pregChanged[PReg.pc.ordinal()] = (lastPRegValues[PReg.pc.ordinal()] != proc.pc);
+		pregChanged[PReg.lo.ordinal()] = (lastPRegValues[PReg.lo.ordinal()] != proc.lo);
+		pregChanged[PReg.hi.ordinal()] = (lastPRegValues[PReg.hi.ordinal()] != proc.hi);
 	}
 	
 	// Execution Event Handling
