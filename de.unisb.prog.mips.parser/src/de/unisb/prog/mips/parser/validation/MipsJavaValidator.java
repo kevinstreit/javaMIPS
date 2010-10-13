@@ -35,7 +35,7 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	private static final Option<Expr>     DUMMY_EXPR      = new Option<Expr>(Expressions.ZERO);
 	private static final Option<Reg>      DUMMY_REG       = new Option<Reg>(Reg.zero);
 	
-	private final Generators generators = new Generators();
+	private final Generators generators = Generators.getInstance();
 	
 	private final ErrorReporter<?> reporter = new ErrorReporter<Void>() {
 		private int errs = 0;
@@ -83,8 +83,13 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 			base = DUMMY_REG;
 		
 		OperandInstance op = new OperandInstance(regs, new Offset(label, expr), base);
-		List<InstructionGenerator> gens = generators.get(i.getOpcode());
-		op.check(gens, reporter);
+		String opcode = i.getOpcode();
+		if (generators.contains(opcode)) {
+			List<InstructionGenerator> gens = generators.get(i.getOpcode());
+			op.check(gens, reporter);
+		}
+		else 
+			error("illegal opcode: " + opcode, MipsPackage.INSN__OPCODE);
 	}
 	
 	private Reg checkReg(String name, int feature) {

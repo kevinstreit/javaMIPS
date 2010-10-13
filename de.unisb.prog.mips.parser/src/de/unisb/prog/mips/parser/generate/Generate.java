@@ -55,7 +55,7 @@ public class Generate {
 	private PolymorphicDispatcher<Void> voidDispatcher = 
 		PolymorphicDispatcher.createForSingleTarget("generate", 1, 2, this);
 	
-	private Generators generators = new Generators();
+	private Generators generators = Generators.getInstance();
 	
 	public Generate(Assembly assembly) {
 		this.assembly = assembly;

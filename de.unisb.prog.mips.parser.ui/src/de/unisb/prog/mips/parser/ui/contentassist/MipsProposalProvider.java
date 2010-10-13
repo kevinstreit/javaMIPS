@@ -10,50 +10,43 @@ import org.eclipse.xtext.ui.editor.contentassist.ConfigurableCompletionProposal;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
+import de.unisb.prog.mips.assembler.generators.Generators;
 import de.unisb.prog.mips.doc.Documentation;
 import de.unisb.prog.mips.doc.InsnDoc;
-import de.unisb.prog.mips.insn.Instruction;
-import de.unisb.prog.mips.insn.IntFunct;
-import de.unisb.prog.mips.insn.Opcode;
-import de.unisb.prog.mips.insn.RegImm;
 /**
  * see http://www.eclipse.org/Xtext/documentation/latest/xtext.html#contentAssist on how to customize content assistant
  */
 public class MipsProposalProvider extends AbstractMipsProposalProvider {
 	
-	private <T extends Enum<T> & Instruction> void add(Class<T> cls, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		for (T e : cls.getEnumConstants()) {
-			if (e.valid()) {
-				ICompletionProposal compProposal = createCompletionProposal(e.name(), context);
-				
-				if (compProposal instanceof ConfigurableCompletionProposal) {
-					ConfigurableCompletionProposal proposal = (ConfigurableCompletionProposal) compProposal;
-					InsnDoc insn = Documentation.getInsnDoc(e.name());
-					if (insn != null) {
-						proposal.setAdditionalProposalInfo(
-							"\n" + 
-							insn.mnemonic +	"\n" + 
-							insn.longName +	"\n\n" +
-							"Example: " + insn.example + "\n\n" + 
-							insn.description + 
-							"\n"
-						);
-					}
-					acceptor.accept(proposal);
-				} else {
-					acceptor.accept(compProposal);
-				}
+	private void add(String opcode, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		ICompletionProposal compProposal = createCompletionProposal(opcode, context);
+
+		if (compProposal instanceof ConfigurableCompletionProposal) {
+			ConfigurableCompletionProposal proposal = (ConfigurableCompletionProposal) compProposal;
+			InsnDoc insn = Documentation.getInsnDoc(opcode);
+			if (insn != null) {
+				proposal.setAdditionalProposalInfo(
+						"\n" + 
+						insn.mnemonic +	"\n" + 
+						insn.longName +	"\n\n" +
+						"Example: " + insn.example + "\n\n" + 
+						insn.description + 
+						"\n"
+				);
 			}
+			acceptor.accept(proposal);
+		} else {
+			acceptor.accept(compProposal);
 		}
 	}
-		
+	
 	
 	@Override
 	public void complete_TextItem(EObject model, RuleCall ruleCall,
 			ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		add(Opcode.class, context, acceptor);
-		add(IntFunct.class, context, acceptor);
-		add(RegImm.class, context, acceptor);
+		
+		for (String opcode : Generators.getInstance().getAvailableOpcodes()) 
+			add(opcode, context, acceptor);
 		super.complete_TextItem(model, ruleCall, context, acceptor);
 	}
 }

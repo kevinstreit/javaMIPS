@@ -29,13 +29,14 @@ public class EObjectPosition implements Position {
 
 	@Override
 	public int getCharStart() {
-		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getTotalOffset();
+		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getOffset();
 	}
 
 	@Override
 	public int getCharEnd() {
 		CompositeNode node = NodeUtil.getNodeAdapter(this.obj).getParserNode();
-		return node.getTotalOffset() + node.getTotalLength();
+		return node.getOffset() + node.getLength();
+		// return node.getTotalOffset() + node.getTotalLength();
 	}
 
 }
