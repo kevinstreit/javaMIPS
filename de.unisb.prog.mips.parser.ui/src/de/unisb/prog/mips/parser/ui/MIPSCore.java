@@ -134,6 +134,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			l.dbgBrkptReached(sys, asm);
 			l.execPaused(sys, asm);
 		}
+
+		createExecutionMarker(asm, sys);
 	}
 
 	private final HashSet<IAssemblyLoadListener> loadListener = new HashSet<IAssemblyLoadListener>();
@@ -205,7 +207,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	}
 
 	private void cleanExecutionMarker() {
-		// TODO: Eventually put into workspace task (depending on performance)
 		try {
 			ResourcesPlugin.getWorkspace().getRoot().deleteMarkers(CurrentIPMarker.ID, true, IResource.DEPTH_INFINITE);
 		} catch (CoreException e) {
