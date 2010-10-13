@@ -1,12 +1,13 @@
 package de.unisb.prog.mips.parser.util;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.parsetree.CompositeNode;
 import org.eclipse.xtext.parsetree.NodeUtil;
 
 import de.unisb.prog.mips.assembler.Position;
 
 public class EObjectPosition implements Position {
-	
+
 	private final EObject obj;
 
 	public EObjectPosition(EObject obj) {
@@ -16,13 +17,25 @@ public class EObjectPosition implements Position {
 
 	@Override
 	public String getFilename() {
-		// TODO: Implement properly
-		return "TODO";
+		String uri = this.obj.eResource().getURI().toString();
+		String worspaceRootRelativePath = uri.startsWith("platform:/resource") ? uri.substring("platform:/resource".length()) : null;
+		return worspaceRootRelativePath;
 	}
 
 	@Override
 	public int getLineNumber() {
-		return NodeUtil.getNodeAdapter(obj).getParserNode().getLine();
+		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getLine();
+	}
+
+	@Override
+	public int getCharStart() {
+		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getTotalOffset();
+	}
+
+	@Override
+	public int getCharEnd() {
+		CompositeNode node = NodeUtil.getNodeAdapter(this.obj).getParserNode();
+		return node.getTotalOffset() + node.getTotalLength();
 	}
 
 }
