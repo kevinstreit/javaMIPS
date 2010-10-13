@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.xtext.parsetree.NodeUtil;
 import org.eclipse.xtext.util.PolymorphicDispatcher;
 
 import de.unisb.prog.mips.assembler.Assembly;
@@ -42,6 +41,7 @@ import de.unisb.prog.mips.parser.mips.Space;
 import de.unisb.prog.mips.parser.mips.TextItem;
 import de.unisb.prog.mips.parser.mips.TextSegment;
 import de.unisb.prog.mips.parser.mips.Word;
+import de.unisb.prog.mips.parser.util.EObjectPosition;
 import de.unisb.prog.mips.simulator.Type;
 import de.unisb.prog.mips.util.Option;
 
@@ -78,8 +78,7 @@ public class Generate {
 			elm.setLabel(item.getLabel().getName());
 			assembly.addLabel(elm);
 		}
-		int line = NodeUtil.getNodeAdapter(item).getParserNode().getLine();
-		elm.setLineNumber(line);
+		elm.setPosition(new EObjectPosition(item));
 		return elm;
 	}
 	
@@ -159,10 +158,7 @@ public class Generate {
 		InstructionGenerator gen = op.select(generators.get(i.getOpcode()));
 
 		Element e = gen.generate(assembly.getText(), i.getOpcode(), op);
-		int line = NodeUtil.getNodeAdapter(i).getParserNode().getLine();
-		e.setLineNumber(line);
-		// TODO Set file name (where to get it?)
-		
+		e.setPosition(new EObjectPosition(i));
 		return e;
 	}
 	

@@ -1,9 +1,7 @@
 package de.unisb.prog.mips.assembler.generators;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 import de.unisb.prog.mips.assembler.Address;
 import de.unisb.prog.mips.assembler.ErrorReporter;

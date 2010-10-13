@@ -28,11 +28,11 @@ class RelJump extends LabelRefInsn {
 		int labelOffset = ref.eval();
 		
 		if ((labelOffset & 3) != 0)
-			reporter.error(String.format("jump target \"%s\" is not aligned", Expressions.toString(ref)), this);
+			reporter.error(String.format("jump target \"%s\" is not aligned", Expressions.toString(ref)), getPosition());
 		
 		int rel = (labelOffset - getOffset()) >> 2;
 		if (! Immediate.SEXT_16.fits(rel))
-			reporter.error(String.format("jump target \"%s\" out of range", Expressions.toString(ref)), this);
+			reporter.error(String.format("jump target \"%s\" out of range", Expressions.toString(ref)), getPosition());
 		
 		word = Instruction.FIELD_IMM.insert(word, rel);
 	}

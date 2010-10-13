@@ -54,6 +54,6 @@ public class LoadAddress extends ImmGen<Address> implements Relocateable {
 
 	@Override
 	public boolean validate(ErrorReporter<Position> reporter) {
-		return Insn.validateAddress(this, expr, reporter);
+		return Insn.validateAddress(getPosition(), expr, reporter);
 	}
 }

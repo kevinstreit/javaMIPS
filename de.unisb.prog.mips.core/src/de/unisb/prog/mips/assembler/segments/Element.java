@@ -10,33 +10,24 @@ import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.simulator.Memory;
 
-public abstract class Element implements Expr, Position {
+public abstract class Element implements Expr {
 	
 	private int offset;
 	private String label = "";
 	private List<LabelRef> referers = null;
 	protected final Segment segment;
-	private int lineNumber = 0;
-	private String filename = "";
+	protected Position position = Position.ILLEGAL;
 	
 	protected Element(Segment seg) {
 		this.segment = seg;
 	}
-
-	public int getLineNumber() {
-		return lineNumber;
+	
+	public Position getPosition() {
+		return position;
 	}
 
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
-	}
-
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setPosition(Position position) {
+		this.position = position;
 	}
 
 	public Segment getSegment() {

@@ -56,10 +56,11 @@ public class Assembly {
 	}
 	
 	public Position getPosition(int addr) {
+		// TODO This can be done nicer: Check for nulls in getElementAt
 		if (text.isInside(addr))
-			return text.getElementAt(addr);
+			return text.getElementAt(addr).getPosition();
 		if (data.isInside(addr))
-			return data.getElementAt(addr);
+			return data.getElementAt(addr).getPosition();
 		return Position.ILLEGAL;
 	}
 }

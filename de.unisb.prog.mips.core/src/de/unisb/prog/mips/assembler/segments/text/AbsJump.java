@@ -17,7 +17,7 @@ class AbsJump extends LabelRefInsn implements Relocateable {
 	public void relocate(int startAddress, ErrorReporter<Position> reporter) {
 		int addr = startAddress + ref.eval();
 		if ((addr & 0x0fffffff) != addr)
-			reporter.error(String.format("jump target \"%s\" out of range", Expressions.toString(ref)), this);
+			reporter.error(String.format("jump target \"%s\" out of range", Expressions.toString(ref)), getPosition());
 		word = Instruction.FIELD_TARGET.insert(word, addr >>> 2);
 	}
 

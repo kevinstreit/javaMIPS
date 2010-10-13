@@ -25,7 +25,7 @@ abstract class LabelRefInsn extends Insn {
 	
 	@Override
 	public boolean validate(ErrorReporter<Position> reporter) {
-		return validateAddress(this, ref, reporter);
+		return validateAddress(this.getPosition(), ref, reporter);
 	}
 	
 }
