@@ -17,6 +17,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -199,6 +201,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 						IMarker m = res.createMarker(CurrentIPMarker.ID);
 						return m;
 					} catch (CoreException e) {
+						e.printStackTrace();
 						// We can't do anything
 					}
 				}
@@ -215,18 +218,27 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		// Create debugging marker
 		Position pos = asm.getPosition(sys.getProcessor().pc);
 		IMarker m = createMarker(pos, CurrentIPMarker.ID);
-		IResource res = m.getResource();
 
-		try {
-			m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
-			m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
+		if (m != null) {
+			IResource res = m.getResource();
 
-			if (res instanceof IFile)
-				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), (IFile) res, false);
-			else
-				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), m, false);
-		} catch (CoreException e) {
-			// No need to do something
+			try {
+				m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
+				m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
+
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				IWorkbenchPage page = window != null ? window.getActivePage() : null;
+
+				if (res instanceof IFile) {
+					if (page != null)
+						IDE.openEditor(page, (IFile) res, false);
+				} else {
+					if (page != null)
+						IDE.openEditor(page, m, false);
+				}
+			} catch (CoreException e) {
+				// No need to do something
+			}
 		}
 	}
 
