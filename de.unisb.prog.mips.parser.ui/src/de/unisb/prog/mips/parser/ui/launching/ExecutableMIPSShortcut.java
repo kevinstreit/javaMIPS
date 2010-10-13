@@ -63,7 +63,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	}
 	
 	public static void launch(IEditorPart editor, final boolean debug) {
-		XtextEditor e = (XtextEditor) editor;
+		final XtextEditor e = (XtextEditor) editor;
 		
 		if (e.isDirty() && !askToSave(e))
 			return;
@@ -96,13 +96,14 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
 					return null;
 				}
-				MIPSCore.getInstance().init(1024);
+				
 				
 				Asm a = (Asm) state.getContents().get(0);
 				Assembly asm = new Assembly();
 				Generate gen = new Generate(asm);
 				gen.generate(a);
 
+				MIPSCore.getInstance().init(1024);
 				MIPSCore.getInstance().load(asm);
 				MIPSCore.getInstance().start(debug);
 
