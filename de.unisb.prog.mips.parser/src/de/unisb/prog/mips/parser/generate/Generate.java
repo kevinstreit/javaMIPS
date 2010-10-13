@@ -133,9 +133,6 @@ public class Generate {
 			e.setLabel(label.getName());
 			assembly.addLabel(e);
 		}
-		int line = NodeUtil.getNodeAdapter(i).getParserNode().getLine();
-		e.setLineNumber(line);
-		// TODO Set file name (where to get it?)
 	}
 	
 	public Element generate(Space space, Segment s) {
@@ -160,7 +157,13 @@ public class Generate {
 		Offset off = generate(i.getAddr());
 		OperandInstance op = new OperandInstance(regs, off, base);
 		InstructionGenerator gen = op.select(generators.get(i.getOpcode()));
-		return gen.generate(assembly.getText(), i.getOpcode(), op);
+
+		Element e = gen.generate(assembly.getText(), i.getOpcode(), op);
+		int line = NodeUtil.getNodeAdapter(i).getParserNode().getLine();
+		e.setLineNumber(line);
+		// TODO Set file name (where to get it?)
+		
+		return e;
 	}
 	
 	private final PolymorphicDispatcher<Expr> exprDispatcher = 
