@@ -227,12 +227,12 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 				if (sys != null) {
 					Position pos = asm.getPosition(sys.getProcessor().pc);
 					int origLine = pos.getLineNumber();
-					
-					// TODO: What if we are at an instruction that jumps to itself?
+					int pcBefore;
 					do {
+						pcBefore = sys.getProcessor().pc;
 						MIPSCore.getInstance().step();
 						pos = asm.getPosition(sys.getProcessor().pc);
-					} while (pos.getLineNumber() == origLine);
+					} while (pos.getLineNumber() == origLine && (sys.getProcessor().pc != pcBefore));
 				}
 			}
 		};
