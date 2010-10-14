@@ -6,7 +6,6 @@ import java.util.Set;
 
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
-import de.unisb.prog.mips.assembler.segments.text.JumpTargetOutOfRange;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.simulator.Memory;
 
@@ -26,14 +25,14 @@ public class Assembly {
 		return data;
 	}
 
-	public void prepare(MemoryLayout layout, ErrorReporter<Position> reporter) throws AssemblerException {
+	public void prepare(MemoryLayout layout, ErrorReporter<Position> reporter) {
 		data.prepare(reporter);
 		text.prepare(reporter);
 		data.relocate(layout.dataStart(), reporter);
 		text.relocate(layout.textStart(), reporter);
 	}
 
-	public void writeToMem(Memory mem, MemoryLayout layout) throws JumpTargetOutOfRange {
+	public void writeToMem(Memory mem, MemoryLayout layout) {
 		data.writeToMem(mem, layout.dataStart());
 		text.writeToMem(mem, layout.textStart());
 	}
