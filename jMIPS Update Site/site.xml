@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/de.unisb.prog.jMIPS_1.0.0.201010141527.jar" id="de.unisb.prog.jMIPS" version="1.0.0.201010141527">
-      <category name="de.unisb.prog.jMIPS"/>
+   <feature url="features/de.unisb.prog.jMIPS_1.0.0.201010141818.jar" id="de.unisb.prog.jMIPS" version="1.0.0.201010141818">
+      <category name="jMIPS"/>
    </feature>
-   <category-def name="de.unisb.prog.jMIPS" label="jMIPS"/>
+   <category-def name="jMIPS" label="jMIPS">
+      <description>
+         The java MIPS category
+      </description>
+   </category-def>
 </site>
