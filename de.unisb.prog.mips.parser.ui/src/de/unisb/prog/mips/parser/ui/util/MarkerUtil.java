@@ -3,8 +3,10 @@ package de.unisb.prog.mips.parser.ui.util;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -50,40 +52,51 @@ public class MarkerUtil {
 		return null;
 	}
 
-	public static IMarker markPosition(Position pos, String markerID, boolean openEditor, boolean activateEditor) {
-		IMarker m = createMarkerOnResource(pos, markerID);
+	public static IMarker markPosition(final Position pos, final String markerID, final boolean openEditor, final boolean activateEditor) {
+		final IMarker[] m = new IMarker[1];
 
-		if (m != null) {
-			IResource res = m.getResource();
+		try {
+			ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+				@Override
+				public void run(IProgressMonitor monitor) throws CoreException {
+					m[0] = createMarkerOnResource(pos, markerID);
 
-			try {
-				m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
-				m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
-				m.setAttribute(IMarker.LINE_NUMBER, pos.getLineNumber());
+					if (m != null) {
+						IResource res = m[0].getResource();
 
-				if (openEditor) {
-					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					IWorkbenchPage page = window != null ? window.getActivePage() : null;
+						try {
+							m[0].setAttribute(IMarker.CHAR_START, pos.getCharStart());
+							m[0].setAttribute(IMarker.CHAR_END, pos.getCharEnd());
+							m[0].setAttribute(IMarker.LINE_NUMBER, pos.getLineNumber());
 
-					if (res instanceof IFile) {
-						if (page != null)
-							IDE.openEditor(page, (IFile) res, activateEditor);
-					} else {
-						if (page != null)
-							IDE.openEditor(page, m, activateEditor);
+							if (openEditor) {
+								IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+								IWorkbenchPage page = window != null ? window.getActivePage() : null;
+
+								if (res instanceof IFile) {
+									if (page != null)
+										IDE.openEditor(page, (IFile) res, activateEditor);
+								} else {
+									if (page != null)
+										IDE.openEditor(page, m[0], activateEditor);
+								}
+							}
+						} catch (CoreException e) {
+							try {
+								m[0].delete();
+							} catch (CoreException e1) {
+								// No need to do something
+							}
+
+							m[0] = null;
+						}
 					}
 				}
-			} catch (CoreException e) {
-				try {
-					m.delete();
-				} catch (CoreException e1) {
-					// No need to do something
-				}
-
-				return null;
-			}
+			}, null);
+		} catch (CoreException e2) {
+			return null;
 		}
 
-		return m;
+		return m[0];
 	}
 }
