@@ -7,17 +7,15 @@ import java.util.Arrays;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 
-import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.simulator.MemDumpFormatter;
-import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.Type;
 
 public class DataSegmentView extends DisassemblyView {
@@ -26,26 +24,29 @@ public class DataSegmentView extends DisassemblyView {
 	public DataSegmentView() {
 		super(false);
 	}
-	
+
 	private class DataSegLine {
 		final int addr;
 		final int[] data;
-		
+
 		public DataSegLine(int addr, int[] data) {
 			this.addr = addr;
 			this.data = data;
 		}
 	}
-	
+
 	class ViewContentProvider implements IStructuredContentProvider {
+		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 			v.refresh();
 		}
-		
+
+		@Override
 		public void dispose() {
-			
+
 		}
-		
+
+		@Override
 		public Object[] getElements(Object parent) {
 			if (parent instanceof DataSegLine[]) {
 				return (DataSegLine[]) parent;
@@ -53,22 +54,22 @@ public class DataSegmentView extends DisassemblyView {
 			return new Object[0];
 		}
 	}
-	
+
 	class ViewLabelProvider extends StyledCellLabelProvider {
-		private Font regFont;
-		
+		private final Font regFont;
+
 		public ViewLabelProvider(final Font regFont) {
 			this.regFont = regFont;
 		}
-		
+
 		@Override
 		public void update(ViewerCell cell) {
-			cell.setFont(regFont);
+			cell.setFont(this.regFont);
 			if (cell.getElement() instanceof DataSegLine) {
 				DataSegLine line = (DataSegLine) cell.getElement();
-				
+
 				switch (cell.getColumnIndex()) {
-				case 0: 
+				case 0:
 					cell.setText(String.format("%08x", line.addr));
 					break;
 				case 1: {
@@ -103,33 +104,58 @@ public class DataSegmentView extends DisassemblyView {
 	}
 
 	@Override
-	protected void createColumns(TableViewer viewer) {
+	protected void createColumns() {
 		String[] titles = { "Line", "Content (Hex)", "Content (ASCII)" };
 		int[] bounds = { 80, 380, 140 };
 
 		for (int i = 0; i < titles.length; i++) {
-			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+			TableViewerColumn column = new TableViewerColumn(this.viewer, SWT.NONE);
 			column.getColumn().setText(titles[i]);
 			column.getColumn().setWidth(bounds[i]);
 			column.getColumn().setResizable(true);
 			column.getColumn().setMoveable(false);
 			column.getColumn().setAlignment(SWT.LEFT);
 		}
-		
-		Table table = viewer.getTable();
+
+		Table table = this.viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 	}
 
 	@Override
-	protected Object getViewerInput(Assembly asm, Sys sys) {
-		if (asm == null || sys == null)
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+
+		// The double click action might not be useful here due to the fact that the lines are unaligned.
+		/*
+		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				if (DataSegmentView.this.sys != null && DataSegmentView.this.asm != null && event.getSelection() instanceof IStructuredSelection) {
+					IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+					for (Object obj : sel.toArray()) {
+						if (obj instanceof DataSegLine) {
+							DataSegLine line = (DataSegLine) obj;
+							Position pos = DataSegmentView.this.asm.getPosition(line.addr);
+							MarkerUtil.cleanAllMarkers(MarkerUtil.ID_Highlighting);
+							MarkerUtil.markPosition(pos, MarkerUtil.ID_Highlighting, true, false);
+						}
+					}
+				}
+			}
+		});
+		 */
+	}
+
+	@Override
+	protected Object getViewerInput() {
+		if (this.asm == null || this.sys == null)
 			return null;
-		
+
 		final ArrayList<DataSegLine> datalines = new ArrayList<DataSegLine>();
-		
+
 		try {
-			sys.getMemory().dump(datalines, sys.dataStart(), asm.getData().size(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
+			this.sys.getMemory().dump(datalines, this.sys.dataStart(), this.asm.getData().size(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
 				@Override public Type granularity() { return Type.BYTE; }
 				@Override public int chunkSize() { return 16; }
 				@Override
@@ -141,7 +167,7 @@ public class DataSegmentView extends DisassemblyView {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 		return datalines.toArray(new DataSegLine[datalines.size()]);
 	}
 }

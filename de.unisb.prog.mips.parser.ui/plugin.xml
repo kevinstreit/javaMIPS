@@ -327,6 +327,11 @@
             name="de.unisb.prog.mips.currentIPAnnotation"
             super="org.eclipse.debug.ui.currentIP">
       </type>
+      <type
+            markerSeverity="0"
+            markerType="de.unisb.prog.mips.highlightMarker"
+            name="de.unisb.prog.mips.highlightAnnotation">
+      </type>
    </extension>
    <extension
          id="de.unisb.prog.mips.currentIPMarker"
@@ -335,6 +340,9 @@
       <super
             type="org.eclipse.core.resources.textmarker">
       </super>
+      <persistent
+            value="false">
+      </persistent>
    </extension>
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
@@ -358,6 +366,45 @@
             verticalRulerPreferenceKey="de.unisb.prog.mips.currentIPAnnotation.vRPref"
             verticalRulerPreferenceValue="true">
       </specification>
+      <specification
+            annotationImageProvider="de.unisb.prog.mips.parser.ui.launching.AnnotationImageProvider"
+            annotationType="de.unisb.prog.mips.highlightAnnotation"
+            colorPreferenceKey="de.unisb.prog.mips.highlightAnnotation.cPref"
+            colorPreferenceValue="236,215,238"
+            contributesToHeader="false"
+            highlightPreferenceKey="de.unisb.prog.mips.highlightAnnotation.hPref"
+            highlightPreferenceValue="true"
+            includeOnPreferencePage="true"
+            label="MIPS Highlighting"
+            overviewRulerPreferenceKey="de.unisb.prog.mips.highlightAnnotation.oRPref"
+            overviewRulerPreferenceValue="true"
+            presentationLayer="3"
+            textPreferenceKey="de.unisb.prog.mips.highlightAnnotation.tPref"
+            textPreferenceValue="true"
+            textStylePreferenceKey="de.unisb.prog.mips.highlightAnnotation.tSPref"
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="de.unisb.prog.mips.highlightAnnotation.vRPref"
+            verticalRulerPreferenceValue="true">
+      </specification>
+   </extension>
+   <extension
+         id="de.unisb.prog.mips.highlightMarker"
+         name="MIPS Highlighting"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <persistent
+            value="false">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerUpdaters">
+      <updater
+            class="de.unisb.prog.mips.parser.ui.util.HighlighMarkerUpdater"
+            id="de.unisb.prog.mips.highlightMarkerUpdater"
+            markerType="de.unisb.prog.mips.highlightMarker">
+      </updater>
    </extension>
 
 </plugin>

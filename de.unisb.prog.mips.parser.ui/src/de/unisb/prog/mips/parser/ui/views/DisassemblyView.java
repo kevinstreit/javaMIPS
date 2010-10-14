@@ -16,44 +16,49 @@ import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
 import de.unisb.prog.mips.simulator.Sys;
 
 public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadListener {
-	private TableViewer viewer;
+	protected TableViewer viewer;
 	private final boolean needTooltipSupport;
-	
+
+	protected Assembly asm = null;
+	protected Sys sys = null;
+
 	public DisassemblyView(boolean needTooltipSupport) {
 		this.needTooltipSupport = needTooltipSupport;
 	}
 
-	protected abstract void createColumns(TableViewer viewer);
+	protected abstract void createColumns();
 	protected abstract IStructuredContentProvider getContentProvider();
 	protected abstract StyledCellLabelProvider getLabelProvider();
-	protected abstract Object getViewerInput(Assembly asm, Sys sys);
+	protected abstract Object getViewerInput();
 
+	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
-		createColumns(viewer);
+		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
+		createColumns();
 		Font regFont = JFaceResources.getTextFont();
-		viewer.getTable().setFont(regFont);
-		if (needTooltipSupport)
-			ColumnViewerToolTipSupport.enableFor(viewer);
-		
-		viewer.setContentProvider(getContentProvider());
-		viewer.setLabelProvider(getLabelProvider());
-		viewer.setInput(null);
+		this.viewer.getTable().setFont(regFont);
+		if (this.needTooltipSupport)
+			ColumnViewerToolTipSupport.enableFor(this.viewer);
+
+		this.viewer.setContentProvider(getContentProvider());
+		this.viewer.setLabelProvider(getLabelProvider());
+		this.viewer.setInput(null);
 
 		MIPSCore.getInstance().addAssemblyLoadListener(this);
-		
+
 		Sys tsys = MIPSCore.getInstance().getSys();
-		Assembly tasm = MIPSCore.getInstance().getAsm(); 
-		
+		Assembly tasm = MIPSCore.getInstance().getAsm();
+
 		if (tsys != null && tasm != null) {
 			assemblyLoaded(tasm, tsys);
 		}
 	}
 
+	@Override
 	public void setFocus() {
-		viewer.refresh();
+		this.viewer.refresh();
 	}
-	
+
 	@Override
 	public void dispose() {
 		MIPSCore.getInstance().removeAssemblyLoadListener(this);
@@ -63,13 +68,18 @@ public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadL
 	public void assemblyLoaded(Assembly asm, Sys sys) {
 		if (sys == null || asm == null)
 			throw new IllegalArgumentException("Sys and asm must not be null!");
-		
-		viewer.setInput(getViewerInput(asm, sys));
+
+		this.asm = asm;
+		this.sys = sys;
+
+		this.viewer.setInput(getViewerInput());
 	}
 
 	@Override
 	public void assemblyReset() {
-		viewer.setInput(null);
+		this.asm = null;
+		this.sys = null;
+		this.viewer.setInput(null);
 	}
 
 }

@@ -3,43 +3,36 @@ package de.unisb.prog.mips.parser.ui;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.os.SysCallDispatcher;
-import de.unisb.prog.mips.parser.ui.launching.CurrentIPMarker;
 import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
 import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.UIExceptionHandler;
 import de.unisb.prog.mips.parser.ui.launching.UISyscallImpl;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
+import de.unisb.prog.mips.parser.ui.util.MarkerUtil;
+import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
 public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
-
-	// Some shared images ======================
 
 	public static final String ICN_RUN_MIPS = "de.unisb.cs.prog.mips.runmips";
 	public static final String ICN_RESUME_MIPS = "de.unisb.cs.prog.mips.resumemips";
@@ -72,7 +65,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	private static MIPSCore instance = null;
 
 	private MIPSCore() {
-		// Nothing to do
+
 	}
 
 	public static MIPSCore getInstance() {
@@ -99,7 +92,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		for (IExecutionListener l : this.execListener)
 			l.execStarted(sys, asm);
 
-		cleanExecutionMarker();
+		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
 	@Override
@@ -115,7 +108,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		for (IExecutionListener l : this.execListener)
 			l.execContinued(sys, asm);
 
-		cleanExecutionMarker();
+		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
 	@Override
@@ -131,7 +124,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		for (IExecutionListener l : this.execListener)
 			l.execFinished(sys, asm, interrupted);
 
-		cleanExecutionMarker();
+		this.runningJob = null;
+		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
 	@Override
@@ -175,6 +169,14 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	}
 
 	public MIPSConsoleOutput getConsoleOut() {
+		if (this.MIPSConsole == null) {
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
+			} catch (PartInitException e) {
+				// Nothing to do
+			}
+		}
+
 		return this.MIPSConsole;
 	}
 
@@ -185,68 +187,14 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	private int exitCode;
 	private Job runningJob = null;
 
-	private IMarker createMarker(Position pos, String markerID) {
-		// Remove old markers
-		cleanExecutionMarker();
-
-		// Create debugging marker
-		String pathStr = pos.getFilename();
-
-		if (pathStr != null) {
-			Path resPath = new Path(pathStr);
-			if (resPath != null) {
-				IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(resPath);
-				if (res != null) {
-					try {
-						IMarker m = res.createMarker(CurrentIPMarker.ID);
-						return m;
-					} catch (CoreException e) {
-						e.printStackTrace();
-						// We can't do anything
-					}
-				}
-			}
-		}
-
-		return null;
-	}
-
 	private void createExecutionMarker(Assembly asm, Sys sys) {
 		// Remove old markers
-		cleanExecutionMarker();
+		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 
-		// Create debugging marker
-		Position pos = asm.getPosition(sys.getProcessor().pc);
-		IMarker m = createMarker(pos, CurrentIPMarker.ID);
-
-		if (m != null) {
-			IResource res = m.getResource();
-
-			try {
-				m.setAttribute(IMarker.CHAR_START, pos.getCharStart());
-				m.setAttribute(IMarker.CHAR_END, pos.getCharEnd());
-
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				IWorkbenchPage page = window != null ? window.getActivePage() : null;
-
-				if (res instanceof IFile) {
-					if (page != null)
-						IDE.openEditor(page, (IFile) res, false);
-				} else {
-					if (page != null)
-						IDE.openEditor(page, m, false);
-				}
-			} catch (CoreException e) {
-				// No need to do something
-			}
-		}
-	}
-
-	private void cleanExecutionMarker() {
-		try {
-			ResourcesPlugin.getWorkspace().getRoot().deleteMarkers(CurrentIPMarker.ID, true, IResource.DEPTH_INFINITE);
-		} catch (CoreException e) {
-			// Nothing we can do
+		if (asm != null && sys != null) {
+			// Create debugging marker
+			Position pos = asm.getPosition(sys.getProcessor().pc);
+			MarkerUtil.markPosition(pos, MarkerUtil.ID_CurrentIP, true, false);
 		}
 	}
 
@@ -363,20 +311,27 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	}
 
 	public synchronized void stopExec() {
+		if (this.sys != null) {
+			Processor proc = this.sys.getProcessor();
+			if (proc.state == ExecutionState.HALTED)
+				return;
+		}
+
 		if (this.sys != null && this.asm != null)
 			pause();
 
 		Processor proc = this.sys.getProcessor();
 		proc.state = ExecutionState.HALTED;
 
-		if (this.runningJob != null)
+		if (this.runningJob != null) {
 			try {
 				this.runningJob.join();
 			} catch (InterruptedException e) {
 				// WHat shall we do?
 			}
+		}
 
-			execFinished(this.sys, this.asm, true);
+		execFinished(this.sys, this.asm, true);
 	}
 
 	public synchronized void pause() {
@@ -425,6 +380,18 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			execStepped(this.sys, this.asm);
 	}
 
+	public void unloadASM() {
+		if (this.sys == null)
+			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
+
+		Processor proc = this.sys.getProcessor();
+		if(proc.state != ExecutionState.HALTED)
+			stopExec();
+
+		this.asm = null;
+		assemblyReset();
+	}
+
 	public synchronized void load(Assembly asm) {
 		if (this.sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
@@ -432,12 +399,11 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		final AtomicBoolean hasErrors = new AtomicBoolean(false);
 		this.sys.load(asm, new ErrorReporter<Position>() {
 			private void createMarker(String msg, Position arg, int severity) throws CoreException {
-				IMarker m = MIPSCore.this.createMarker(arg, IMarker.PROBLEM);
-				m.setAttribute(IMarker.LINE_NUMBER, arg.getLineNumber());
-				m.setAttribute(IMarker.CHAR_START, arg.getCharStart());
-				m.setAttribute(IMarker.CHAR_END, arg.getCharEnd());
-				m.setAttribute(IMarker.MESSAGE, String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-				m.setAttribute(IMarker.SEVERITY, severity);
+				IMarker m = MarkerUtil.markPosition(arg, IMarker.PROBLEM, false, false);
+				if (m != null) {
+					m.setAttribute(IMarker.MESSAGE, String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
+					m.setAttribute(IMarker.SEVERITY, severity);
+				}
 			}
 
 			@Override
