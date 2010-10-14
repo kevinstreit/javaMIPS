@@ -7,24 +7,27 @@ import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.assembler.segments.Space;
 
 public class LabelRef implements Address {
-	
+
 	private static final Assembly NULL_ASSEMBLY = new Assembly();
 	private static final Segment NULL_SEGMENT = new Segment(NULL_ASSEMBLY) {
+		{
+			state = State.RELOCATED;
+		}
 		@Override public Kind getKind() { return Kind.NULL; }
 		@Override protected void relocateInternal(int addr, ErrorReporter<Position> reporter) { }
 		@Override public void prepare(ErrorReporter<Position> reporter) { }
 	};
-	
+
 	public static final LabelRef NULL = new LabelRef(new Space(NULL_SEGMENT, 0));
-	
+
 	private Element elm;
 	private String name;
-	
+
 	LabelRef(Element elm) {
 		this.elm = elm;
 		this.name = elm.getLabel();
 	}
-	
+
 	LabelRef(String label) {
 		this.elm = null;
 		this.name = label;
@@ -35,13 +38,13 @@ public class LabelRef implements Address {
 			throw new IllegalStateException("tried to reference label \"" + name + "\"");
 		return elm;
 	}
-	
+
 	void connectToElement(Element elm) {
 		assert elm != null;
 		this.elm = elm;
 		elm.addReferrer(this);
 	}
-	
+
 	String getLabel() {
 		return name;
 	}
