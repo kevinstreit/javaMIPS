@@ -144,7 +144,7 @@ public abstract class Segment implements Iterable<Element> {
 		});
 
 		if (index < 0)
-			index = -index;
+			index = -index - 2;
 
 		if (index >= elements.size())
 			throw new IllegalStateException("could not find element at address " + Integer.toHexString(addr));
