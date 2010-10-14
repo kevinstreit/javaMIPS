@@ -24,19 +24,19 @@ import de.unisb.prog.mips.doc.InsnDocGroup;
 
 public class ISAView extends ViewPart {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.ISAView";
-	
+
 	private TreeViewer viewer;
-	
+
 	class ViewContentProvider implements IStructuredContentProvider, ITreeContentProvider {
 
 		@Override
 		public void dispose() {
-			
+
 		}
 
 		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			
+
 		}
 
 		@Override
@@ -48,7 +48,7 @@ public class ISAView extends ViewPart {
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof InsnDocGroup)
 				return ((InsnDocGroup) parentElement).getInsns();
-			
+
 			return null;
 		}
 
@@ -56,7 +56,7 @@ public class ISAView extends ViewPart {
 		public Object getParent(Object element) {
 			if (element instanceof InsnDoc)
 				return ((InsnDoc) element).parentGroup;
-				
+
 			return null;
 		}
 
@@ -64,15 +64,15 @@ public class ISAView extends ViewPart {
 		public boolean hasChildren(Object element) {
 			if (element instanceof InsnDocGroup)
 				return ((InsnDocGroup) element).getInsns().length > 0;
-				
+
 			return false;
 		}
-		
+
 	}
-	
+
 	class ViewLabelProvider extends StyledCellLabelProvider {
 		private Styler boldStyler;
-		
+
 		public ViewLabelProvider(final Font boldFont) {
 			boldStyler = new Styler() {
 				@Override
@@ -81,7 +81,7 @@ public class ISAView extends ViewPart {
 				}
 			};
 		}
-		
+
 		@Override
 		public void update(ViewerCell cell) {
 			if (cell.getElement() instanceof InsnDoc) {
@@ -93,32 +93,32 @@ public class ISAView extends ViewPart {
 				cell.setStyleRanges(str.getStyleRanges());
 			}
 		}
-		
+
 		@Override
 		public String getToolTipText(Object element) {
 			if (element instanceof InsnDoc) {
 				InsnDoc insn = (InsnDoc) element;
-				
-				return 	"\n" + 
-						insn.mnemonic +	"\n" + 
+
+				// TODO: Re-add example
+				return 	"\n" +
+						insn.mnemonic +	"\n" +
 						insn.longName +	"\n\n" +
-						"Example: " + insn.example + "\n\n" + 
-						insn.description + 
+						insn.description +
 						"\n";
 			} else {
 				return null;
 			}
 		}
 	}
-	
+
 	class NameSorter extends ViewerSorter {
-	
+
 	}
 
 	public ISAView() {
-		
+
 	}
-	
+
 	private static FontData[] getModifiedFontData(FontData[] originalData, int additionalStyle) {
 		FontData[] styleData = new FontData[originalData.length];
 		for (int i = 0; i < styleData.length; i++) {

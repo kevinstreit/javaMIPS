@@ -5,10 +5,15 @@ generate mips "http://www.unisb.de/prog/mips/parser/Mips"
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore 
 
 Asm hidden(COMMENT,WHITE,NL):  (elem+=DataSegment | elem+=TextSegment)*;
-TextSegment:      ".text" (items+=TextItem)+ ;
-TextItem :  (label=Label)? item=(Insn | Align | Word);
 
-Insn hidden(COMMENT,WHITE):    opcode=ID (regs+=Reg)* (addr=Addr ('(' base=Reg ')')?)? NL;
+Directive: {Global} ".globl" label=[Label]
+         | {SetAt} ".set" ID
+         ;
+
+TextSegment: ".text" (addr=PNInt)? (items+=TextItem | items+=Directive)+ ;
+TextItem:    label=(Label)? item=(Insn | Align | Word);
+
+Insn hidden(COMMENT,WHITE): opcode=ID (regs+=Reg)* (addr=Addr ('(' base=Reg ')')?)? NL;
 	
 Reg: (INTREG | TXTREG);
 
@@ -17,7 +22,7 @@ CExpr returns Expression: Mult (({Plus.left=current} '+'| {Minus.left=current} '
 Mult  returns Expression: Prim (({Mul.left=current} '*' | {Shra.left=current} ">>" | {Shr.left=current} ">>>" | {Shl.left=current} "<<") right=Prim)*;
 Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
-DataSegment: ".data" (items+=DataItem)+ ;
+DataSegment: ".data" (addr=PNInt)? (items+=DataItem | items+=Directive)+ ;
 
 DataItem: label=(Label)? data=DataDecl;
 	
@@ -33,6 +38,7 @@ Str:         ({Asciiz} ".asciiz" | {Ascii} ".ascii") val=STRING;
 
 IntList:     vals+=PNInt (',' vals+=PNInt)*;
 AddrList:    vals+=Addr (',' vals+=Addr)*;
+
 PNInt returns ecore::EInt: ('-')? (INT | HEXINT);
 	
 terminal INTREG   : '$' ('0'..'9')+;

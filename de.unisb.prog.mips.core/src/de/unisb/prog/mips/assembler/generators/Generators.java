@@ -172,6 +172,10 @@ public class Generators {
 		list.add(op);
 	}
 	
+	public boolean contains(String str) {
+		return registry.containsKey(str);
+	}
+	
 	public List<InstructionGenerator> get(String str) {
 		List<InstructionGenerator> res = registry.get(str);
 		if (res == null)
@@ -183,7 +187,15 @@ public class Generators {
 		return Collections.unmodifiableSet(registry.keySet());
 	}
 	
-	public Generators() {
+	private static Generators instance = null;
+	
+	public static Generators getInstance() {
+		if (instance == null)
+			instance = new Generators();
+		return instance;
+	}
+	
+	private Generators() {
 		addMachine();
 		addPseudos();
 	}
