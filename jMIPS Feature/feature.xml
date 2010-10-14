@@ -3,7 +3,7 @@
       id="de.unisb.prog.jMIPS"
       label="jMIPS"
       version="1.0.0.qualifier"
-      provider-name="Saarland Univerity">
+      provider-name="Saarland University">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -18,7 +18,7 @@
    </license>
 
    <url>
-      <update label="jMIPS Update Site" url="http://titania.fs.uni-saarland.de/jMIPS/"/>
+      <update label="jMIPS Update Site" url="http://www.prog.uni-saarland.de/software/jmips/"/>
    </url>
 
    <requires>
@@ -30,17 +30,11 @@
       <import plugin="de.unisb.prog.mips.core" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.apache.log4j"/>
       <import plugin="org.eclipse.xtext.ui"/>
-      <import plugin="org.eclipse.ui.editors" version="3.5.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.ide" version="3.5.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.xtext.ui.shared"/>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.xtext.builder"/>
       <import plugin="org.eclipse.debug.ui" version="3.6.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.expressions" version="3.4.200" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.ui.console"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="org.eclipse.jdt.debug.ui" version="3.5.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

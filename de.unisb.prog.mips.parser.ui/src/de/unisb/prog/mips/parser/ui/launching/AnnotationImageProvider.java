@@ -15,7 +15,6 @@ public class AnnotationImageProvider implements IAnnotationImageProvider {
 
 	}
 
-	@Override
 	public Image getManagedImage(Annotation annotation) {
 		if (annotation.getType().equals(MarkerUtil.ANN_ID_CurrentIP))
 			return JFaceResources.getImage(MIPSCore.ICN_INST_PTR);
@@ -23,12 +22,10 @@ public class AnnotationImageProvider implements IAnnotationImageProvider {
 			return null;
 	}
 
-	@Override
 	public String getImageDescriptorId(Annotation annotation) {
 		return null;
 	}
 
-	@Override
 	public ImageDescriptor getImageDescriptor(String imageDescritporId) {
 		return null;
 	}

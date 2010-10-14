@@ -22,32 +22,29 @@ public class VirtualMemory implements ByteMemory {
 	private int lastAccessedIdx = -1;
 
 	byte[] lookupPage(int addr) {
-		int idx     = addr >>> pageBits;
-		byte[] page = lastAccessedIdx == idx ? lastAccessedPage : pageMap.get(idx);
+		int idx     = addr >>> this.pageBits;
+		byte[] page = this.lastAccessedIdx == idx ? this.lastAccessedPage : this.pageMap.get(idx);
 		if (page == null) {
-			page = new byte[1 << pageBits];
-			pageMap.put(idx, page);
+			page = new byte[1 << this.pageBits];
+			this.pageMap.put(idx, page);
 		}
-		lastAccessedIdx = idx;
-		lastAccessedPage = page;
+		this.lastAccessedIdx = idx;
+		this.lastAccessedPage = page;
 		return page;
 	}
 
-	@Override
 	public byte load(int addr) {
 		byte[] page = lookupPage(addr);
-		return page[addr & inPageMask];
+		return page[addr & this.inPageMask];
 	}
 
-	@Override
 	public void store(int addr, byte val) {
 		byte[] page = lookupPage(addr);
-		page[addr & inPageMask] = val;
+		page[addr & this.inPageMask] = val;
 	}
 
-	@Override
 	public void reset() {
-		pageMap.clear();
+		this.pageMap.clear();
 	}
 
 }

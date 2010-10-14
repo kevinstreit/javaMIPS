@@ -36,17 +36,14 @@ public class DataSegmentView extends DisassemblyView {
 	}
 
 	class ViewContentProvider implements IStructuredContentProvider {
-		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 			v.refresh();
 		}
 
-		@Override
 		public void dispose() {
 
 		}
 
-		@Override
 		public Object[] getElements(Object parent) {
 			if (parent instanceof DataSegLine[]) {
 				return (DataSegLine[]) parent;
@@ -156,9 +153,8 @@ public class DataSegmentView extends DisassemblyView {
 
 		try {
 			this.sys.getMemory().dump(datalines, this.sys.dataStart(), this.asm.getData().size(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
-				@Override public Type granularity() { return Type.BYTE; }
-				@Override public int chunkSize() { return 16; }
-				@Override
+				public Type granularity() { return Type.BYTE; }
+				public int chunkSize() { return 16; }
 				public void emit(ArrayList<DataSegLine> output, int addr, int[] data) throws IOException {
 					output.add(new DataSegLine(addr, Arrays.copyOf(data, data.length)));
 				}

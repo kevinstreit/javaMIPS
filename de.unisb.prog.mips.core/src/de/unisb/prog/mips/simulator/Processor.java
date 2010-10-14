@@ -9,16 +9,16 @@ import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
 
 public final class Processor extends ProcessorState implements Handler<Instruction> {
-	
+
 	private final Memory mem;
 	private final SysCallHandler os;
 	private final ExceptionHandler exc;
 	private boolean ignoreBreaks = true;
 	private int subsequentNops = 0;
-	private int haltAfterSeenNops = 20;
-	
+	private final int haltAfterSeenNops = 20;
+
 	public boolean ignoresBreak() {
-		return ignoreBreaks;
+		return this.ignoreBreaks;
 	}
 
 	public void setIgnoreBreaks(boolean ignoreBreaks) {
@@ -31,7 +31,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		this.exc = exc;
 		this.gp  = new int[32];
 	}
-	
+
 	private static int cmpltu(int a, int b) {
 		int la = a & 0xffff;
 		int lb = b & 0xffff;
@@ -39,105 +39,102 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		b >>>= 16;
 		return a < b || la < lb ? 1 : 0;
 	}
-	
+
 	public boolean step() {
-		if (state != ExecutionState.RUNNING)
+		if (this.state != ExecutionState.RUNNING)
 			return false;
-		
-		int insn = load(pc, Type.WORD, false);
-		
-		// count nops executed in a row 
+
+		int insn = load(this.pc, Type.WORD, false);
+
+		// count nops executed in a row
 		// to stop after we have seen HALT_AFTER_NOPS
-		subsequentNops = insn == 0 ? subsequentNops + 1 : 0;
-		if (subsequentNops == haltAfterSeenNops) {
-			state = ExecutionState.HALTED;
+		this.subsequentNops = insn == 0 ? this.subsequentNops + 1 : 0;
+		if (this.subsequentNops == this.haltAfterSeenNops) {
+			this.state = ExecutionState.HALTED;
 			return false;
 		}
-			
+
 		try {
 			Instruction i = Instructions.decode(insn, this);
 			if (! i.getKind().changesPc())
-				pc += 4;
+				this.pc += 4;
 		} catch (IllegalOpcodeException e) {
-			if (exc != null)
-				exc.illegalInstruction(this, mem, pc);
+			if (this.exc != null)
+				this.exc.illegalInstruction(this, this.mem, this.pc);
 		}
-		
+
 		return true;
 	}
-	
+
 	public void run() {
 		while (step());
 	}
-	
+
 	private int load(int addr, Type tp, boolean signExtend) {
-		if (! tp.isAligned(addr)) 
+		if (! tp.isAligned(addr))
 			throw new UnalignedMemoryException(this, addr);
-		return mem.load(addr, tp);
+		return this.mem.load(addr, tp);
 	}
-	
+
 	private void store(int addr, Type tp, int val) {
-		if (! tp.isAligned(addr)) 
+		if (! tp.isAligned(addr))
 			throw new UnalignedMemoryException(this, addr);
-		mem.store(addr, val, tp);
+		this.mem.store(addr, val, tp);
 	}
-	
-	@Override
+
 	public Instruction j(Opcode opc, int imm) {
 		switch (opc) {
-		case jal: gp[31] = pc + 4;
-		case j:   pc = (pc & 0xf0000000) | (imm << 2);
+		case jal: this.gp[31] = this.pc + 4;
+		case j:   this.pc = this.pc & 0xf0000000 | imm << 2;
 		}
 		return opc;
 	}
-	
-	@Override
+
 	public Instruction i(RegImm ri, int rs, int imm) {
-		int s = gp[rs];
+		int s = this.gp[rs];
 		imm = ri.extendImm(imm);
 		switch (ri) {
 		case bgezl:
-		case bgez:    pc += s >= 0 ? imm << 2 : 4; break;
+		case bgez:    this.pc += s >= 0 ? imm << 2 : 4; break;
 		case bgezall:
-		case bgezal:  if (s >= 0) { gp[31] = pc + 4; pc += imm << 2; } else pc += 4; break;
+		case bgezal:  if (s >= 0) { this.gp[31] = this.pc + 4; this.pc += imm << 2; } else this.pc += 4; break;
 		case bltzl:
-		case bltz:    pc += s < 0 ? imm << 2 : 4; break;
+		case bltz:    this.pc += s < 0 ? imm << 2 : 4; break;
 		case bltzall:
-		case bltzal:  if (s < 0)  { gp[31] = pc + 4; pc += imm << 2; } else pc += 4; break;
+		case bltzal:  if (s < 0)  { this.gp[31] = this.pc + 4; this.pc += imm << 2; } else this.pc += 4; break;
 		}
 		return ri;
 	}
-	
-	@Override
+
 	public Instruction i(Opcode opc, int rs, int rt, int imm) {
-		int s = gp[rs];
-		int t = gp[rt];
+		int s = this.gp[rs];
+		int t = this.gp[rt];
 		imm = opc.extendImm(imm);
 		switch (opc) {
 		case beql:
-		case beq:   pc += s == t ? imm << 2 : 4; break;
+		case beq:   this.pc += s == t ? imm << 2 : 4; break;
 		case bnel:
-		case bne:   pc += s != t ? imm << 2 : 4; break;
+		case bne:   this.pc += s != t ? imm << 2 : 4; break;
 		case blezl:
-		case blez:  pc += s <= 0 ? imm << 2 : 4; break;
+		case blez:  this.pc += s <= 0 ? imm << 2 : 4; break;
 		case bgtzl:
-		case bgtz:  pc += s > 0 ? imm << 2 : 4; break;
-		
-		case addi:  gp[rt] = s + imm; break;
-		case addiu: gp[rt] = s + imm; break; // TODO: Correct!
-		case slti:  gp[rt] = s < imm ? 1 : 0; break;
-		case sltiu: gp[rt] = cmpltu(s, imm); break;
-		case andi:  gp[rt] = s & imm; break;
-		case ori:   gp[rt] = s | imm; break;
-		case xori:  gp[rt] = s ^ imm; break;
-		case lui:   gp[rt] = imm << 16; break;
-		
-		case lb:    gp[rt] = load(s + imm, Type.BYTE, true); break;
-		case lh:    gp[rt] = load(s + imm, Type.HALF, true); break;
+		case bgtz:  this.pc += s > 0 ? imm << 2 : 4; break;
+
+		case addi:  this.gp[rt] = s + imm; break;
+		case addiu: this.gp[rt] = s + imm; break; // TODO: Correct!
+		case slti:  this.gp[rt] = s < imm ? 1 : 0; break;
+		case sltiu: this.gp[rt] = cmpltu(s, imm); break;
+		case andi:  this.gp[rt] = s & imm; break;
+		case ori:   this.gp[rt] = s | imm; break;
+		case xori:  this.gp[rt] = s ^ imm; break;
+		case lui:   this.gp[rt] = imm << 16; break;
+
+		case lb:    this.gp[rt] = load(s + imm, Type.BYTE, true); break;
+		case lh:    this.gp[rt] = load(s + imm, Type.HALF, true); break;
 		case lwl:   break; // TODO Implement
-		case lw:    gp[rt] = load(s + imm, Type.WORD, true); break;
-		case lbu:   gp[rt] = load(s + imm, Type.BYTE, false); break;
-		case lhu:   gp[rt] = load(s + imm, Type.HALF, false); break;
+		case lw:    this.gp[rt] = load(s + imm, Type.WORD, true); break;
+		case lbu:   this.gp[rt] = load(s + imm, Type.BYTE, false); break;
+		case lhu:   this.gp[rt] = load(s + imm, Type.HALF, false); break;
 		case lwr:   break; // TODO Implement
 		case sb:    store(s + imm, Type.BYTE, t); break;
 		case sh:    store(s + imm, Type.HALF, t >>> 16); break;
@@ -148,62 +145,61 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		return opc;
 	}
 
-	@Override
 	public Instruction r(IntFunct funct, int rs, int rt, int rd, int shamt) {
-		int s = gp[rs];
-		int t = gp[rt];
+		int s = this.gp[rs];
+		int t = this.gp[rt];
 		switch (funct) {
-		case sll:     gp[rd] = s << shamt; break;
-		case srl:     gp[rd] = s >>> shamt; break;
-		case sra:     gp[rd] = s >> shamt; break;
-		case sllv:    gp[rd] = s << t; break;
-		case srlv:    gp[rd] = s >>> t; break;
-		case srav:    gp[rd] = s >> t; break;
-		case jr:      pc = s; break;
-		case jalr:    gp[rd] = pc + 4; pc = s; break;
-		case movz:    if (t == 0) gp[rd] = s; break;
-		case movn:    if (t != 0) gp[rd] = s; break;
-		case syscall: os.syscall(this, mem); break;
+		case sll:     this.gp[rd] = s << shamt; break;
+		case srl:     this.gp[rd] = s >>> shamt; break;
+		case sra:     this.gp[rd] = s >> shamt; break;
+		case sllv:    this.gp[rd] = s << t; break;
+		case srlv:    this.gp[rd] = s >>> t; break;
+		case srav:    this.gp[rd] = s >> t; break;
+		case jr:      this.pc = s; break;
+		case jalr:    this.gp[rd] = this.pc + 4; this.pc = s; break;
+		case movz:    if (t == 0) this.gp[rd] = s; break;
+		case movn:    if (t != 0) this.gp[rd] = s; break;
+		case syscall: this.os.syscall(this, this.mem); break;
 		case brk:     {
-			if (!ignoreBreaks) {
-				state = ExecutionState.BREAKPOINT;
-				if (exc != null)
-					exc.breakpoint(this, mem);
+			if (!this.ignoreBreaks) {
+				this.state = ExecutionState.BREAKPOINT;
+				if (this.exc != null)
+					this.exc.breakpoint(this, this.mem);
 			}
 		}
 		break;
-		case mfhi:    gp[rd] = hi; break;
-		case mthi:    hi = s; break;
-		case mflo:    gp[rd] = lo; break;
-		case mtlo:    lo = s; break;
+		case mfhi:    this.gp[rd] = this.hi; break;
+		case mthi:    this.hi = s; break;
+		case mflo:    this.gp[rd] = this.lo; break;
+		case mtlo:    this.lo = s; break;
 		case mult:    {
 			long ld = (long) s * (long) t;
-			lo = (int) (ld & 0xffffffff);
-			hi = (int) ((ld >> 32) & 0xffffffff);
+			this.lo = (int) (ld & 0xffffffff);
+			this.hi = (int) (ld >> 32 & 0xffffffff);
 		}
 		break;
 		// TODO: Check, if this is ok.
 		case multu:   {
-			long a = (long) s & 0xffffffffL;
-			long b = (long) t & 0xffffffffL;
+			long a = s & 0xffffffffL;
+			long b = t & 0xffffffffL;
 			long r = a * b;
-			lo = (int) (r & 0xffffffff);
-			hi = (int) ((r >> 32) & 0xffffffff);
+			this.lo = (int) (r & 0xffffffff);
+			this.hi = (int) (r >> 32 & 0xffffffff);
 		}
 		break;
-		case div:     lo = s / t; hi = s % t; break;
+		case div:     this.lo = s / t; this.hi = s % t; break;
 		// TODO: Check, if this is ok.
-		case divu:    lo = s / t; hi = s % t; break;
-		case add:     gp[rd] = s + t; break;
-		case addu:    gp[rd] = s + t; break;
-		case sub:     gp[rd] = s - t; break;
-		case subu:    gp[rd] = s - t; break;
-		case and:     gp[rd] = s & t; break;
-		case or:      gp[rd] = s | t; break;
-		case xor:     gp[rd] = s ^ t; break;
-		case nor:     gp[rd] = ~(s | t); break;
-		case slt:     gp[rd] = s < t ? 1 : 0; break;
-		case sltu:    gp[rd] = cmpltu(s, t); break;
+		case divu:    this.lo = s / t; this.hi = s % t; break;
+		case add:     this.gp[rd] = s + t; break;
+		case addu:    this.gp[rd] = s + t; break;
+		case sub:     this.gp[rd] = s - t; break;
+		case subu:    this.gp[rd] = s - t; break;
+		case and:     this.gp[rd] = s & t; break;
+		case or:      this.gp[rd] = s | t; break;
+		case xor:     this.gp[rd] = s ^ t; break;
+		case nor:     this.gp[rd] = ~(s | t); break;
+		case slt:     this.gp[rd] = s < t ? 1 : 0; break;
+		case sltu:    this.gp[rd] = cmpltu(s, t); break;
 		}
 		return funct;
 	}

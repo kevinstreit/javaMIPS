@@ -16,6 +16,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPartReference;
 
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.insn.Disassembler;
@@ -25,6 +27,8 @@ import de.unisb.prog.mips.simulator.Type;
 
 public class DisassCodeView extends DisassemblyView {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.DisassCodeView";
+
+	public static IPartListener2 highlightDeletionListener = null;
 
 	public DisassCodeView() {
 		super(false);
@@ -43,17 +47,14 @@ public class DisassCodeView extends DisassemblyView {
 	}
 
 	class ViewContentProvider implements IStructuredContentProvider {
-		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 			v.refresh();
 		}
 
-		@Override
 		public void dispose() {
 
 		}
 
-		@Override
 		public Object[] getElements(Object parent) {
 			if (parent instanceof DisAssLine[]) {
 				return (DisAssLine[]) parent;
@@ -95,7 +96,6 @@ public class DisassCodeView extends DisassemblyView {
 		super.createPartControl(parent);
 
 		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				if (DisassCodeView.this.sys != null && DisassCodeView.this.asm != null && event.getSelection() instanceof IStructuredSelection) {
 					IStructuredSelection sel = (IStructuredSelection) event.getSelection();
@@ -110,6 +110,23 @@ public class DisassCodeView extends DisassemblyView {
 				}
 			}
 		});
+
+		highlightDeletionListener = new IPartListener2() {
+			public void partVisible(IWorkbenchPartReference partRef) {}
+			public void partOpened(IWorkbenchPartReference partRef) {}
+			public void partInputChanged(IWorkbenchPartReference partRef) {}
+			public void partHidden(IWorkbenchPartReference partRef) {}
+			public void partClosed(IWorkbenchPartReference partRef) {}
+			public void partBroughtToTop(IWorkbenchPartReference partRef) {}
+			public void partActivated(IWorkbenchPartReference partRef) {}
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+				if (partRef.getPart(false) == DisassCodeView.this) {
+					MarkerUtil.cleanAllMarkers(MarkerUtil.ID_Highlighting);
+				}
+			}
+		};
+
+		getViewSite().getPage().addPartListener(highlightDeletionListener);
 	}
 
 	@Override
@@ -150,9 +167,8 @@ public class DisassCodeView extends DisassemblyView {
 
 		try {
 			this.sys.getMemory().dump(code, this.sys.textStart(), this.asm.getText().size(), new MemDumpFormatter<ArrayList<DisAssLine>>() {
-				@Override public Type granularity() { return Type.WORD; }
-				@Override public int chunkSize() { return 1; }
-				@Override
+				public Type granularity() { return Type.WORD; }
+				public int chunkSize() { return 1; }
 				public void emit(ArrayList<DisAssLine> output, int addr, int[] data) throws IOException {
 					output.add(new DisAssLine(addr, data[0], Disassembler.INSTANCE.disasm(data[0])));
 				}
@@ -169,6 +185,12 @@ public class DisassCodeView extends DisassemblyView {
 	public void assemblyReset() {
 		super.assemblyReset();
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_Highlighting);
+	}
+
+	@Override
+	public void dispose() {
+		getViewSite().getPage().removePartListener(highlightDeletionListener);
+		super.dispose();
 	}
 
 }

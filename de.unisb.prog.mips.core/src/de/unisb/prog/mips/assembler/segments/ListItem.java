@@ -3,77 +3,74 @@ package de.unisb.prog.mips.assembler.segments;
 import java.util.Iterator;
 
 public abstract class ListItem<T extends ListItem<T, D>, D extends T> {
-	
+
 	private T next;
 	private T prev;
-	
+
 	protected abstract T me();
-	
+
 	protected ListItem() {
-		next = prev = me();
+		this.next = this.prev = me();
 	}
-	
+
 	public final T remove() {
-		prev.next = next;
-		next.prev = prev;
-		next = prev = me();
+		this.prev.next = this.next;
+		this.next.prev = this.prev;
+		this.next = this.prev = me();
 		return me();
 	}
-	
+
 	public final T prepend(T x) {
-		prev.next = x;
-		x.prev = prev;
+		this.prev.next = x;
+		x.prev = this.prev;
 		x.next = me();
-		prev = x;
+		this.prev = x;
 		return x;
 	}
-	
+
 	public final T append(T x) {
-		next.prev = x;
+		this.next.prev = x;
 		x.prev = me();
-		x.next = next;
-		next = x;
+		x.next = this.next;
+		this.next = x;
 		return x;
 	}
-	
+
 	public final void replaceByList(D x) {
-		prev.next = x.next;
-		x.next.prev = prev;
-		next.prev = x.prev;
-		x.prev.next = next;
-		next = prev = me();
+		this.prev.next = x.next;
+		x.next.prev = this.prev;
+		this.next.prev = x.prev;
+		x.prev.next = this.next;
+		this.next = this.prev = me();
 	}
-	
+
 	public final T next() {
-		return next;
+		return this.next;
 	}
-	
+
 	public final T prev() {
-		return prev;
+		return this.prev;
 	}
 
 	public Iterator<T> iterator() {
 		return new Iterator<T>() {
 			private T curr = me();
 
-			@Override
 			public boolean hasNext() {
-				return curr.next != me();
+				return this.curr.next != me();
 			}
 
-			@Override
 			public T next() {
-				curr = curr.next;
-				return curr;
+				this.curr = this.curr.next;
+				return this.curr;
 			}
 
-			@Override
 			public void remove() {
-				curr.remove();
+				this.curr.remove();
 			}
 		};
 	}
-	
-	
+
+
 
 }

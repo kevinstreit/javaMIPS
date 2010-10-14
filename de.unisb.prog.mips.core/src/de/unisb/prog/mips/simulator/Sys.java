@@ -13,29 +13,29 @@ public class Sys implements MemoryLayout {
 	private final Processor sim;
 
 	public Sys(int memPages, ExceptionHandler exch, SysCallHandler sys) {
-		this.mem = new Memory(vm, true);
-		this.sim = new Processor(mem, exch, sys);
+		this.mem = new Memory(this.vm, true);
+		this.sim = new Processor(this.mem, exch, sys);
 	}
 
 	public void load(Assembly asm, ErrorReporter<Position> reporter) {
-		vm.reset();
+		this.vm.reset();
 		asm.prepare(this, reporter);
-		asm.writeToMem(mem, this);
-		sim.gp[Reg.gp.ordinal()] = dataStart() + 32768;
-		sim.gp[Reg.sp.ordinal()] = stackStart();
-		sim.pc = textStart();
+		asm.writeToMem(this.mem, this);
+		this.sim.gp[Reg.gp.ordinal()] = dataStart() + 32768;
+		this.sim.gp[Reg.sp.ordinal()] = stackStart();
+		this.sim.pc = textStart();
 	}
 
 	public Memory getMemory() {
-		return mem;
+		return this.mem;
 	}
 
 	public Processor getProcessor() {
-		return sim;
+		return this.sim;
 	}
 
-	@Override public int dataStart()       { return 0x10000000; }
-	@Override public int textStart()       { return 0x400000; }
-	@Override public int stackStart()      { return 0x7ffffffc; }
+	public int dataStart()       { return 0x10000000; }
+	public int textStart()       { return 0x400000; }
+	public int stackStart()      { return 0x7ffffffc; }
 
 }

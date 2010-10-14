@@ -11,7 +11,7 @@ public class LabelRef implements Address {
 	private static final Assembly NULL_ASSEMBLY = new Assembly();
 	private static final Segment NULL_SEGMENT = new Segment(NULL_ASSEMBLY) {
 		{
-			state = State.RELOCATED;
+			this.state = State.RELOCATED;
 		}
 		@Override public Kind getKind() { return Kind.NULL; }
 		@Override protected void relocateInternal(int addr, ErrorReporter<Position> reporter) { }
@@ -21,7 +21,7 @@ public class LabelRef implements Address {
 	public static final LabelRef NULL = new LabelRef(new Space(NULL_SEGMENT, 0));
 
 	private Element elm;
-	private String name;
+	private final String name;
 
 	LabelRef(Element elm) {
 		this.elm = elm;
@@ -34,9 +34,9 @@ public class LabelRef implements Address {
 	}
 
 	public Element getElement() {
-		if (elm == null)
-			throw new IllegalStateException("tried to reference label \"" + name + "\"");
-		return elm;
+		if (this.elm == null)
+			throw new IllegalStateException("tried to reference label \"" + this.name + "\"");
+		return this.elm;
 	}
 
 	void connectToElement(Element elm) {
@@ -46,27 +46,23 @@ public class LabelRef implements Address {
 	}
 
 	String getLabel() {
-		return name;
+		return this.name;
 	}
 
-	@Override
 	public int eval() {
-		return elm.getOffset();
+		return this.elm.getOffset();
 	}
 
-	@Override
 	public void append(Appendable app) throws IOException {
-		app.append(name);
+		app.append(this.name);
 	}
 
-	@Override
 	public Segment getSegment() {
 		return getElement().getSegment();
 	}
 
-	@Override
 	public boolean isValid() {
-		return elm != null;
+		return this.elm != null;
 	}
 
 }

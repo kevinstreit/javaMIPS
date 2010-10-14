@@ -14,18 +14,18 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.ide.IDE;
 
 public class NewMIPSFileWizard extends Wizard implements INewWizard {
-	
+
 	private class MIPSWizardNewFileCreationPage extends WizardNewFileCreationPage {
 		public MIPSWizardNewFileCreationPage(String pageName, IStructuredSelection selection) {
 			super(pageName, selection);
 		}
-		
+
 		@Override
 		protected InputStream getInitialContents() {
 			return NewMIPSFileWizard.class.getResourceAsStream("/config/defaultFile.mips");
 		}
 	}
-	
+
 	private MIPSWizardNewFileCreationPage pageOne;
 	private IStructuredSelection sel;
 
@@ -33,15 +33,14 @@ public class NewMIPSFileWizard extends Wizard implements INewWizard {
 		setWindowTitle("New MIPS File");
 	}
 
-	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.sel = selection;
 	}
 
 	@Override
 	public boolean performFinish() {
-		IFile newFile = pageOne.createNewFile();
-		
+		IFile newFile = this.pageOne.createNewFile();
+
 		if (newFile != null) {
 			try {
 				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), newFile);
@@ -50,23 +49,23 @@ public class NewMIPSFileWizard extends Wizard implements INewWizard {
 			}
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public void addPages() {
 		super.addPages();
-		
-		pageOne = new MIPSWizardNewFileCreationPage("New MIPS File", sel);
-		pageOne.setFileExtension("mips");
-		pageOne.setFileName("hello.mips");
-		pageOne.setTitle("MIPS File");
-		pageOne.setDescription("Create a new MIPS file.");
-		
-		pageOne.setImageDescriptor(ImageDescriptor.createFromFile(getClass(), "/icons/wzrdHd/newmipsfile_wiz.png"));
-		
-		addPage(pageOne);
+
+		this.pageOne = new MIPSWizardNewFileCreationPage("New MIPS File", this.sel);
+		this.pageOne.setFileExtension("mips");
+		this.pageOne.setFileName("hello.mips");
+		this.pageOne.setTitle("MIPS File");
+		this.pageOne.setDescription("Create a new MIPS file.");
+
+		this.pageOne.setImageDescriptor(ImageDescriptor.createFromFile(getClass(), "/icons/wzrdHd/newmipsfile_wiz.png"));
+
+		addPage(this.pageOne);
 	}
 
 }

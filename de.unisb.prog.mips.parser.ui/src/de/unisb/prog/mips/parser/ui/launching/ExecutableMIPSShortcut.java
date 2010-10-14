@@ -26,12 +26,10 @@ import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 
 public class ExecutableMIPSShortcut implements ILaunchShortcut {
 
-	@Override
 	public void launch(ISelection selection, String mode) {
 		System.out.println("Launch Selection");
 	}
 
-	@Override
 	public void launch(IEditorPart editor, final String mode) {
 		launch(editor, "debug".equals(mode));
 	}
@@ -91,7 +89,6 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			IXtextDocument doc = e.getDocument();
 
 			Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
-				@Override
 				public Assembly exec(XtextResource state) throws Exception {
 					if (state.getErrors().size() > 0) {
 						Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", "Errors exist in the project you want to run. Fix them first.");

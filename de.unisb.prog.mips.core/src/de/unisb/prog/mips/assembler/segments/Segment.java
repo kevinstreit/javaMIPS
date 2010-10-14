@@ -33,9 +33,9 @@ public abstract class Segment implements Iterable<Element> {
 	public static enum State {
 		BUILDING,                   // the initial state
 		PSEUDOS_EXPANDED,           // pseudo-ops are expanded to a real instruction sequence
-		                            // most important: the length of the pseudo is determined
+		// most important: the length of the pseudo is determined
 		OFFSETS_ASSIGNED,           // every element in a segment is assigned an offset
-		                            // To this end, every element must know of its exact length.
+		// To this end, every element must know of its exact length.
 		RELATIVE_ADDRESSES_PATCHED, // When we have offsets, we can perform relative addressing.
 		RELOCATED                   // Relocation is necessary for absolute addresses
 	}
@@ -45,33 +45,33 @@ public abstract class Segment implements Iterable<Element> {
 	}
 
 	public final void assertState(State s) {
-		if (state != s)
-			throw new IllegalStateException("segment must be in state " + s.name() + " but is in state " + state.name());
+		if (this.state != s)
+			throw new IllegalStateException("segment must be in state " + s.name() + " but is in state " + this.state.name());
 	}
 
 	public final void assertStateAtLeast(State s) {
-		if (state.ordinal() < s.ordinal())
-			throw new IllegalStateException("segment must be at least in state " + s.name() + " but is in state " + state.name());
+		if (this.state.ordinal() < s.ordinal())
+			throw new IllegalStateException("segment must be at least in state " + s.name() + " but is in state " + this.state.name());
 	}
 
 	public final Assembly getAssembly() {
-		return assembly;
+		return this.assembly;
 	}
 
 	public final int getBase() {
 		assertStateAtLeast(State.RELOCATED);
-		return baseAddress;
+		return this.baseAddress;
 	}
 
 	protected final Element add(Element e) {
 		assertState(State.BUILDING);
-		elements.add(e);
+		this.elements.add(e);
 		return e;
 	}
 
 	public final boolean validateElements(ErrorReporter<Position> reporter) {
 		boolean res = true;
-		for (Element e : elements)
+		for (Element e : this.elements)
 			res &= e.validate(reporter);
 		return res;
 	}
@@ -85,8 +85,8 @@ public abstract class Segment implements Iterable<Element> {
 			ofs = e.nextElementOffset(ofs);
 		}
 
-		size = ofs;
-		state = State.OFFSETS_ASSIGNED;
+		this.size = ofs;
+		this.state = State.OFFSETS_ASSIGNED;
 	}
 
 	public final void writeToMem(Memory mem, int addr) {
@@ -99,7 +99,7 @@ public abstract class Segment implements Iterable<Element> {
 		assertState(State.RELATIVE_ADDRESSES_PATCHED);
 		this.baseAddress = startAddress;
 		relocateInternal(startAddress, reporter);
-		state = State.RELOCATED;
+		this.state = State.RELOCATED;
 	}
 
 	public final void append(Appendable app) throws IOException {
@@ -109,7 +109,7 @@ public abstract class Segment implements Iterable<Element> {
 
 	public final int size() {
 		assertStateAtLeast(State.PSEUDOS_EXPANDED);
-		return size;
+		return this.size;
 	}
 
 	public final boolean isInside(int address) {
@@ -134,8 +134,7 @@ public abstract class Segment implements Iterable<Element> {
 		int offset = addr - getBase();
 		dummy.setOffset(offset);
 
-		int index = Collections.binarySearch(elements, dummy, new Comparator<Element>() {
-			@Override
+		int index = Collections.binarySearch(this.elements, dummy, new Comparator<Element>() {
 			public int compare(Element p, Element q) {
 				int l = p.getOffset();
 				int r = q.getOffset();
@@ -146,15 +145,14 @@ public abstract class Segment implements Iterable<Element> {
 		if (index < 0)
 			index = -index - 2;
 
-		if (index >= elements.size())
+		if (index >= this.elements.size())
 			throw new IllegalStateException("could not find element at address " + Integer.toHexString(addr));
 
-		return elements.get(index);
+		return this.elements.get(index);
 	}
 
-	@Override
 	public Iterator<Element> iterator() {
-		return elements.iterator();
+		return this.elements.iterator();
 	}
 
 	public Element align(int powerOfTwo) {

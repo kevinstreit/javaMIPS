@@ -6,49 +6,46 @@ import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.util.Option;
 
 public class Offset implements Address {
-	
+
 	private final Option<Expr> cnst;
 	private final Option<LabelRef> label;
-	
+
 	public Offset(Option<LabelRef> label, Option<Expr> cnst) {
 		this.label = label;
 		this.cnst = cnst;
 	}
-	
+
 	public void append(Appendable app) throws IOException {
 		getLabel().append(app);
 		getExpr().append(app);
 	}
-	
+
 	public Option<LabelRef> getLabelOption() {
-		return label;
+		return this.label;
 	}
-	
+
 	public Option<Expr> getExprOption() {
-		return cnst;
+		return this.cnst;
 	}
-	
+
 	public LabelRef getLabel() {
-		return label.otherwise(LabelRef.NULL);
+		return this.label.otherwise(LabelRef.NULL);
 	}
-	
+
 	public Expr getExpr() {
-		return cnst.otherwise(Expressions.constantInt(0));
+		return this.cnst.otherwise(Expressions.constantInt(0));
 	}
-	
-	@Override
+
 	public int eval() {
 		return getExpr().eval() + getLabel().eval();
 	}
 
-	@Override
 	public Segment getSegment() {
 		return getLabel().getSegment();
 	}
 
-	@Override
 	public boolean isValid() {
-		return label.otherwise(LabelRef.NULL).isValid();
+		return this.label.otherwise(LabelRef.NULL).isValid();
 	}
 
 }

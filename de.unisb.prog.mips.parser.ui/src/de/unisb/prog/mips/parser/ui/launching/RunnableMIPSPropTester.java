@@ -24,7 +24,6 @@ public class RunnableMIPSPropTester extends org.eclipse.core.expressions.Propert
 		try {
 			final AtomicBoolean hasMIPS = new AtomicBoolean(false);
 			proj.accept(new IResourceVisitor() {
-				@Override
 				public boolean visit(IResource resource) throws CoreException {
 					if (resource instanceof IFile && ((IFile) resource).getFileExtension().equals("mips")) {
 						hasMIPS.set(true);
@@ -91,7 +90,6 @@ public class RunnableMIPSPropTester extends org.eclipse.core.expressions.Propert
 		return false;
 	}
 
-	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		System.out.println("PropTester test: " + receiver.getClass().getCanonicalName());
 		return receiver instanceof IAdaptable && isMIPSRunnable((IAdaptable) receiver);

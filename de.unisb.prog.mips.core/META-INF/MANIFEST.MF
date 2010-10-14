@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Core
+Bundle-Name: de.unisb.prog.mips.core
 Bundle-SymbolicName: de.unisb.prog.mips.core
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -13,3 +13,5 @@ Export-Package: de.unisb.prog.mips.assembler,
  de.unisb.prog.mips.os,
  de.unisb.prog.mips.simulator,
  de.unisb.prog.mips.util
+Bundle-ClassPath: doc/,
+ .

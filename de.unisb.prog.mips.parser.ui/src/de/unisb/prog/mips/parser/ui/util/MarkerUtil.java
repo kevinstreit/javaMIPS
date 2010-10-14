@@ -57,7 +57,6 @@ public class MarkerUtil {
 
 		try {
 			ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-				@Override
 				public void run(IProgressMonitor monitor) throws CoreException {
 					m[0] = createMarkerOnResource(pos, markerID);
 

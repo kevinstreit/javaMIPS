@@ -2,7 +2,7 @@ package de.unisb.prog.mips.insn;
 
 
 public enum IntFunct implements Instruction {
-	
+
 	/* 00 */ sll(Kind.SHAMT),
 	/* 01 */ _01,
 	/* 02 */ srl(Kind.SHAMT),
@@ -19,7 +19,7 @@ public enum IntFunct implements Instruction {
 	/* 0d */ brk,
 	/* 0e */ _0e,
 	/* 0f */ sync,
-	
+
 	/* 10 */ mfhi,
 	/* 11 */ mthi,
 	/* 12 */ mflo,
@@ -36,7 +36,7 @@ public enum IntFunct implements Instruction {
 	/* 1d */ _1d,
 	/* 1e */ _1e,
 	/* 1f */ _1f,
-	
+
 	/* 20 */ add,
 	/* 21 */ addu,
 	/* 22 */ sub,
@@ -53,7 +53,7 @@ public enum IntFunct implements Instruction {
 	/* 2d */ _2d,
 	/* 2e */ _2e,
 	/* 2f */ _2f,
-	
+
 	/* 30 */ _30,
 	/* 31 */ _31,
 	/* 32 */ _32,
@@ -70,29 +70,27 @@ public enum IntFunct implements Instruction {
 	/* 3d */ _3d,
 	/* 3e */ _3e,
 	/* 3f */ _3f;
-	
+
 	private final Kind kind;
-	
+
 	private IntFunct() {
 		this(Kind.THREE_REG);
 	}
-	
+
 	private IntFunct(Kind kind) {
 		this.kind = kind;
 	}
 
-	@Override
 	public boolean valid() {
 		return Instructions.valid(this);
 	}
-	
-	@Override
+
 	public int encodeOpcodeInto(int word) {
 		word = FIELD_OPCODE.insert(word, Opcode.special.ordinal());
-		word = FIELD_INTFUNCT.insert(word, this.ordinal());
+		word = FIELD_INTFUNCT.insert(word, ordinal());
 		return word;
 	}
-	
+
 	public int encode(int rs, int rt, int rd, int shamt) {
 		int word = encodeOpcodeInto(0);
 		word = FIELD_RS.insert(word, rs);
@@ -106,17 +104,14 @@ public enum IntFunct implements Instruction {
 		return encode(rs, rt, rd, 0);
 	}
 
-	@Override
 	public Opcode getOpcode() {
 		return Opcode.special;
 	}
 
-	@Override
 	public Kind getKind() {
-		return kind;
+		return this.kind;
 	}
 
-	@Override
 	public Immediate getImmediate() {
 		return Immediate.NO_IMM;
 	}

@@ -64,7 +64,6 @@ public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadL
 		MIPSCore.getInstance().removeAssemblyLoadListener(this);
 	}
 
-	@Override
 	public void assemblyLoaded(Assembly asm, Sys sys) {
 		if (sys == null || asm == null)
 			throw new IllegalArgumentException("Sys and asm must not be null!");
@@ -75,7 +74,6 @@ public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadL
 		this.viewer.setInput(getViewerInput());
 	}
 
-	@Override
 	public void assemblyReset() {
 		this.asm = null;
 		this.sys = null;

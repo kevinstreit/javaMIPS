@@ -87,7 +87,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		this.execListener.remove(l);
 	}
 
-	@Override
 	public void execStarted(Sys sys, Assembly asm) {
 		for (IExecutionListener l : this.execListener)
 			l.execStarted(sys, asm);
@@ -95,7 +94,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
-	@Override
 	public void execPaused(Sys sys, Assembly asm) {
 		for (IExecutionListener l : this.execListener)
 			l.execPaused(sys, asm);
@@ -103,7 +101,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		createExecutionMarker(asm, sys);
 	}
 
-	@Override
 	public void execContinued(Sys sys, Assembly asm) {
 		for (IExecutionListener l : this.execListener)
 			l.execContinued(sys, asm);
@@ -111,7 +108,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
-	@Override
 	public void execStepped(Sys sys, Assembly asm) {
 		for (IExecutionListener l : this.execListener)
 			l.execStepped(sys, asm);
@@ -119,7 +115,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		createExecutionMarker(asm, sys);
 	}
 
-	@Override
 	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
 		for (IExecutionListener l : this.execListener)
 			l.execFinished(sys, asm, interrupted);
@@ -128,7 +123,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
-	@Override
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		for (IExecutionListener l : this.execListener) {
 			l.dbgBrkptReached(sys, asm);
@@ -148,13 +142,11 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		this.loadListener.remove(l);
 	}
 
-	@Override
 	public void assemblyLoaded(Assembly asm, Sys sys) {
 		for (IAssemblyLoadListener l : this.loadListener)
 			l.assemblyLoaded(asm, sys);
 	}
 
-	@Override
 	public void assemblyReset() {
 		for (IAssemblyLoadListener l : this.loadListener)
 			l.assemblyReset();
@@ -406,7 +398,6 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				}
 			}
 
-			@Override
 			public void warning(String msg, Position arg) {
 				try {
 					createMarker(msg, arg, IMarker.SEVERITY_WARNING);
@@ -416,7 +407,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				}
 			}
 
-			@Override public void error(String msg, Position arg) {
+			public void error(String msg, Position arg) {
 				hasErrors.set(true);
 				try {
 					createMarker(msg, arg, IMarker.SEVERITY_ERROR);
@@ -426,7 +417,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				}
 			}
 
-			@Override public int errorsReported() { return 0; }
+			public int errorsReported() { return 0; }
 		});
 
 		if (!hasErrors.get()) {

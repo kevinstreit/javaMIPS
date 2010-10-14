@@ -29,22 +29,18 @@ public class ISAView extends ViewPart {
 
 	class ViewContentProvider implements IStructuredContentProvider, ITreeContentProvider {
 
-		@Override
 		public void dispose() {
 
 		}
 
-		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 
 		}
 
-		@Override
 		public Object[] getElements(Object inputElement) {
 			return Documentation.getInsnDocumentation();
 		}
 
-		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof InsnDocGroup)
 				return ((InsnDocGroup) parentElement).getInsns();
@@ -52,7 +48,6 @@ public class ISAView extends ViewPart {
 			return null;
 		}
 
-		@Override
 		public Object getParent(Object element) {
 			if (element instanceof InsnDoc)
 				return ((InsnDoc) element).parentGroup;
@@ -60,21 +55,20 @@ public class ISAView extends ViewPart {
 			return null;
 		}
 
-		@Override
 		public boolean hasChildren(Object element) {
 			if (element instanceof InsnDocGroup)
 				return ((InsnDocGroup) element).getInsns().length > 0;
 
-			return false;
+				return false;
 		}
 
 	}
 
 	class ViewLabelProvider extends StyledCellLabelProvider {
-		private Styler boldStyler;
+		private final Styler boldStyler;
 
 		public ViewLabelProvider(final Font boldFont) {
-			boldStyler = new Styler() {
+			this.boldStyler = new Styler() {
 				@Override
 				public void applyStyles(TextStyle textStyle) {
 					textStyle.font = boldFont;
@@ -88,7 +82,7 @@ public class ISAView extends ViewPart {
 				cell.setText(cell.getElement().toString());
 			} else if (cell.getElement() instanceof InsnDocGroup) {
 				StyledString str = new StyledString();
-				str.append(cell.getElement().toString(), boldStyler);
+				str.append(cell.getElement().toString(), this.boldStyler);
 				cell.setText(str.toString());
 				cell.setStyleRanges(str.getStyleRanges());
 			}
@@ -101,10 +95,10 @@ public class ISAView extends ViewPart {
 
 				// TODO: Re-add example
 				return 	"\n" +
-						insn.mnemonic +	"\n" +
-						insn.longName +	"\n\n" +
-						insn.description +
-						"\n";
+				insn.mnemonic +	"\n" +
+				insn.longName +	"\n\n" +
+				insn.description +
+				"\n";
 			} else {
 				return null;
 			}
@@ -125,24 +119,24 @@ public class ISAView extends ViewPart {
 			FontData base = originalData[i];
 			styleData[i] = new FontData(base.getName(), base.getHeight(), base.getStyle() | additionalStyle);
 		}
-       	return styleData;
-    }
+		return styleData;
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		FontData[] boldFontData = getModifiedFontData(viewer.getControl().getFont().getFontData(), SWT.BOLD);
+		this.viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		FontData[] boldFontData = getModifiedFontData(this.viewer.getControl().getFont().getFontData(), SWT.BOLD);
 		Font boldFont = new Font(Display.getCurrent(), boldFontData);
-		ColumnViewerToolTipSupport.enableFor(viewer);
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider(boldFont));
-		viewer.setSorter(new NameSorter());
-		viewer.setInput(getViewSite());
+		ColumnViewerToolTipSupport.enableFor(this.viewer);
+		this.viewer.setContentProvider(new ViewContentProvider());
+		this.viewer.setLabelProvider(new ViewLabelProvider(boldFont));
+		this.viewer.setSorter(new NameSorter());
+		this.viewer.setInput(getViewSite());
 	}
 
 	@Override
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		this.viewer.getControl().setFocus();
 	}
 
 }

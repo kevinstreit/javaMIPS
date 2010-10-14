@@ -23,7 +23,6 @@ public class NewMIPSProjectWizard extends Wizard implements INewWizard, IExecuta
 		setWindowTitle("New MIPS Project");
 	}
 
-	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 
 	}
@@ -71,7 +70,6 @@ public class NewMIPSProjectWizard extends Wizard implements INewWizard, IExecuta
 		addPage(this.pageOne);
 	}
 
-	@Override
 	public void setInitializationData(IConfigurationElement config,	String propertyName, Object data) throws CoreException {
 		this.configurationElement = config;
 	}

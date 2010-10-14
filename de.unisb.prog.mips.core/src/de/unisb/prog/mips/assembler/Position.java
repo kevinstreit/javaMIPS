@@ -9,22 +9,18 @@ public interface Position {
 
 	public static final Position ILLEGAL = new Position() {
 
-		@Override
 		public int getLineNumber() {
 			return -1;
 		}
 
-		@Override
 		public String getFilename() {
 			return "<no such file>";
 		}
 
-		@Override
 		public int getCharStart() {
 			return -1;
 		}
 
-		@Override
 		public int getCharEnd() {
 			return -1;
 		}

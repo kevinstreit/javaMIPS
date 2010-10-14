@@ -5,47 +5,47 @@ import java.util.Map;
 
 
 public class Instructions {
-	
+
 	private static final Instruction INVALID = new Instruction() {
-		@Override public boolean valid() { return false; }
-		@Override public int encodeOpcodeInto(int word) { return word; }
-		@Override public Opcode getOpcode() { return Opcode._3e; }
-		@Override public Kind getKind() { return Kind.THREE_REG; }
-		@Override public Immediate getImmediate() { return Immediate.NO_IMM; }
-		@Override public String toString() { return "<invalid>"; }
+		public boolean valid() { return false; }
+		public int encodeOpcodeInto(int word) { return word; }
+		public Opcode getOpcode() { return Opcode._3e; }
+		public Kind getKind() { return Kind.THREE_REG; }
+		public Immediate getImmediate() { return Immediate.NO_IMM; }
+		public String toString() { return "<invalid>"; }
 	};
-	
+
 	private static final Map<String, Instruction> INSN = new HashMap<String, Instruction>();
-	
+
 	private static <T extends Enum<T> & Instruction> void add(Class<T> cls) {
 		for (T x : cls.getEnumConstants())
 			if (valid(x))
 				INSN.put(x.name(), x);
 	}
-	
+
 	static {
 		add(Opcode.class);
 		add(IntFunct.class);
 		add(RegImm.class);
 	}
-	
+
 	static <T extends Enum<T>> boolean valid(T op) {
 		return op.name().charAt(0) != '_';
 	}
-	
+
 	public static Instruction get(String name) {
 		Instruction insn = INSN.get(name);
 		return insn != null ? insn : INVALID;
 	}
-	
+
 	public static <T> T decode(int insn, Handler<T> h) throws IllegalOpcodeException {
 		Opcode opcode = Opcode.values()[Instruction.FIELD_OPCODE.extract(insn)];
 		int funct, shamt, rs, rt, rd, imm;
-		
+
 		if (! valid(opcode))
 			throw new IllegalOpcodeException(insn);
 		switch (opcode) {
-		case special: 
+		case special:
 			funct = Instruction.FIELD_INTFUNCT.extract(insn);
 			shamt = Instruction.FIELD_SHAMT.extract(insn);
 			rd    = Instruction.FIELD_RD.extract(insn);
@@ -56,7 +56,7 @@ public class Instructions {
 				throw new IllegalOpcodeException(insn);
 			return h.r(IntFunct.values()[funct], rs, rt, rd, shamt);
 		case j:
-		case jal: 
+		case jal:
 			imm = Instruction.FIELD_TARGET.extract(insn);
 			return h.j(opcode, imm);
 		default: // format I

@@ -30,33 +30,30 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 		JExpForm:       opcode=ID addr=INT;
 		JLabelForm:     opcode=ID label=[Label];
 	 */
-	
+
 	private static final Option<LabelRef> DUMMY_LABEL_REF = new Option<LabelRef>(LabelRef.NULL);
 	private static final Option<Expr>     DUMMY_EXPR      = new Option<Expr>(Expressions.ZERO);
 	private static final Option<Reg>      DUMMY_REG       = new Option<Reg>(Reg.zero);
-	
+
 	private final Generators generators = Generators.getInstance();
-	
-	private final ErrorReporter<?> reporter = new ErrorReporter<Void>() {
+
+	private final ErrorReporter<Object> reporter = new ErrorReporter<Object>() {
 		private int errs = 0;
-		
-		@Override
-		public void error(String msg, Void arg) {
+
+		public void error(String msg, Object arg) {
 			MipsJavaValidator.this.error(msg, MipsPackage.INSN);
-			errs += 1;
+			this.errs += 1;
 		}
 
-		@Override
-		public void warning(String msg, Void arg) {
+		public void warning(String msg, Object arg) {
 			MipsJavaValidator.this.warning(msg, MipsPackage.INSN);
 		}
 
-		@Override
 		public int errorsReported() {
-			return errs;
+			return this.errs;
 		}
 	};
-	
+
 	@Check
 	public void insn(Insn i) {
 		// System.out.println(i.getOpcode());
@@ -65,33 +62,33 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 			Reg r = checkReg(s, MipsPackage.INSN__REGS);
 			regs.add(r != null ? r : Reg.zero);
 		}
-		
+
 		Addr a = i.getAddr();
-		
+
 		Option<LabelRef> label = Option.empty(LabelRef.class);
 		Option<Expr> expr = Option.empty(Expr.class);
-		
+
 		if (a != null) {
 			if (a.getExpr() != null)
 				expr = DUMMY_EXPR;
 			if (a.getLabel() != null)
 				label = DUMMY_LABEL_REF;
 		}
-		
+
 		Option<Reg> base = Option.empty(Reg.class);
 		if (i.getBase() != null && checkReg(i.getBase(), MipsPackage.INSN__BASE) != null)
 			base = DUMMY_REG;
-		
+
 		OperandInstance op = new OperandInstance(regs, new Offset(label, expr), base);
 		String opcode = i.getOpcode();
-		if (generators.contains(opcode)) {
-			List<InstructionGenerator> gens = generators.get(i.getOpcode());
-			op.check(gens, reporter);
+		if (this.generators.contains(opcode)) {
+			List<InstructionGenerator> gens = this.generators.get(i.getOpcode());
+			op.check(gens, this.reporter);
 		}
-		else 
+		else
 			error("illegal opcode: " + opcode, MipsPackage.INSN__OPCODE);
 	}
-	
+
 	private Reg checkReg(String name, int feature) {
 		try {
 			return Reg.parse(name);

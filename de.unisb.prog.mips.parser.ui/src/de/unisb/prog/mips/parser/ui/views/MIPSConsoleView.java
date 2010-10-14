@@ -59,7 +59,6 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 
 		this.editorListener = new EditorOpenListener() {
 			IPropertyListener propListener = new IPropertyListener() {
-				@Override
 				public void propertyChanged(Object source, int propId) {
 					if (
 							source instanceof IEditorPart
@@ -148,7 +147,6 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		}
 	}
 
-	@Override
 	public void execStarted(Sys sys, Assembly asm) {
 		this.out.clear();
 		this.out.println("[ Execution started in " + (sys.getProcessor().ignoresBreak() ? "normal" : "debug") + " mode ]", true);
@@ -158,7 +156,6 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		checkActionEnablement();
 	}
 
-	@Override
 	public void execPaused(Sys sys, Assembly asm) {
 		this.sys = sys;
 		this.asm = asm;
@@ -166,7 +163,6 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		checkActionEnablement();
 	}
 
-	@Override
 	public void execContinued(Sys sys, Assembly asm) {
 		this.sys = sys;
 		this.asm = asm;
@@ -174,14 +170,12 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		checkActionEnablement();
 	}
 
-	@Override
 	public void execStepped(Sys sys, Assembly asm) {
 		this.sys = sys;
 		this.asm = asm;
 		checkActionEnablement();
 	}
 
-	@Override
 	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
 		this.sys = sys;
 		this.asm = asm;
@@ -195,7 +189,6 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		checkActionEnablement();
 	}
 
-	@Override
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		// Done in execPaused
 	}
@@ -280,7 +273,6 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		this.stopAction.setDisabledImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_STOP_DISABLED));
 	}
 
-	@Override
 	public IEditorPart getActiveEditor() {
 		return this.lastActiveEditor;
 	}
