@@ -15,7 +15,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 
 public class NewMIPSProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
-	
+
 	private WizardNewProjectCreationPage pageOne;
 	private IConfigurationElement configurationElement;
 
@@ -25,55 +25,55 @@ public class NewMIPSProjectWizard extends Wizard implements INewWizard, IExecuta
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		
+
 	}
 
 	@Override
 	public boolean performFinish() {
-		IProject newProject = pageOne.getProjectHandle();
-		
+		IProject newProject = this.pageOne.getProjectHandle();
+
 		try {
 			newProject.create(null);
 			newProject.open(null);
 		} catch (CoreException ex) {
-			pageOne.setErrorMessage("Could not create the new project.");
+			this.pageOne.setErrorMessage("Could not create the new project.");
 			ex.printStackTrace();
 			return false;
 		}
-		
+
 		try {
 			IProjectDescription projectDesc = newProject.getDescription();
 			projectDesc.setNatureIds(new String[] {
 					XtextProjectHelper.NATURE_ID
-				});
+			});
 			newProject.setDescription(projectDesc, null);
 		} catch (CoreException ex) {
-			pageOne.setErrorMessage("Could not add the MIPS Nature to the project.");
+			this.pageOne.setErrorMessage("Could not add the MIPS Nature to the project.");
 			ex.printStackTrace();
 			return false;
 		}
-		
-		BasicNewProjectResourceWizard.updatePerspective(configurationElement);
-		
+
+		BasicNewProjectResourceWizard.updatePerspective(this.configurationElement);
+
 		return true;
 	}
-	
+
 	@Override
 	public void addPages() {
 		super.addPages();
-		
-		pageOne = new WizardNewProjectCreationPage("New MIPS Project");
-		pageOne.setTitle("MIPS Project");
-		pageOne.setDescription("Create a new MIPS project.");
-		
-		pageOne.setImageDescriptor(ImageDescriptor.createFromFile(getClass(), "/icons/wzrdHd/newmipsprj_wiz.png"));
-		
-		addPage(pageOne);
+
+		this.pageOne = new WizardNewProjectCreationPage("New MIPS Project");
+		this.pageOne.setTitle("MIPS Project");
+		this.pageOne.setDescription("Create a new MIPS project.");
+
+		this.pageOne.setImageDescriptor(ImageDescriptor.createFromFile(getClass(), "/icons/wzrdHd/newmipsprj_wiz.png"));
+
+		addPage(this.pageOne);
 	}
 
 	@Override
 	public void setInitializationData(IConfigurationElement config,	String propertyName, Object data) throws CoreException {
-		configurationElement = config;
+		this.configurationElement = config;
 	}
 
 }

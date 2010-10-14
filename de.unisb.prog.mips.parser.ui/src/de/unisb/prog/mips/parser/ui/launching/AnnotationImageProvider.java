@@ -7,6 +7,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.IAnnotationImageProvider;
 
 import de.unisb.prog.mips.parser.ui.MIPSCore;
+import de.unisb.prog.mips.parser.ui.util.MarkerUtil;
 
 public class AnnotationImageProvider implements IAnnotationImageProvider {
 
@@ -16,18 +17,19 @@ public class AnnotationImageProvider implements IAnnotationImageProvider {
 
 	@Override
 	public Image getManagedImage(Annotation annotation) {
-		return JFaceResources.getImage(MIPSCore.ICN_INST_PTR);
+		if (annotation.getType().equals(MarkerUtil.ANN_ID_CurrentIP))
+			return JFaceResources.getImage(MIPSCore.ICN_INST_PTR);
+		else
+			return null;
 	}
 
 	@Override
 	public String getImageDescriptorId(Annotation annotation) {
-		System.out.println("descID");
 		return null;
 	}
 
 	@Override
 	public ImageDescriptor getImageDescriptor(String imageDescritporId) {
-		System.out.println("desc");
 		return null;
 	}
 

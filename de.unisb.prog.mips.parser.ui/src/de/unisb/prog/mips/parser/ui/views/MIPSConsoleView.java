@@ -10,6 +10,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -57,6 +58,27 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		contributeToActionBars();
 
 		this.editorListener = new EditorOpenListener() {
+			IPropertyListener propListener = new IPropertyListener() {
+				@Override
+				public void propertyChanged(Object source, int propId) {
+					if (
+							source instanceof IEditorPart
+							&& propId == IEditorPart.PROP_DIRTY
+							&& ((IEditorPart) source).isDirty()
+							&& RunnableMIPSPropTester.isMIPSRunnable(((IEditorPart) source).getEditorInput())
+					) {
+						ExecutionState state = MIPSCore.getInstance().getExecutionState();
+
+						if (state != null) {
+							MIPSCore.getInstance().stopExec();
+
+							// TODO: Eventually move to a more central place (like a builder for example)
+							MIPSCore.getInstance().unloadASM();
+						}
+					}
+				}
+			};
+
 			@Override
 			public void editorActivated(IEditorPart editor) {
 				MIPSConsoleView.this.lastActiveEditor = RunnableMIPSPropTester.isMIPSRunnable(editor) ? editor : null;
@@ -70,7 +92,8 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 
 			@Override
 			public void editorOpened(IEditorPart editor) {
-				// Nothing
+				if (RunnableMIPSPropTester.isMIPSRunnable(editor.getEditorInput()))
+					editor.addPropertyListener(this.propListener);
 			}
 
 			@Override
@@ -79,6 +102,7 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 					MIPSConsoleView.this.lastActiveEditor = null;
 					MIPSConsoleView.this.checkActionEnablement();
 				}
+				editor.removePropertyListener(this.propListener);
 			}
 		};
 

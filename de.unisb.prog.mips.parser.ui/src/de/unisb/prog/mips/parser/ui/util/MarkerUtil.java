@@ -12,9 +12,22 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 
 import de.unisb.prog.mips.assembler.Position;
-import de.unisb.prog.mips.parser.ui.launching.CurrentIPMarker;
 
 public class MarkerUtil {
+	public static final String ID_CurrentIP = "de.unisb.prog.mips.currentIPMarker";
+	public static final String ID_Highlighting = "de.unisb.prog.mips.highlightMarker";
+
+	public static final String ANN_ID_CurrentIP = "de.unisb.prog.mips.currentIPAnnotation";
+	public static final String ANN_ID_Highlighting = "de.unisb.prog.mips.highlightAnnotation";
+
+	public static void cleanAllMarkers(String markerID) {
+		try {
+			ResourcesPlugin.getWorkspace().getRoot().deleteMarkers(markerID, true, IResource.DEPTH_INFINITE);
+		} catch (CoreException e) {
+			// Nothing we can do
+		}
+	}
+
 	private static IMarker createMarkerOnResource(Position pos, String markerID) {
 		// Create debugging marker
 		String pathStr = pos.getFilename();
@@ -25,10 +38,9 @@ public class MarkerUtil {
 				IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(resPath);
 				if (res != null) {
 					try {
-						IMarker m = res.createMarker(CurrentIPMarker.ID);
+						IMarker m = res.createMarker(markerID);
 						return m;
 					} catch (CoreException e) {
-						e.printStackTrace();
 						// We can't do anything
 					}
 				}

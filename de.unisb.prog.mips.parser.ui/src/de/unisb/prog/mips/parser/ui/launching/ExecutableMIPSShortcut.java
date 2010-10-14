@@ -64,61 +64,63 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	}
 
 	public static void launch(IEditorPart editor, final boolean debug) {
-		final XtextEditor e = (XtextEditor) editor;
+		if (editor instanceof XtextEditor) {
+			final XtextEditor e = (XtextEditor) editor;
 
-		if (e.isDirty() && !askToSave(e))
-			return;
+			if (e.isDirty() && !askToSave(e))
+				return;
 
-		while (e.isDirty()){}
+			while (e.isDirty()){}
 
-		if (e.getEditorInput().exists()) {
-			IResource res = (IResource) e.getEditorInput().getAdapter(IResource.class);
-			if (res != null) {
-				try {
-					IMarker[] problems = res.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-					if (problems.length > 0) {
+			if (e.getEditorInput().exists()) {
+				IResource res = (IResource) e.getEditorInput().getAdapter(IResource.class);
+				if (res != null) {
+					try {
+						IMarker[] problems = res.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+						if (problems.length > 0) {
+							Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", "Errors exist in the project you want to run. Fix them first.");
+							StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+							return;
+						}
+					} catch (CoreException e1) {
+						// Should not happen
+					}
+				}
+			}
+
+			IXtextDocument doc = e.getDocument();
+
+			Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
+				@Override
+				public Assembly exec(XtextResource state) throws Exception {
+					if (state.getErrors().size() > 0) {
 						Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", "Errors exist in the project you want to run. Fix them first.");
 						StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
-						return;
+						return null;
 					}
-				} catch (CoreException e1) {
-					// Should not happen
+
+
+					Asm a = (Asm) state.getContents().get(0);
+					Assembly asm = new Assembly();
+					Generate gen = new Generate(asm);
+					gen.generate(a);
+
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
+
+					MIPSCore.getInstance().init(1024);
+					MIPSCore.getInstance().load(asm);
+					MIPSCore.getInstance().start(debug);
+
+					return asm;
 				}
-			}
-		}
+			});
 
-		IXtextDocument doc = e.getDocument();
-
-		Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
-			@Override
-			public Assembly exec(XtextResource state) throws Exception {
-				if (state.getErrors().size() > 0) {
-					Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", "Errors exist in the project you want to run. Fix them first.");
-					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
-					return null;
+			if (asm != null) {
+				try {
+					asm.append(System.out);
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
-
-
-				Asm a = (Asm) state.getContents().get(0);
-				Assembly asm = new Assembly();
-				Generate gen = new Generate(asm);
-				gen.generate(a);
-
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
-
-				MIPSCore.getInstance().init(1024);
-				MIPSCore.getInstance().load(asm);
-				MIPSCore.getInstance().start(debug);
-
-				return asm;
-			}
-		});
-
-		if (asm != null) {
-			try {
-				asm.append(System.out);
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 		}
 	}
