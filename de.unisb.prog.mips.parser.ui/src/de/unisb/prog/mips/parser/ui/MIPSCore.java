@@ -3,8 +3,6 @@ package de.unisb.prog.mips.parser.ui;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -15,10 +13,8 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.Assembly;
-import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
@@ -27,6 +23,7 @@ import de.unisb.prog.mips.parser.ui.launching.UIExceptionHandler;
 import de.unisb.prog.mips.parser.ui.launching.UISyscallImpl;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.parser.ui.util.MarkerUtil;
+import de.unisb.prog.mips.parser.ui.util.UIErrorReporter;
 import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
@@ -80,51 +77,51 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	private final HashSet<IExecutionListener> execListener = new HashSet<IExecutionListener>();
 
 	public void addExecutionListener(IExecutionListener l) {
-		this.execListener.add(l);
+		execListener.add(l);
 	}
 
 	public void removeExecutionListener(IExecutionListener l) {
-		this.execListener.remove(l);
+		execListener.remove(l);
 	}
 
 	public void execStarted(Sys sys, Assembly asm) {
-		for (IExecutionListener l : this.execListener)
+		for (IExecutionListener l : execListener)
 			l.execStarted(sys, asm);
 
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
 	public void execPaused(Sys sys, Assembly asm) {
-		for (IExecutionListener l : this.execListener)
+		for (IExecutionListener l : execListener)
 			l.execPaused(sys, asm);
 
 		createExecutionMarker(asm, sys);
 	}
 
 	public void execContinued(Sys sys, Assembly asm) {
-		for (IExecutionListener l : this.execListener)
+		for (IExecutionListener l : execListener)
 			l.execContinued(sys, asm);
 
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
 	public void execStepped(Sys sys, Assembly asm) {
-		for (IExecutionListener l : this.execListener)
+		for (IExecutionListener l : execListener)
 			l.execStepped(sys, asm);
 
 		createExecutionMarker(asm, sys);
 	}
 
 	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
-		for (IExecutionListener l : this.execListener)
+		for (IExecutionListener l : execListener)
 			l.execFinished(sys, asm, interrupted);
 
-		this.runningJob = null;
+		runningJob = null;
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
-		for (IExecutionListener l : this.execListener) {
+		for (IExecutionListener l : execListener) {
 			l.dbgBrkptReached(sys, asm);
 			l.execPaused(sys, asm);
 		}
@@ -135,20 +132,20 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	private final HashSet<IAssemblyLoadListener> loadListener = new HashSet<IAssemblyLoadListener>();
 
 	public void addAssemblyLoadListener(IAssemblyLoadListener l) {
-		this.loadListener.add(l);
+		loadListener.add(l);
 	}
 
 	public void removeAssemblyLoadListener(IAssemblyLoadListener l) {
-		this.loadListener.remove(l);
+		loadListener.remove(l);
 	}
 
 	public void assemblyLoaded(Assembly asm, Sys sys) {
-		for (IAssemblyLoadListener l : this.loadListener)
+		for (IAssemblyLoadListener l : loadListener)
 			l.assemblyLoaded(asm, sys);
 	}
 
 	public void assemblyReset() {
-		for (IAssemblyLoadListener l : this.loadListener)
+		for (IAssemblyLoadListener l : loadListener)
 			l.assemblyReset();
 	}
 
@@ -157,11 +154,11 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	MIPSConsoleOutput MIPSConsole = null;
 
 	public void setConsoleOut(MIPSConsoleOutput consoleOut) {
-		this.MIPSConsole = consoleOut;
+		MIPSConsole = consoleOut;
 	}
 
 	public MIPSConsoleOutput getConsoleOut() {
-		if (this.MIPSConsole == null) {
+		if (MIPSConsole == null) {
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
 			} catch (PartInitException e) {
@@ -169,7 +166,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			}
 		}
 
-		return this.MIPSConsole;
+		return MIPSConsole;
 	}
 
 	// Execution Registry ======================
@@ -191,70 +188,70 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	}
 
 	public synchronized ExecutionState getExecutionState() {
-		if (this.sys == null || this.sys.getProcessor() == null)
+		if (sys == null || sys.getProcessor() == null)
 			return null;
 		else
-			return this.sys.getProcessor().state;
+			return sys.getProcessor().state;
 	}
 
 	public Sys getSys() {
-		return this.sys;
+		return sys;
 	}
 
 	public Assembly getAsm() {
-		return this.asm;
+		return asm;
 	}
 
 	public int getExitCode() {
-		return this.exitCode;
+		return exitCode;
 	}
 
 	public synchronized void setExitCode(int exitCode) {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		if (this.asm == null)
+		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 
 		this.exitCode = exitCode;
 	}
 
 	public synchronized void init(int memPages) {
-		this.sys = new Sys(memPages, new UIExceptionHandler(), new SysCallDispatcher(new UISyscallImpl(this.MIPSConsole)));
-		this.asm = null;
+		sys = new Sys(memPages, new UIExceptionHandler(), new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
+		asm = null;
 	}
 
 	private void continueExecution(Processor proc) {
 		proc.run();
 		switch (proc.state) {
 		case BREAKPOINT:
-			dbgBrkptReached(this.sys, this.asm);
+			dbgBrkptReached(sys, asm);
 			break;
 		case HALTED:
-			execFinished(this.sys, this.asm, false);
+			execFinished(sys, asm, false);
 			break;
 		}
 	}
 
 	public synchronized void start(final boolean dbg) {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		if (this.asm == null)
+		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 
-		if (this.runningJob != null) {
-			this.runningJob.cancel();
-			execFinished(this.sys, this.asm, true);
+		if (runningJob != null) {
+			runningJob.cancel();
+			execFinished(sys, asm, true);
 		}
 
-		this.runningJob = new Job("Run MIPS") {
+		runningJob = new Job("Run MIPS") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				Processor proc = MIPSCore.this.sys.getProcessor();
+				Processor proc = sys.getProcessor();
 				proc.state = ExecutionState.RUNNING;
 				proc.setIgnoreBreaks(!dbg);
-				execStarted(MIPSCore.this.sys, MIPSCore.this.asm);
+				execStarted(sys, asm);
 				continueExecution(proc);
 				return Status.OK_STATUS;
 			}
@@ -262,167 +259,138 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			@Override
 			protected void canceling() {
 				MIPSCore.getInstance().pause();
-				MIPSCore.this.runningJob = null;
+				runningJob = null;
 			}
 		};
 
-		this.runningJob.setSystem(false);
-		this.runningJob.schedule();
+		runningJob.setSystem(false);
+		runningJob.schedule();
 	}
 
 	public synchronized void cont() {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		if (this.asm == null)
+		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 
-		if (this.runningJob != null)
-			this.runningJob.cancel();
+		if (runningJob != null)
+			runningJob.cancel();
 
-		this.runningJob = new Job("Run MIPS") {
+		runningJob = new Job("Run MIPS") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				Processor proc = MIPSCore.this.sys.getProcessor();
+				Processor proc = sys.getProcessor();
 				proc.setContinue();
-				execContinued(MIPSCore.this.sys, MIPSCore.this.asm);
+				execContinued(sys, asm);
 				continueExecution(proc);
 				return Status.OK_STATUS;
 			}
 
 			@Override
 			protected void canceling() {
-				Processor proc = MIPSCore.this.sys.getProcessor();
+				Processor proc = sys.getProcessor();
 				proc.state = ExecutionState.HALTED;
-				execFinished(MIPSCore.this.sys, MIPSCore.this.asm, true);
+				execFinished(sys, asm, true);
 			}
 		};
 
-		this.runningJob.setSystem(false);
-		this.runningJob.schedule();
+		runningJob.setSystem(false);
+		runningJob.schedule();
 	}
 
 	public synchronized void stopExec() {
-		if (this.sys != null) {
-			Processor proc = this.sys.getProcessor();
+		if (sys != null) {
+			Processor proc = sys.getProcessor();
 			if (proc.state == ExecutionState.HALTED)
 				return;
 		}
 
-		if (this.sys != null && this.asm != null)
+		if (sys != null && asm != null)
 			pause();
 
-		Processor proc = this.sys.getProcessor();
+		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.HALTED;
 
-		if (this.runningJob != null) {
+		if (runningJob != null) {
 			try {
-				this.runningJob.join();
+				runningJob.join();
 			} catch (InterruptedException e) {
 				// WHat shall we do?
 			}
 		}
 
-		execFinished(this.sys, this.asm, true);
+		execFinished(sys, asm, true);
 	}
 
 	public synchronized void pause() {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		if (this.asm == null)
+		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 
-		Processor proc = this.sys.getProcessor();
+		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.INTERRUPT;
 
-		if (this.runningJob != null)
+		if (runningJob != null)
 			try {
-				this.runningJob.join();
+				runningJob.join();
 			} catch (InterruptedException e) {
 				// What shall we do?
 			}
 
-			execPaused(this.sys, this.asm);
+			execPaused(sys, asm);
 	}
 
 	public synchronized void step() {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		if (this.asm == null)
+		if (asm == null)
 			throw new IllegalStateException("Assembly not loaded (asm == null)");
 
-		Processor proc = this.sys.getProcessor();
+		Processor proc = sys.getProcessor();
 		proc.setContinue();
 		boolean ran = proc.step();
 
 		switch (proc.state) {
 		case BREAKPOINT:
-			dbgBrkptReached(this.sys, this.asm);
+			dbgBrkptReached(sys, asm);
 			break;
 		case HALTED:
-			execFinished(this.sys, this.asm, false);
+			execFinished(sys, asm, false);
 			break;
 		default:
 			proc.state = ExecutionState.INTERRUPT;
 		}
 
 		if (ran)
-			execStepped(this.sys, this.asm);
+			execStepped(sys, asm);
 	}
 
 	public void unloadASM() {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		Processor proc = this.sys.getProcessor();
+		Processor proc = sys.getProcessor();
 		if(proc.state != ExecutionState.HALTED)
 			stopExec();
 
-		this.asm = null;
+		asm = null;
 		assemblyReset();
 	}
 
 	public synchronized void load(Assembly asm) {
-		if (this.sys == null)
+		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
 		final AtomicBoolean hasErrors = new AtomicBoolean(false);
-		this.sys.load(asm, new ErrorReporter<Position>() {
-			private void createMarker(String msg, Position arg, int severity) throws CoreException {
-				IMarker m = MarkerUtil.markPosition(arg, IMarker.PROBLEM, false, false);
-				if (m != null) {
-					m.setAttribute(IMarker.MESSAGE, String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-					m.setAttribute(IMarker.SEVERITY, severity);
-				}
-			}
-
-			public void warning(String msg, Position arg) {
-				try {
-					createMarker(msg, arg, IMarker.SEVERITY_WARNING);
-				} catch (CoreException e) {
-					Status stat = new Status(Status.WARNING, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:WARNING ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
-				}
-			}
-
-			public void error(String msg, Position arg) {
-				hasErrors.set(true);
-				try {
-					createMarker(msg, arg, IMarker.SEVERITY_ERROR);
-				} catch (CoreException e) {
-					Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-					StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
-				}
-			}
-
-			public int errorsReported() { return 0; }
-		});
+		sys.load(asm, new UIErrorReporter(true));
 
 		if (!hasErrors.get()) {
 			this.asm = asm;
-			assemblyLoaded(this.asm, this.sys);
+			assemblyLoaded(this.asm, sys);
 		}
 	}
 

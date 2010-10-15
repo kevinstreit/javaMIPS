@@ -1,8 +1,7 @@
 package de.unisb.prog.mips.parser.ui.launching;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
@@ -10,18 +9,16 @@ import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.Saveable;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.XtextEditor;
-import org.eclipse.xtext.ui.editor.model.IXtextDocument;
-import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
 import de.unisb.prog.mips.assembler.Assembly;
-import de.unisb.prog.mips.parser.generate.Generate;
-import de.unisb.prog.mips.parser.mips.Asm;
 import de.unisb.prog.mips.parser.ui.MIPSCore;
+import de.unisb.prog.mips.parser.ui.util.BuildUtil;
+import de.unisb.prog.mips.parser.ui.util.UIErrorReporter;
 import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 
 public class ExecutableMIPSShortcut implements ILaunchShortcut {
@@ -68,10 +65,9 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			if (e.isDirty() && !askToSave(e))
 				return;
 
-			while (e.isDirty()){}
-
 			if (e.getEditorInput().exists()) {
 				IResource res = (IResource) e.getEditorInput().getAdapter(IResource.class);
+
 				if (res != null) {
 					try {
 						IMarker[] problems = res.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
@@ -83,42 +79,27 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 					} catch (CoreException e1) {
 						// Should not happen
 					}
+
+					IProject proj = res.getProject();
+					launch(proj, debug);
 				}
 			}
+		}
+	}
 
-			IXtextDocument doc = e.getDocument();
+	public static void launch(IProject proj, final boolean debug) {
+		Assembly asm = BuildUtil.getASM(proj, new UIErrorReporter(true));
 
-			Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
-				public Assembly exec(XtextResource state) throws Exception {
-					if (state.getErrors().size() > 0) {
-						Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", "Errors exist in the project you want to run. Fix them first.");
-						StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
-						return null;
-					}
-
-
-					Asm a = (Asm) state.getContents().get(0);
-					Assembly asm = new Assembly();
-					Generate gen = new Generate(asm);
-					gen.generate(a);
-
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
-
-					MIPSCore.getInstance().init(1024);
-					MIPSCore.getInstance().load(asm);
-					MIPSCore.getInstance().start(debug);
-
-					return asm;
-				}
-			});
-
-			if (asm != null) {
-				try {
-					asm.append(System.out);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+		if (asm != null) {
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
+			} catch (PartInitException e1) {
+				// Nothing we can do
 			}
+
+			MIPSCore.getInstance().init(1024);
+			MIPSCore.getInstance().load(asm);
+			MIPSCore.getInstance().start(debug);
 		}
 	}
 

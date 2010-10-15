@@ -397,5 +397,11 @@
             value="false">
       </persistent>
    </extension>
+   <extension
+         point="org.eclipse.xtext.builder.participant">
+      <participant
+            class="de.unisb.prog.mips.parser.ui.launching.XTextBuildParticipant">
+      </participant>
+   </extension>
 
 </plugin>

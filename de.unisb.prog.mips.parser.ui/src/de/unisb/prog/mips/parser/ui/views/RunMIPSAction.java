@@ -14,7 +14,7 @@ public class RunMIPSAction extends Action {
 
 	public RunMIPSAction(IActiveEditorProvider provider, boolean debug) {
 		this.debug = debug;
-		this.editorProvider = provider;
+		editorProvider = provider;
 
 		if (debug) {
 			setText("Debug");
@@ -31,15 +31,16 @@ public class RunMIPSAction extends Action {
 
 	@Override
 	public void run() {
-		if (this.editorProvider.getActiveEditor() == null)
+		if (editorProvider.getActiveEditor() == null)
 			return;
 
-		ExecutableMIPSShortcut.launch(this.editorProvider.getActiveEditor(), this.debug);
+		setEnabled(false);
+		ExecutableMIPSShortcut.launch(editorProvider.getActiveEditor(), debug);
 	}
 
 	public void checkEnablement() {
 		setEnabled(
-				this.editorProvider.getActiveEditor() != null
+				editorProvider.getActiveEditor() != null
 				&& (
 						MIPSCore.getInstance().getExecutionState() == null
 						|| MIPSCore.getInstance().getExecutionState() == ExecutionState.HALTED

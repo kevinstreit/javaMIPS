@@ -60,7 +60,7 @@ public class MarkerUtil {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					m[0] = createMarkerOnResource(pos, markerID);
 
-					if (m != null) {
+					if (m[0] != null) {
 						IResource res = m[0].getResource();
 
 						try {

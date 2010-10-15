@@ -33,16 +33,16 @@ public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadL
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
 		createColumns();
 		Font regFont = JFaceResources.getTextFont();
-		this.viewer.getTable().setFont(regFont);
-		if (this.needTooltipSupport)
-			ColumnViewerToolTipSupport.enableFor(this.viewer);
+		viewer.getTable().setFont(regFont);
+		if (needTooltipSupport)
+			ColumnViewerToolTipSupport.enableFor(viewer);
 
-		this.viewer.setContentProvider(getContentProvider());
-		this.viewer.setLabelProvider(getLabelProvider());
-		this.viewer.setInput(null);
+		viewer.setContentProvider(getContentProvider());
+		viewer.setLabelProvider(getLabelProvider());
+		viewer.setInput(null);
 
 		MIPSCore.getInstance().addAssemblyLoadListener(this);
 
@@ -56,7 +56,7 @@ public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadL
 
 	@Override
 	public void setFocus() {
-		this.viewer.refresh();
+		viewer.refresh();
 	}
 
 	@Override
@@ -71,13 +71,22 @@ public abstract class DisassemblyView extends ViewPart implements IAssemblyLoadL
 		this.asm = asm;
 		this.sys = sys;
 
-		this.viewer.setInput(getViewerInput());
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(getViewerInput());
+			}
+		});
 	}
 
 	public void assemblyReset() {
-		this.asm = null;
-		this.sys = null;
-		this.viewer.setInput(null);
+		asm = null;
+		sys = null;
+
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(null);
+			}
+		});
 	}
 
 }
