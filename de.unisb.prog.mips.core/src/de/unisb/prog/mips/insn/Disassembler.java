@@ -15,7 +15,7 @@ public class Disassembler implements Handler<String> {
 	}
 
 	public String j(Opcode opc, int imm) {
-		return String.format("%7s %08x", opc, imm);
+		return String.format("%7s %08x", opc, imm << 2);
 	}
 
 	public String r(IntFunct funct, int rs, int rt, int rd, int shamt) {
