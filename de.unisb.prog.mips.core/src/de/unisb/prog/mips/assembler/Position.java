@@ -8,7 +8,6 @@ public interface Position {
 	int getCharEnd();
 
 	public static final Position ILLEGAL = new Position() {
-
 		public int getLineNumber() {
 			return -1;
 		}

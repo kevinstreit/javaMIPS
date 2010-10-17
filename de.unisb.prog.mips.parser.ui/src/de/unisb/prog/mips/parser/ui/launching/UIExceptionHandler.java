@@ -14,4 +14,9 @@ public class UIExceptionHandler implements ExceptionHandler {
 		// Nothing to do currently
 	}
 
+	public void unalignedMemory(ProcessorState state, Memory mem, int addr) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -39,7 +39,7 @@ public class LoadAddress extends ImmGen<Address> implements Relocateable {
 	}
 
 	public void relocate(int startAddress, ErrorReporter<Position> reporter) {
-		if (this.expr.getSegment().getKind() == Segment.Kind.DATA)
+		if (this.expr.getSegment().getKind() != Segment.Kind.TEXT)
 			return;
 
 		List<Insn> res = new ArrayList<Insn>(2);

@@ -3,7 +3,6 @@ package de.unisb.prog.mips.parser.ui.util;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Position;
@@ -17,44 +16,53 @@ public class UIErrorReporter implements ErrorReporter<Position> {
 		this.markIfPossible = markIfPossible;
 	}
 
-	public void error(String msg, Position arg) {
+	public void error(Position pos, String msg, Object... args) {
 		++errorsCounted;
 
-		if (markIfPossible && arg != null) {
-			IMarker m = MarkerUtil.markPosition(arg, IMarker.PROBLEM, true, false);
+		if (markIfPossible && pos != null) {
+			IMarker m = MarkerUtil.markPosition(pos, IMarker.PROBLEM, true, false);
 			if (m != null) {
 				try {
 					m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-					m.setAttribute(IMarker.MESSAGE, msg);
+					m.setAttribute(IMarker.MESSAGE, String.format(msg, args));
 				} catch (CoreException e) {
 					// Nothing
 				}
 			}
 		} else {
-			Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:ERROR ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-			StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+			error(msg);
 		}
 	}
 
-	public void warning(String msg, Position arg) {
-		if (markIfPossible && arg != null) {
-			IMarker m = MarkerUtil.markPosition(arg, IMarker.PROBLEM, true, false);
+	public void warning(Position pos, String msg, Object... args) {
+		if (markIfPossible && pos != null) {
+			IMarker m = MarkerUtil.markPosition(pos, IMarker.PROBLEM, true, false);
 			if (m != null) {
 				try {
 					m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-					m.setAttribute(IMarker.MESSAGE, msg);
+					m.setAttribute(IMarker.MESSAGE, String.format(msg, args));
 				} catch (CoreException e) {
 					// Nothing
 				}
 			}
 		} else {
-			Status stat = new Status(Status.WARNING, "de.unisb.prog.mips.parser.ui", String.format("[ MIPS:WARNING ] %s(%d): %s", arg.getFilename(), arg.getLineNumber(), msg));
-			StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+			warning(msg);
 		}
 	}
 
 	public int errorsReported() {
 		return errorsCounted;
+	}
+
+	public void error(String fmt, Object... args) {
+		errorsCounted++;
+		Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("Error: " + fmt, args));
+		// StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+	}
+
+	public void warning(String fmt, Object... args) {
+		Status stat = new Status(Status.WARNING, "de.unisb.prog.mips.parser.ui", String.format("Warning: " + fmt, args));
+		// StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
 	}
 
 }

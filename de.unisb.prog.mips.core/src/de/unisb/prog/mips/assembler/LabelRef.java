@@ -20,29 +20,28 @@ public class LabelRef implements Address {
 
 	public static final LabelRef NULL = new LabelRef(new Space(NULL_SEGMENT, 0));
 
-	private Element elm;
+	private Element target;
 	private final String name;
 
-	LabelRef(Element elm) {
-		this.elm = elm;
-		this.name = elm.getLabel();
+	LabelRef(Element target) {
+		this.target = target;
+		this.name = target.getLabel();
 	}
 
 	LabelRef(String label) {
-		this.elm = null;
+		this.target = null;
 		this.name = label;
 	}
 
 	public Element getElement() {
-		if (this.elm == null)
+		if (this.target == null)
 			throw new IllegalStateException("tried to reference label \"" + this.name + "\"");
-		return this.elm;
+		return this.target;
 	}
 
 	void connectToElement(Element elm) {
 		assert elm != null;
-		this.elm = elm;
-		elm.addReferrer(this);
+		this.target = elm;
 	}
 
 	String getLabel() {
@@ -50,7 +49,7 @@ public class LabelRef implements Address {
 	}
 
 	public int eval() {
-		return this.elm.getOffset();
+		return this.target.getOffset();
 	}
 
 	public void append(Appendable app) throws IOException {
@@ -62,7 +61,7 @@ public class LabelRef implements Address {
 	}
 
 	public boolean isValid() {
-		return this.elm != null;
+		return this.target != null;
 	}
 
 }

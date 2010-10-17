@@ -152,7 +152,7 @@ public class DataSegmentView extends DisassemblyView {
 		final ArrayList<DataSegLine> datalines = new ArrayList<DataSegLine>();
 
 		try {
-			this.sys.getMemory().dump(datalines, this.sys.dataStart(), this.asm.getData().size(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
+			this.asm.getData().dump(datalines, sys.getMemory(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
 				public Type granularity() { return Type.BYTE; }
 				public int chunkSize() { return 16; }
 				public void emit(ArrayList<DataSegLine> output, int addr, int[] data) throws IOException {

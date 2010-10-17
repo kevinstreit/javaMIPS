@@ -1,5 +1,9 @@
 package de.unisb.prog.mips.parser.ui.util;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -19,7 +23,7 @@ import de.unisb.prog.mips.parser.generate.Generate;
 import de.unisb.prog.mips.parser.mips.Asm;
 
 public class BuildUtil {
-	public static Assembly getASM(IProject project, final ErrorReporter<Position> error) {
+	public static Collection<Assembly> getASM(IProject project, final ErrorReporter<Position> error) {
 		final ResourceSet resSet = new ResourceSetImpl();
 
 		try {
@@ -34,25 +38,26 @@ public class BuildUtil {
 				}
 			});
 
-			Assembly asm = new Assembly();
-			Generate gen = new Generate(asm);
+			List<Assembly> assemblies = new LinkedList<Assembly>();
 
 			for (Resource res : resSet.getResources()) {
 				if (res.getErrors().size() > 0) {
 					for (Diagnostic diag : res.getErrors())
 						// TODO: get position
-						error.error(diag.getMessage(), null);
+						error.error(diag.getMessage());
 					return null;
 				} else {
 					EObject eobj = res.getContents().get(0);
 					if (eobj instanceof Asm) {
 						Asm a = (Asm) eobj;
-						gen.generate(a);
+						Assembly asm = new Assembly(error);
+						new Generate(asm).generate(a);
+						assemblies.add(asm);
 					}
 				}
 			}
 
-			return asm;
+			return assemblies;
 		} catch (CoreException e) {
 			return null;
 		}

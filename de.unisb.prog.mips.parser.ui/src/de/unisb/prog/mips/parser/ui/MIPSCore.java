@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.parser.ui;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -15,7 +16,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import de.unisb.prog.mips.assembler.Assembly;
-import de.unisb.prog.mips.assembler.Position;
+import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
 import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
@@ -182,8 +183,9 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 		if (asm != null && sys != null) {
 			// Create debugging marker
-			Position pos = asm.getPosition(sys.getProcessor().pc);
-			MarkerUtil.markPosition(pos, MarkerUtil.ID_CurrentIP, true, false);
+			Element elm = asm.getElementAt(sys.getProcessor().pc);
+			if (elm != null && elm.getPosition() != null)
+				MarkerUtil.markPosition(elm.getPosition(), MarkerUtil.ID_CurrentIP, true, false);
 		}
 	}
 
@@ -381,15 +383,17 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		assemblyReset();
 	}
 
-	public synchronized void load(Assembly asm) {
+	public synchronized void load(Collection<Assembly> assemblies) {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
 		final AtomicBoolean hasErrors = new AtomicBoolean(false);
-		sys.load(asm, new UIErrorReporter(true));
+		Assembly linked = Assembly.link(assemblies, new UIErrorReporter(true));
+		linked.prepare();
+		sys.load(linked);
 
 		if (!hasErrors.get()) {
-			this.asm = asm;
+			this.asm = linked;
 			assemblyLoaded(this.asm, sys);
 		}
 	}

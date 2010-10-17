@@ -10,7 +10,9 @@ import java.util.List;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.MemoryLayout;
 import de.unisb.prog.mips.assembler.Position;
+import de.unisb.prog.mips.simulator.MemDumpFormatter;
 import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
@@ -27,7 +29,11 @@ public abstract class Segment implements Iterable<Element> {
 
 
 	public static enum Kind {
-		DATA, TEXT, NULL
+		DATA { @Override public int startAddress(MemoryLayout layout) { return layout.dataStart(); } },
+		TEXT { @Override public int startAddress(MemoryLayout layout) { return layout.textStart(); } },
+		NULL { @Override public int startAddress(MemoryLayout layout) { return 0; } };
+
+		public abstract int startAddress(MemoryLayout layout);
 	}
 
 	public static enum State {
@@ -37,11 +43,23 @@ public abstract class Segment implements Iterable<Element> {
 		OFFSETS_ASSIGNED,           // every element in a segment is assigned an offset
 		// To this end, every element must know of its exact length.
 		RELATIVE_ADDRESSES_PATCHED, // When we have offsets, we can perform relative addressing.
+		BASE_ADDRESS_SET,           // Base address is specified
 		RELOCATED                   // Relocation is necessary for absolute addresses
 	}
 
 	protected Segment(Assembly asm) {
 		this.assembly = asm;
+	}
+
+	public void addAll(Segment s) {
+		for (Element e : s.elements) {
+			elements.add(e);
+			e.setSegment(this);
+		}
+	}
+
+	public boolean isEmpty() {
+		return elements.isEmpty();
 	}
 
 	public final void assertState(State s) {
@@ -59,8 +77,13 @@ public abstract class Segment implements Iterable<Element> {
 	}
 
 	public final int getBase() {
-		assertStateAtLeast(State.RELOCATED);
+		assertStateAtLeast(State.BASE_ADDRESS_SET);
 		return this.baseAddress;
+	}
+
+	public void setBase(int baseAddress) {
+		this.baseAddress = baseAddress;
+		state = State.BASE_ADDRESS_SET;
 	}
 
 	protected final Element add(Element e) {
@@ -89,16 +112,15 @@ public abstract class Segment implements Iterable<Element> {
 		this.state = State.OFFSETS_ASSIGNED;
 	}
 
-	public final void writeToMem(Memory mem, int addr) {
+	public final void writeToMem(Memory mem) {
 		assertState(State.RELOCATED);
 		for (Element e : this)
-			e.writeToMem(mem, addr + e.getOffset());
+			e.writeToMem(mem, baseAddress + e.getOffset());
 	}
 
-	public void relocate(int startAddress, ErrorReporter<Position> reporter) {
-		assertState(State.RELATIVE_ADDRESSES_PATCHED);
-		this.baseAddress = startAddress;
-		relocateInternal(startAddress, reporter);
+	public void relocate(ErrorReporter<Position> reporter) {
+		assertState(State.BASE_ADDRESS_SET);
+		relocateInternal(baseAddress, reporter);
 		this.state = State.RELOCATED;
 	}
 
@@ -174,6 +196,10 @@ public abstract class Segment implements Iterable<Element> {
 		Element res = new Values(this, vals, Type.WORD);
 		add(res);
 		return res;
+	}
+
+	public final <T> void dump(T out, Memory mem, MemDumpFormatter<T> fmt) throws IOException {
+		mem.dump(out, getBase(), size(), fmt);
 	}
 
 	protected abstract void relocateInternal(int addr, ErrorReporter<Position> reporter);

@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.parser.ui.launching;
 
+import java.util.Collection;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,7 +23,7 @@ public class XTextBuildParticipant implements IXtextBuilderParticipant {
 		IProject proj = context.getBuiltProject();
 		final Diagnostic[] lastError = new Diagnostic[1];
 		UIErrorReporter error = new UIErrorReporter(true);
-		Assembly asm = BuildUtil.getASM(proj, error);
+		Collection<Assembly> asm = BuildUtil.getASM(proj, error);
 
 		if (asm != null && lastError[0] == null) {
 			MIPSCore.getInstance().init(1024);

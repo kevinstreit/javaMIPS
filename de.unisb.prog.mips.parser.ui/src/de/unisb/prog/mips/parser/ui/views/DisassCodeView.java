@@ -166,7 +166,7 @@ public class DisassCodeView extends DisassemblyView {
 		ArrayList<DisAssLine> code = new ArrayList<DisAssLine>();
 
 		try {
-			this.sys.getMemory().dump(code, this.sys.textStart(), this.asm.getText().size(), new MemDumpFormatter<ArrayList<DisAssLine>>() {
+			this.asm.getText().dump(code, sys.getMemory(), new MemDumpFormatter<ArrayList<DisAssLine>>() {
 				public Type granularity() { return Type.WORD; }
 				public int chunkSize() { return 1; }
 				public void emit(ArrayList<DisAssLine> output, int addr, int[] data) throws IOException {

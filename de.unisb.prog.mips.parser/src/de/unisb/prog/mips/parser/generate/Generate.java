@@ -9,8 +9,10 @@ import org.eclipse.xtext.util.PolymorphicDispatcher;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.Expressions;
+import de.unisb.prog.mips.assembler.LabelAlreadyDefinedException;
 import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Offset;
+import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.generators.Generators;
 import de.unisb.prog.mips.assembler.generators.InstructionGenerator;
@@ -35,6 +37,7 @@ import de.unisb.prog.mips.parser.mips.Label;
 import de.unisb.prog.mips.parser.mips.Minus;
 import de.unisb.prog.mips.parser.mips.Mul;
 import de.unisb.prog.mips.parser.mips.Plus;
+import de.unisb.prog.mips.parser.mips.SetAt;
 import de.unisb.prog.mips.parser.mips.Shl;
 import de.unisb.prog.mips.parser.mips.Shr;
 import de.unisb.prog.mips.parser.mips.Shra;
@@ -70,25 +73,32 @@ public class Generate {
 
 	public void generate(DataSegment s) {
 		for (EObject i : s.getItems())
-			elementDispatcher.invoke(i, assembly.getData());
-	}
-
-	public void generate(Global global) {
-		assembly.addGlobalLabel(global.getLabel().getName());
+			voidDispatcher.invoke(i, assembly.getData());
 	}
 
 	public void generate(Global global, Segment seg) {
-		generate(global);
+		assembly.makeGlobal(global.getLabel());
 	}
 
-	public Element generate(DataItem item, Segment s) {
-		Element elm = elementDispatcher.invoke(item.getData(), assembly.getData());
-		if (item.getLabel() != null) {
-			elm.setLabel(item.getLabel().getName());
-			assembly.addLabel(elm);
+	public void generate(SetAt dummy, Segment seg) {
+	}
+
+	private void labelElement(Label label, EObject item, Element elm) {
+		Position pos = new EObjectPosition(item);
+		if (label != null) {
+			elm.setLabel(label.getName());
+			try {
+				assembly.defineLabel(elm);
+			} catch (LabelAlreadyDefinedException e) {
+				assembly.getReporter().error(String.format("label \"%s\" is multiply defined", label), pos);
+			}
 		}
 		elm.setPosition(new EObjectPosition(item));
-		return elm;
+	}
+
+	public void generate(DataItem item, Segment s) {
+		Element elm = elementDispatcher.invoke(item.getData(), assembly.getData());
+		labelElement(item.getLabel(), item, elm);
 	}
 
 	public Element generate(DataDecl decl, Segment s) {
@@ -131,16 +141,12 @@ public class Generate {
 
 	public void generate(TextSegment s) {
 		for (EObject i : s.getItems())
-			elementDispatcher.invoke(i, assembly.getText());
+			voidDispatcher.invoke(i, assembly.getText());
 	}
 
 	public void generate(TextItem i, Segment s) {
-		Element e = elementDispatcher.invoke(i.getItem(), assembly.getText());
-		Label label = i.getLabel();
-		if (label != null) {
-			e.setLabel(label.getName());
-			assembly.addLabel(e);
-		}
+		Element elm = elementDispatcher.invoke(i.getItem(), assembly.getText());
+		labelElement(i.getLabel(), i, elm);
 	}
 
 	public Element generate(Space space, Segment s) {

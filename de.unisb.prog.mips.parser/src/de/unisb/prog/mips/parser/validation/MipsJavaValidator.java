@@ -21,16 +21,6 @@ import de.unisb.prog.mips.util.Option;
 
 public class MipsJavaValidator extends AbstractMipsJavaValidator {
 
-	/*
-		RForm:          opcode=ID rd=Reg rs=Reg rt=Reg;
-		IArithForm:     opcode=ID rt=Reg rs=Reg imm=PNInt;
-		IExpForm:       opcode=ID rt=Reg imm=PNInt '(' rs=Reg ')';
-		ILabelForm:     opcode=ID reg=Reg label=[Label];
-		IBr2Form:       opcode=ID rt=Reg rs=Reg label=[Label];
-		JExpForm:       opcode=ID addr=INT;
-		JLabelForm:     opcode=ID label=[Label];
-	 */
-
 	private static final Option<LabelRef> DUMMY_LABEL_REF = new Option<LabelRef>(LabelRef.NULL);
 	private static final Option<Expr>     DUMMY_EXPR      = new Option<Expr>(Expressions.ZERO);
 	private static final Option<Reg>      DUMMY_REG       = new Option<Reg>(Reg.zero);
@@ -40,17 +30,25 @@ public class MipsJavaValidator extends AbstractMipsJavaValidator {
 	private final ErrorReporter<Object> reporter = new ErrorReporter<Object>() {
 		private int errs = 0;
 
-		public void error(String msg, Object arg) {
-			MipsJavaValidator.this.error(msg, MipsPackage.INSN);
+		public void error(String fmt, Object... args) {
+			MipsJavaValidator.this.error(String.format(fmt, args), MipsPackage.INSN);
 			this.errs += 1;
 		}
 
-		public void warning(String msg, Object arg) {
-			MipsJavaValidator.this.warning(msg, MipsPackage.INSN);
+		public void error(Object arg, String fmt, Object... args) {
+			error(fmt, args);
+		}
+
+		public void warning(String fmt, Object... args) {
+			MipsJavaValidator.this.warning(String.format(fmt, args), MipsPackage.INSN);
+		}
+
+		public void warning(Object arg, String fmt, Object... args) {
+			warning(fmt, args);
 		}
 
 		public int errorsReported() {
-			return this.errs;
+			return errs;
 		}
 	};
 

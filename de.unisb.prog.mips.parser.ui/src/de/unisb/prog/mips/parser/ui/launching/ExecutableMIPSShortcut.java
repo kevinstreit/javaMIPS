@@ -1,5 +1,7 @@
 package de.unisb.prog.mips.parser.ui.launching;
 
+import java.util.Collection;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -88,9 +90,9 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	}
 
 	public static void launch(IProject proj, final boolean debug) {
-		Assembly asm = BuildUtil.getASM(proj, new UIErrorReporter(true));
+		Collection<Assembly> assemblies = BuildUtil.getASM(proj, new UIErrorReporter(true));
 
-		if (asm != null) {
+		if (assemblies != null) {
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
 			} catch (PartInitException e1) {
@@ -98,7 +100,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			}
 
 			MIPSCore.getInstance().init(1024);
-			MIPSCore.getInstance().load(asm);
+			MIPSCore.getInstance().load(assemblies);
 			MIPSCore.getInstance().start(debug);
 		}
 	}

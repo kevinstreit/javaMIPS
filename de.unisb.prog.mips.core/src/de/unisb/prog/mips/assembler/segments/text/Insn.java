@@ -13,9 +13,9 @@ import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
 class Insn extends Element {
-	
+
 	protected int word;
-	
+
 	Insn(Segment seg, int word) {
 		super(seg);
 		this.word = word;
@@ -35,11 +35,12 @@ class Insn extends Element {
 	protected void appendInternal(Appendable app) throws IOException {
 		app.append(toString());
 	}
-	
+
+	@Override
 	public String toString() {
-		return RegNameDisassembler.INSTANCE.disasm(word);	
+		return RegNameDisassembler.INSTANCE.disasm(word);
 	}
-	
+
 	protected static final boolean validateAddress(Position p, Address addr, ErrorReporter<Position> reporter) {
 		if (! addr.isValid()) {
 			reporter.error("invalid address: " + Expressions.toString(addr), p);
@@ -47,5 +48,5 @@ class Insn extends Element {
 		}
 		return true;
 	}
-	
+
 }

@@ -18,7 +18,7 @@ import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.util.Option;
 
 public class Text extends Segment {
-	
+
 	private static final long serialVersionUID = -1937181393628006820L;
 
 	public Text(Assembly asm) {
@@ -28,13 +28,24 @@ public class Text extends Segment {
 	private final List<ImmGen<?>>    immGenInsns = new LinkedList<ImmGen<?>>();
 	private final List<RelJump>         relJumps = new LinkedList<RelJump>();
 	private final List<Relocateable>    relocate = new LinkedList<Relocateable>();
-	
+
+	@Override
+	public void addAll(Segment s) {
+		super.addAll(s);
+		if (s instanceof Text) {
+			Text other = (Text) s;
+			immGenInsns.addAll(other.immGenInsns);
+			relJumps.addAll(other.relJumps);
+			relocate.addAll(other.relocate);
+		}
+	}
+
 	public Element word(int w) {
 		Element res = new Insn(this, w);
 		add(res);
 		return res;
 	}
-	
+
 	public Element normal(Instruction f, Reg rs, Reg rt, Reg rd, int shamt) {
 		int word = f.encodeOpcodeInto(0);
 		word = rd.encodeInto(word, Instruction.FIELD_RD);
@@ -44,11 +55,11 @@ public class Text extends Segment {
 		add(res);
 		return res;
 	}
-	
+
 	public Element normal(Instruction f, Reg rs, Reg rt, Reg rd) {
-		return normal(f, rs, rt, rd);
+		return normal(f, rs, rt, rd, 0);
 	}
-	
+
 	public Element imm(Instruction i, Reg rs, Reg rt, int imm) {
 		int word = i.encodeOpcodeInto(0);
 		word = rs.encodeInto(word, Instruction.FIELD_RS);
@@ -58,10 +69,10 @@ public class Text extends Segment {
 		add(res);
 		return res;
 	}
-	
+
 	public Element address(Reg rt, Address addr) {
 		return address(rt, Option.empty(Reg.class), addr);
-	
+
 	}
 	public Element address(Reg rt, Option<Reg> reg, Address addr) {
 		LoadAddress e = new LoadAddress(this, rt, reg, addr);
@@ -70,7 +81,7 @@ public class Text extends Segment {
 		add(e);
 		return e;
 	}
-	
+
 	public Element constant(Reg rt, int val) {
 		return constant(rt, Expressions.constantInt(val));
 	}
@@ -102,42 +113,43 @@ public class Text extends Segment {
 		relJumps.add(rj);
 		return rj;
 	}
-	
+
 	public Element condjump(int word, LabelRef e) {
 		RelJump rj = new RelJump(this, word, e);
 		add(rj);
 		relJumps.add(rj);
 		return rj;
 	}
-	
+
 	public Element absjump(Instruction opc, LabelRef exp) {
 		AbsJump aj = new AbsJump(this, opc, exp);
 		add(aj);
 		relocate.add(aj);
 		return aj;
 	}
-	
-	
+
+
 	private void rewriteDataInsns() {
 		assertState(State.BUILDING);
-		for (ImmGen<?> i : immGenInsns) 
+		for (ImmGen<?> i : immGenInsns)
 			i.rewrite();
 		state = State.PSEUDOS_EXPANDED;
 	}
-	
+
 	private void rewriteRelJumps(ErrorReporter<Position> reporter) {
 		assertState(State.OFFSETS_ASSIGNED);
 		for (RelJump rj : relJumps)
 			rj.rewrite(reporter);
 		state = State.RELATIVE_ADDRESSES_PATCHED;
 	}
-	
+
 	@Override
 	public void relocateInternal(int startAddress, ErrorReporter<Position> reporter) {
 		for (Relocateable r : relocate)
 			r.relocate(startAddress, reporter);
 	}
-	
+
+	@Override
 	public void prepare(ErrorReporter<Position> reporter) {
 		validateElements(reporter);
 		rewriteDataInsns();

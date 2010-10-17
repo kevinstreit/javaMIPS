@@ -1,27 +1,23 @@
 package de.unisb.prog.mips.assembler.segments;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
-import de.unisb.prog.mips.assembler.LabelRef;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.simulator.Memory;
 
 public abstract class Element implements Expr {
-	
+
 	private int offset;
 	private String label = "";
-	private List<LabelRef> referers = null;
-	protected final Segment segment;
+	protected Segment segment;
 	protected Position position = Position.ILLEGAL;
-	
+
 	protected Element(Segment seg) {
 		this.segment = seg;
 	}
-	
+
 	public Position getPosition() {
 		return position;
 	}
@@ -30,18 +26,22 @@ public abstract class Element implements Expr {
 		this.position = position;
 	}
 
-	public Segment getSegment() {
-		return segment; 
+	public void setSegment(Segment s) {
+		this.segment = s;
 	}
-	
+
+	public Segment getSegment() {
+		return segment;
+	}
+
 	public int getOffset() {
 		return offset;
 	}
-	
+
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
-	
+
 	public void setLabel(String label) {
 		this.label = label;
 	}
@@ -49,22 +49,20 @@ public abstract class Element implements Expr {
 	public String getLabel() {
 		return label;
 	}
-	
+
 	public int eval() {
 		return getOffset();
 	}
-	
-	public void addReferrer(LabelRef r) {
-		if (referers == null)
-			referers = new LinkedList<LabelRef>();
-		referers.add(r);
-	}
-	
+
 	public boolean validate(ErrorReporter<Position> reporter) {
 		return true;
 	}
 
-	
+	public int addressOf() {
+		segment.assertState(Segment.State.RELOCATED);
+		return segment.getBase() + getOffset();
+	}
+
 	public final void append(Appendable app) throws IOException {
 		if (! label.isEmpty()) {
 			app.append(label);
@@ -73,7 +71,7 @@ public abstract class Element implements Expr {
 		appendInternal(app);
 		app.append('\n');
 	}
-	
+
 	protected abstract void appendInternal(Appendable app) throws IOException;
 	public abstract int nextElementOffset(int pos);
 	public abstract void writeToMem(Memory mem, int addr);
