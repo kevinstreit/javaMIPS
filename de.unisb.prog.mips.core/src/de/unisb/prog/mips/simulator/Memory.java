@@ -3,10 +3,10 @@ package de.unisb.prog.mips.simulator;
 import java.io.IOException;
 
 public class Memory {
-	
+
 	private final ByteMemory mem;
 	boolean bigEndian;
-	
+
 	public Memory(ByteMemory mem, boolean bigEndian) {
 		this.mem = mem;
 		this.bigEndian = bigEndian;
@@ -36,7 +36,7 @@ public class Memory {
 		}
 		return res;
 	}
-	
+
 	public CharSequence loadString(int addr) {
 		StringBuffer sb = new StringBuffer();
 		char ch = (char) load(addr++, Type.BYTE);
@@ -44,10 +44,9 @@ public class Memory {
 			sb.append(ch);
 			ch = (char) load(addr++, Type.BYTE);
 		}
-		System.out.println(sb);
 		return sb;
 	}
-	
+
 	public <T> void dump(T output, int from, int count, MemDumpFormatter<T> fmt) throws IOException {
 		Type tp = fmt.granularity();
 		int step = tp.sizeof();
@@ -67,7 +66,7 @@ public class Memory {
 				i = i + 1;
 			}
 		}
-		
+
 		/*
 		if (i != 0) {
 			while (i < chunk.length - 1)
