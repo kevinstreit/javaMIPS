@@ -72,13 +72,13 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 
 	private int load(int addr, Type tp, boolean signExtend) {
 		if (! tp.isAligned(addr))
-			throw new UnalignedMemoryException(this, addr);
+			exc.unalignedMemory(this, mem, addr);
 		return this.mem.load(addr, tp);
 	}
 
 	private void store(int addr, Type tp, int val) {
 		if (! tp.isAligned(addr))
-			throw new UnalignedMemoryException(this, addr);
+			exc.unalignedMemory(this, mem, addr);
 		this.mem.store(addr, val, tp);
 	}
 
