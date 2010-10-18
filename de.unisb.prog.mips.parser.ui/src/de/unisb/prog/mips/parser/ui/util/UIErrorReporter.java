@@ -3,6 +3,7 @@ package de.unisb.prog.mips.parser.ui.util;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Position;
@@ -57,12 +58,12 @@ public class UIErrorReporter implements ErrorReporter<Position> {
 	public void error(String fmt, Object... args) {
 		errorsCounted++;
 		Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("Error: " + fmt, args));
-		// StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+		StatusManager.getManager().handle(stat, 0);
 	}
 
 	public void warning(String fmt, Object... args) {
 		Status stat = new Status(Status.WARNING, "de.unisb.prog.mips.parser.ui", String.format("Warning: " + fmt, args));
-		// StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+		StatusManager.getManager().handle(stat, 0);
 	}
 
 }

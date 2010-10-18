@@ -40,7 +40,7 @@ public class Sys implements MemoryLayout {
 			this.sim.pc = main.addressOf();
 			return true;
 		} catch (LabelNotDefinedException e) {
-			asm.getReporter().warning("global label \"main\" not found");
+			asm.getReporter().error("global label \"main\" not found");
 			this.sim.pc = textStart();
 			return false;
 		}

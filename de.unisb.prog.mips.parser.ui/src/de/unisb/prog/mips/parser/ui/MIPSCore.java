@@ -1,9 +1,7 @@
 package de.unisb.prog.mips.parser.ui;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -392,21 +390,16 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
-		final AtomicBoolean hasErrors = new AtomicBoolean(false);
 		Assembly linked = Assembly.link(assemblies, new UIErrorReporter(true));
 		linked.prepare();
-		sys.load(linked);
+		boolean runnable = sys.load(linked);
 
-		try {
-			linked.append(System.out);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if (!hasErrors.get()) {
+		if (runnable) {
 			asm = linked;
 			assemblyLoaded(asm, sys);
+		}
+		else {
+			// TODO Say that project still contains errors
 		}
 	}
 
