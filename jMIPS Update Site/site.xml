@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/de.unisb.prog.jMIPS_1.0.0.201010141818.jar" id="de.unisb.prog.jMIPS" version="1.0.0.201010141818">
+   <feature url="features/de.unisb.prog.jMIPS_1.0.1.jar" id="de.unisb.prog.jMIPS" version="1.0.1">
       <category name="jMIPS"/>
    </feature>
    <category-def name="jMIPS" label="jMIPS">

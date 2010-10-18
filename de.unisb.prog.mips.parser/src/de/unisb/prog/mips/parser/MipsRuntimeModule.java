@@ -3,19 +3,13 @@
  */
 package de.unisb.prog.mips.parser;
 
-import org.eclipse.xtext.conversion.IValueConverterService;
-
-import de.unisb.prog.mips.parser.util.MyConverters;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class MipsRuntimeModule extends de.unisb.prog.mips.parser.AbstractMipsRuntimeModule {
 
-	@Override
-	public Class<? extends IValueConverterService> bindIValueConverterService() {
-	  return MyConverters.class;
-	}
+
 
 
 }
