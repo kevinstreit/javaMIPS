@@ -322,6 +322,13 @@ public class Generators {
 			}
 		});
 
+		register("bnez", new InstructionGenerator(AddressMode.LABEL, S) {
+			@Override
+			public Element generate(Text text, String opcode, OperandInstance inst) {
+				return text.condjump(Opcode.bne, inst.getRegisters().get(0), Reg.zero, inst.getLabel());
+			}
+		});
+
 		register("ret", new InstructionGenerator(AddressMode.NONE, NONE) {
 			@Override
 			public Element generate(Text text, String opcode, OperandInstance inst) {
