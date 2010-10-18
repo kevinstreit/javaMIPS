@@ -1,7 +1,5 @@
 package de.unisb.prog.mips.simulator;
 
-import java.io.IOException;
-
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.LabelNotDefinedException;
 import de.unisb.prog.mips.assembler.MemoryLayout;
@@ -27,13 +25,6 @@ public class Sys implements MemoryLayout {
 		this.sim.gp[Reg.gp.ordinal()] = dataStart() + 32768;
 		this.sim.gp[Reg.sp.ordinal()] = stackStart();
 		this.sim.pc = textStart();
-
-		try {
-			asm.getData().dump(System.out, mem, MemDumpFormatter.DATA);
-			asm.getText().dump(System.out, mem, MemDumpFormatter.DISASM);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 
 		try {
 			Element main = asm.lookupElement("main");
