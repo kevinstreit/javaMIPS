@@ -27,7 +27,7 @@ public class XTextBuildParticipant implements IXtextBuilderParticipant {
 		UIErrorReporter error = new UIErrorReporter(true);
 		Collection<Assembly> asm = BuildUtil.getASM(proj, error);
 
-		if (asm != null) {
+		if (asm != null && error.errorsReported() == 0) {
 			MIPSCore.getInstance().init(1024);
 			MIPSCore.getInstance().load(asm, proj);
 		} else {

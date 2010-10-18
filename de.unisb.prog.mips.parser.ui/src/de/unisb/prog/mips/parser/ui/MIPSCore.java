@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -80,16 +83,24 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 					if (RunnableMIPSPropTester.isMIPSRunnable(f)) {
 						IProject proj = f.getProject();
 						if (MIPSCore.getInstance().getLodedProject() != proj) {
+							try {
+								proj.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+							} catch (CoreException e) {
+								// Nothing to do
+							}
+
 							UIErrorReporter error = new UIErrorReporter(true);
 							Collection<Assembly> asm = BuildUtil.getASM(proj, error);
 
-							if (asm != null) {
+							boolean loadable = asm != null && error.errorsReported() == 0;
+							if (loadable) {
+								loadable = true;
 								MIPSCore.getInstance().init(1024);
-								MIPSCore.getInstance().load(asm, proj);
-							} else {
-								if (MIPSCore.getInstance().getSys() != null)
-									MIPSCore.getInstance().unloadASM();
+								loadable = MIPSCore.getInstance().load(asm, proj);
 							}
+
+							if (!loadable && MIPSCore.getInstance().getSys() != null)
+								MIPSCore.getInstance().unloadASM();
 						}
 					}
 				}
@@ -229,7 +240,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		}
 	}
 
-	public synchronized ExecutionState getExecutionState() {
+	public ExecutionState getExecutionState() {
 		if (sys == null || sys.getProcessor() == null)
 			return null;
 		else
@@ -351,7 +362,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	public synchronized void stopExec() {
 		if (sys != null) {
 			Processor proc = sys.getProcessor();
-			if (proc.state == ExecutionState.HALTED)
+			if (proc.state == ExecutionState.HALTED || proc.state == null)
 				return;
 		}
 
@@ -423,7 +434,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
 		Processor proc = sys.getProcessor();
-		if(proc.state != ExecutionState.HALTED)
+		if(proc.state != ExecutionState.HALTED && proc.state != null)
 			stopExec();
 
 		asm = null;
@@ -437,24 +448,30 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 		proj = project;
 
-		Assembly linked = Assembly.link(assemblies, new UIErrorReporter(true));
+		UIErrorReporter error = new UIErrorReporter(true);
+
+		Assembly linked = Assembly.link(assemblies, error);
 		linked.prepare();
 		boolean runnable;
 
-		try {
-			runnable = sys.load(linked);
-		} catch (Exception e) {
-			Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("Error: Unknown exception occured", e));
-			StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
-			runnable = false;
-		}
+		if (error.errorsReported() == 0) {
+			try {
+				runnable = sys.load(linked);
+			} catch (Exception e) {
+				Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("Error: Unknown exception occured", e));
+				StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+				runnable = false;
+			}
 
-		if (runnable) {
-			asm = linked;
-			assemblyLoaded(asm, sys);
-			return true;
+			if (runnable) {
+				asm = linked;
+				assemblyLoaded(asm, sys);
+				return true;
+			} else {
+				proj = null;
+				return false;
+			}
 		} else {
-			proj = null;
 			return false;
 		}
 	}

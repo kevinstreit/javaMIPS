@@ -94,7 +94,7 @@ public class Assembly extends SymbolTable {
 				linked.linkWith(asm);
 			} catch (LabelAlreadyDefinedException e) {
 				Element labelled = e.definer;
-				reporter.error(labelled.getPosition(), "label \"%\" multiply defined", labelled.getLabel());
+				reporter.error(labelled.getPosition(), "label \"%s\" multiply defined", labelled.getLabel());
 			}
 		}
 
