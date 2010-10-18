@@ -19,9 +19,9 @@ public class MipsScopeProvider extends AbstractDeclarativeScopeProvider {
 
 	@Override
 	public IScope getScope(EObject context, EReference reference) {
-		System.out.println(context.getClass().getCanonicalName());
-		System.out.println(reference.getClass().getCanonicalName());
 		return super.getScope(context, reference);
 	}
+
+
 
 }

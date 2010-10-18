@@ -33,8 +33,6 @@ public class XTextBuildParticipant implements IXtextBuilderParticipant {
 		} else {
 			if (MIPSCore.getInstance().getSys() != null)
 				MIPSCore.getInstance().unloadASM();
-			// TODO: Evtl. create marker
-
 		}
 	}
 
