@@ -90,6 +90,12 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 	}
 
 	public static void launch(IProject proj, final boolean debug) {
+		try {
+			proj.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		} catch (CoreException e) {
+			// Nothing to do
+		}
+
 		Collection<Assembly> assemblies = BuildUtil.getASM(proj, new UIErrorReporter(true));
 
 		if (assemblies != null) {
