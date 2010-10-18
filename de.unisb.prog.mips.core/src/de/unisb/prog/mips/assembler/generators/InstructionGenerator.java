@@ -44,11 +44,11 @@ public abstract class InstructionGenerator {
 
 	private String bitfieldName(Bitfield b) {
 		if (b.equals(Instruction.FIELD_RD))
-			return "d";
+			return "$d";
 		if (b.equals(Instruction.FIELD_RT))
-			return "t";
+			return "$t";
 		if (b.equals(Instruction.FIELD_RS))
-			return "s";
+			return "$s";
 		return "";
 	}
 

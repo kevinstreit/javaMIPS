@@ -4,68 +4,68 @@
 		<insn mnemonic="add" 
 		      purpose="Add two 32-bit integers. Trap on overflow."
 		      exceptions="Integer overflow.">
-	The 32-bit word value in register rt is added to the 32-bit value in
-	register rs to produce a 32-bit result.
-	If the addition results in 32-bit 2’s complement arithmetic overflow then
-	the destination register is not modified and an Integer Overflow
-	exception occurs. If it does not overflow, the 32-bit result is placed
-	into GPR rd.
+The 32-bit word value in register rt is added to the 32-bit value in
+register rs to produce a 32-bit result.
+If the addition results in 32-bit 2’s complement arithmetic overflow then
+the destination register is not modified and an Integer Overflow
+exception occurs. If it does not overflow, the 32-bit result is placed
+into GPR rd.
 		</insn>
 		
 		<insn mnemonic="addi" 
 		      purpose="Add a constant to a 32-bit integer. If overflow occurs, then trap."
 		      exceptions="Integer overflow.">
-	The 16-bit signed immediate is added to the 32-bit value in register rs
-	to produce a 32-bit result.
-	If the addition results in 32-bit 2’s complement arithmetic overflow then
-	the destination register is not modified and an Integer Overflow
-	exception occurs. If it does not overflow, the 32-bit result is placed
-	into GPR rt.
+The 16-bit signed immediate is added to the 32-bit value in register rs
+to produce a 32-bit result.
+If the addition results in 32-bit 2’s complement arithmetic overflow then
+the destination register is not modified and an Integer Overflow
+exception occurs. If it does not overflow, the 32-bit result is placed
+into GPR rt.
 		</insn>
 		
 		<insn mnemonic="addiu" 
 		      purpose="Add a constant to a 32-bit integer.">
-	The 16-bit signed immediate is added to the 32-bit value in GPR rs and
-	the 32-bit arithmetic result is placed into GPR rt. No Integer Overflow
-	exception occurs under any circumstances.
+The 16-bit signed immediate is added to the 32-bit value in GPR rs and
+the 32-bit arithmetic result is placed into GPR rt. No Integer Overflow
+exception occurs under any circumstances.
 		</insn>
 		
 		<insn mnemonic="addu" 
 		      purpose="Add two 32-bit integers">
-	The 32-bit word value in GPR rt is added to the 32-bit value in GPR rs
-	and the 32-bit arithmetic result is placed into GPR rd. No Integer
-	Overflow exception occurs under any circumstances.
+The 32-bit word value in GPR rt is added to the 32-bit value in GPR rs
+and the 32-bit arithmetic result is placed into GPR rd. No Integer
+Overflow exception occurs under any circumstances.
 		</insn>
 		
 		<insn mnemonic="and" 
 		      purpose="Do a bitwise logical AND.">
-	The contents of GPR rs are combined with the contents of GPR rt in a
-	bitwise logical AND operation. The result is placed into GPR rd.
+The contents of GPR rs are combined with the contents of GPR rt in a
+bitwise logical AND operation. The result is placed into GPR rd.
 		</insn>
 		
 		<insn mnemonic="andi" 
 		      purpose="Do a bitwise logical AND with a constant.">
-	The 16-bit immediate is zero-extended to the left and combined with the
-	contents of GPR rs in a bitwise logical AND operation. The result is
-	placed into GPR rt.
+The 16-bit immediate is zero-extended to the left and combined with the
+contents of GPR rs in a bitwise logical AND operation. The result is
+placed into GPR rt.
 		</insn>
 		
 		<insn mnemonic="div" 
 		      purpose="Divide two 32-bit integers">
-	The 32-bit word value in GPR rs is divided by the 32-bit value in GPR
-	rt, treating both operands as signed values. The 32-bit quotient is
-	placed into special register LO and the 32-bit remainder is placed into
-	special register HI.
-	No arithmetic exception occurs under any circumstances.
+The 32-bit word value in GPR rs is divided by the 32-bit value in GPR
+rt, treating both operands as signed values. The 32-bit quotient is
+placed into special register LO and the 32-bit remainder is placed into
+special register HI.
+No arithmetic exception occurs under any circumstances.
 		</insn>
 		
 		<insn mnemonic="divu" 
 		      purpose="Divide two unsigned 32-bit integers">
-	The 32-bit word value in GPR rs is divided by the 32-bit value in GPR
-	rt, treating both operands as unsigned values. The 32-bit quotient is
-	placed into special register LO and the 32-bit remainder is placed into
-	special register HI.
-	No arithmetic exception occurs under any circumstances.
+The 32-bit word value in GPR rs is divided by the 32-bit value in GPR
+rt, treating both operands as unsigned values. The 32-bit quotient is
+placed into special register LO and the 32-bit remainder is placed into
+special register HI.
+No arithmetic exception occurs under any circumstances.
 		</insn>
 		
 	</group>

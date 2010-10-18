@@ -92,13 +92,7 @@ public class ISAView extends ViewPart {
 		public String getToolTipText(Object element) {
 			if (element instanceof InsnDoc) {
 				InsnDoc insn = (InsnDoc) element;
-
-				// TODO: Re-add example
-				return 	"\n" +
-				insn.mnemonic +	"\n" +
-				insn.longName +	"\n\n" +
-				insn.description +
-				"\n";
+				return insn.getHelp();
 			} else {
 				return null;
 			}

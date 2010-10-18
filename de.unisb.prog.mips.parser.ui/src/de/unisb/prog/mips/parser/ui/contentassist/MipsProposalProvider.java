@@ -11,7 +11,6 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
 import de.unisb.prog.mips.assembler.generators.Generators;
-import de.unisb.prog.mips.assembler.generators.InstructionGenerator;
 import de.unisb.prog.mips.doc.Documentation;
 import de.unisb.prog.mips.doc.InsnDoc;
 /**
@@ -26,25 +25,7 @@ public class MipsProposalProvider extends AbstractMipsProposalProvider {
 			ConfigurableCompletionProposal proposal = (ConfigurableCompletionProposal) compProposal;
 			InsnDoc insn = Documentation.getInsnDoc(opcode);
 			if (insn != null) {
-				String example = "";
-				if (Generators.getInstance().contains(opcode)) {
-					StringBuffer examples = new StringBuffer();
-					String plural = "";
-					for (InstructionGenerator g : Generators.getInstance().get(opcode)) {
-						examples.append(g.stringRepr());
-						plural = "s";
-					}
-					example = String.format("Example%s: %s\n", plural, examples);
-
-				}
-				proposal.setAdditionalProposalInfo(
-						"\n" +
-						insn.mnemonic +	"\n" +
-						insn.longName +	"\n\n" +
-						example +
-						insn.description +
-						"\n"
-				);
+				proposal.setAdditionalProposalInfo(insn.getHelp());
 			}
 			acceptor.accept(proposal);
 		} else {
