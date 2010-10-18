@@ -115,11 +115,15 @@ public class Generate {
 	}
 
 	public Element generate(Asciiz str, Segment seg) {
-		return assembly.getData().string(str.getVal(), true);
+		String s = str.getVal();
+		s = s.substring(1, s.length() - 1);
+		return assembly.getData().string(s, true);
 	}
 
 	public Element generate(Ascii str, Segment seg) {
-		return assembly.getData().string(str.getVal(), false);
+		String s = str.getVal();
+		s = s.substring(1, s.length() - 1);
+		return assembly.getData().string(s, false);
 	}
 
 	public Element generate(Word w, Segment seg) {
