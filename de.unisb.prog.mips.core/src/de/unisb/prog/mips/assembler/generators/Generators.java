@@ -25,6 +25,10 @@ public class Generators {
 		Instruction.FIELD_RD, Instruction.FIELD_RT, Instruction.FIELD_RS
 	};
 
+	public static final Bitfield[] DST = new Bitfield[] {
+		Instruction.FIELD_RD, Instruction.FIELD_RS, Instruction.FIELD_RT
+	};
+
 	public static final Bitfield[] DT = new Bitfield[] {
 		Instruction.FIELD_RD, Instruction.FIELD_RT
 	};
@@ -59,6 +63,10 @@ public class Generators {
 
 		public RegGenerator(AddressMode am, Bitfield... regFields) {
 			super(am, regFields);
+		}
+
+		public RegGenerator(Bitfield... regFields) {
+			super(AddressMode.NONE, regFields);
 		}
 
 		@Override
@@ -202,28 +210,48 @@ public class Generators {
 
 	private void addMachine() {
 		register(Opcode.class);
-		register(IntFunct.class);
 		register(RegImm.class);
 
 		// some exceptions :)
-		register(IntFunct.syscall, new RegGenerator(AddressMode.NONE, NONE));
-		register(IntFunct.brk,     new RegGenerator(AddressMode.NONE, NONE));
-		register(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, DS));
-		register(IntFunct.jalr,    new RegGenerator(AddressMode.NONE, S) {
+		register(IntFunct.sll,     SHAMT);
+		register(IntFunct.srl,     SHAMT);
+		register(IntFunct.sra,     SHAMT);
+		register(IntFunct.sllv,    new RegGenerator(DTS));
+		register(IntFunct.srlv,    new RegGenerator(DTS));
+		register(IntFunct.srav,    new RegGenerator(DTS));
+
+		register(IntFunct.movz,    new RegGenerator(DST));
+		register(IntFunct.movn,    new RegGenerator(DST));
+
+		register(IntFunct.add,     new RegGenerator(DST));
+		register(IntFunct.addu,    new RegGenerator(DST));
+		register(IntFunct.sub,     new RegGenerator(DST));
+		register(IntFunct.subu,    new RegGenerator(DST));
+		register(IntFunct.and,     new RegGenerator(DST));
+		register(IntFunct.or,      new RegGenerator(DST));
+		register(IntFunct.xor,     new RegGenerator(DST));
+		register(IntFunct.nor,     new RegGenerator(DST));
+		register(IntFunct.slt,     new RegGenerator(DST));
+		register(IntFunct.sltu,    new RegGenerator(DST));
+
+		register(IntFunct.syscall, new RegGenerator(NONE));
+		register(IntFunct.brk,     new RegGenerator(NONE));
+		register(IntFunct.jalr,    new RegGenerator(DS));
+		register(IntFunct.jalr,    new RegGenerator(S) {
 			@Override
 			protected int addEncoding(int word, OperandInstance inst) {
 				return Instruction.FIELD_RD.insert(word, Reg.ra.ordinal());
 			}
 		});
-		register(IntFunct.jr,      new RegGenerator(AddressMode.NONE, S));
-		register(IntFunct.mult,    new RegGenerator(AddressMode.NONE, ST));
-		register(IntFunct.multu,   new RegGenerator(AddressMode.NONE, ST));
-		register(IntFunct.div,     new RegGenerator(AddressMode.NONE, ST));
-		register(IntFunct.divu,    new RegGenerator(AddressMode.NONE, ST));
-		register(IntFunct.mfhi,    new RegGenerator(AddressMode.NONE, D));
-		register(IntFunct.mflo,    new RegGenerator(AddressMode.NONE, D));
-		register(IntFunct.mthi,    new RegGenerator(AddressMode.NONE, S));
-		register(IntFunct.mtlo,    new RegGenerator(AddressMode.NONE, S));
+		register(IntFunct.jr,      new RegGenerator(S));
+		register(IntFunct.mult,    new RegGenerator(ST));
+		register(IntFunct.multu,   new RegGenerator(ST));
+		register(IntFunct.div,     new RegGenerator(ST));
+		register(IntFunct.divu,    new RegGenerator(ST));
+		register(IntFunct.mfhi,    new RegGenerator(D));
+		register(IntFunct.mflo,    new RegGenerator(D));
+		register(IntFunct.mthi,    new RegGenerator(S));
+		register(IntFunct.mtlo,    new RegGenerator(S));
 	}
 
 	private void addPseudos() {

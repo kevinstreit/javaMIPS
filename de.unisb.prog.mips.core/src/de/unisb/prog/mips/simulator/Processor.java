@@ -136,8 +136,8 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case lbu:   this.gp[rt] = load(s + imm, Type.BYTE, false); break;
 		case lhu:   this.gp[rt] = load(s + imm, Type.HALF, false); break;
 		case lwr:   break; // TODO Implement
-		case sb:    store(s + imm, Type.BYTE, t); break;
-		case sh:    store(s + imm, Type.HALF, t >>> 16); break;
+		case sb:    store(s + imm, Type.BYTE, t & 0xff); break;
+		case sh:    store(s + imm, Type.HALF, t & 0xffff); break;
 		case swl:   break; // TODO Implement
 		case sw:    store(s + imm, Type.WORD, t); break;
 		case swr:   break; // TODO Implement
@@ -149,12 +149,12 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		int s = this.gp[rs];
 		int t = this.gp[rt];
 		switch (funct) {
-		case sll:     this.gp[rd] = s << shamt; break;
-		case srl:     this.gp[rd] = s >>> shamt; break;
-		case sra:     this.gp[rd] = s >> shamt; break;
-		case sllv:    this.gp[rd] = s << t; break;
-		case srlv:    this.gp[rd] = s >>> t; break;
-		case srav:    this.gp[rd] = s >> t; break;
+		case sll:     this.gp[rd] = t << shamt; break;
+		case srl:     this.gp[rd] = t >>> shamt; break;
+		case sra:     this.gp[rd] = t >> shamt; break;
+		case sllv:    this.gp[rd] = t << s; break;
+		case srlv:    this.gp[rd] = t >>> s; break;
+		case srav:    this.gp[rd] = t >> s; break;
 		case jr:      this.pc = s; break;
 		case jalr:    this.gp[rd] = this.pc + 4; this.pc = s; break;
 		case movz:    if (t == 0) this.gp[rd] = s; break;
@@ -189,7 +189,13 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		break;
 		case div:     this.lo = s / t; this.hi = s % t; break;
 		// TODO: Check, if this is ok.
-		case divu:    this.lo = s / t; this.hi = s % t; break;
+		case divu:    {
+			long a = s & 0xffffffffL;
+			long b = t & 0xffffffffL;
+			this.lo = (int) (a / b);
+			this.hi = (int) (a % b);
+		}
+		break;
 		case add:     this.gp[rd] = s + t; break;
 		case addu:    this.gp[rd] = s + t; break;
 		case sub:     this.gp[rd] = s - t; break;
