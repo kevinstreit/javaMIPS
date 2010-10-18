@@ -100,8 +100,14 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 			}
 
 			MIPSCore.getInstance().init(1024);
-			MIPSCore.getInstance().load(assemblies);
-			MIPSCore.getInstance().start(debug);
+			boolean loaded = MIPSCore.getInstance().load(assemblies, proj);
+
+			if (loaded)
+				MIPSCore.getInstance().start(debug);
+			else {
+				Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", "Errors exist in the project you want to run. Fix them first.");
+				StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+			}
 		}
 	}
 

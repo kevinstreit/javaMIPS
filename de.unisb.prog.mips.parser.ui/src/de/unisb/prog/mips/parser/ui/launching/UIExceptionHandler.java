@@ -3,6 +3,7 @@ package de.unisb.prog.mips.parser.ui.launching;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.segments.Element;
@@ -36,14 +37,15 @@ public class UIExceptionHandler implements ExceptionHandler {
 					IMarker m = MarkerUtil.markPosition(elm.getPosition(), IMarker.PROBLEM, true, true);
 					m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 					m.setAttribute(IMarker.MESSAGE, String.format(message, args));
+					return;
 				} catch (CoreException e) {
 					// Should not happen
 				}
 			}
-		} else {
-			Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format(message));
-			// StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
 		}
+
+		Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format(message));
+		StatusManager.getManager().handle(stat, StatusManager.LOG);
 	}
 
 }

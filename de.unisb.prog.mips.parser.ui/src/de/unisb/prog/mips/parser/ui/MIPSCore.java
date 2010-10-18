@@ -3,6 +3,8 @@ package de.unisb.prog.mips.parser.ui;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -11,19 +13,25 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
 import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester;
 import de.unisb.prog.mips.parser.ui.launching.UIExceptionHandler;
 import de.unisb.prog.mips.parser.ui.launching.UISyscallImpl;
+import de.unisb.prog.mips.parser.ui.util.BuildUtil;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
 import de.unisb.prog.mips.parser.ui.util.MarkerUtil;
 import de.unisb.prog.mips.parser.ui.util.UIErrorReporter;
+import de.unisb.prog.mips.parser.ui.views.EditorOpenListener;
 import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
@@ -60,9 +68,39 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	// Singleton management ====================
 
 	private static MIPSCore instance = null;
+	private EditorOpenListener editorListener;
 
 	private MIPSCore() {
+		editorListener = new EditorOpenListener() {
+			@Override
+			public void editorActivated(IEditorPart editor) {
+				if (editor.getEditorInput().exists() && editor.getEditorInput() instanceof FileEditorInput) {
+					IFile f = ((FileEditorInput) editor.getEditorInput()).getFile();
 
+					if (RunnableMIPSPropTester.isMIPSRunnable(f)) {
+						IProject proj = f.getProject();
+						if (MIPSCore.getInstance().getLodedProject() != proj) {
+							UIErrorReporter error = new UIErrorReporter(true);
+							Collection<Assembly> asm = BuildUtil.getASM(proj, error);
+
+							if (asm != null) {
+								MIPSCore.getInstance().init(1024);
+								MIPSCore.getInstance().load(asm, proj);
+							} else {
+								if (MIPSCore.getInstance().getSys() != null)
+									MIPSCore.getInstance().unloadASM();
+							}
+						}
+					}
+				}
+			}
+
+			@Override public void editorDeactivated(IEditorPart editor) {}
+			@Override public void editorOpened(IEditorPart editor) {}
+			@Override public void editorClosed(IEditorPart editor) {}
+		};
+
+		PlatformUI.getWorkbench().addWindowListener(editorListener);
 	}
 
 	public static MIPSCore getInstance() {
@@ -175,6 +213,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 	private Sys sys = null;
 	private Assembly asm = null;
+	private IProject proj = null;
 	private int exitCode;
 	private Job runningJob = null;
 
@@ -205,6 +244,10 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		return asm;
 	}
 
+	public IProject getLodedProject() {
+		return proj;
+	}
+
 	public int getExitCode() {
 		return exitCode;
 	}
@@ -222,6 +265,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	public synchronized void init(int memPages) {
 		sys = new Sys(memPages, new UIExceptionHandler(), new SysCallDispatcher(new UISyscallImpl(MIPSConsole)));
 		asm = null;
+		proj = null;
 	}
 
 	private void continueExecution(Processor proc) {
@@ -383,23 +427,35 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			stopExec();
 
 		asm = null;
+		proj = null;
 		assemblyReset();
 	}
 
-	public synchronized void load(Collection<Assembly> assemblies) {
+	public synchronized boolean load(Collection<Assembly> assemblies, IProject project) {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
+		proj = project;
+
 		Assembly linked = Assembly.link(assemblies, new UIErrorReporter(true));
 		linked.prepare();
-		boolean runnable = sys.load(linked);
+		boolean runnable;
+
+		try {
+			runnable = sys.load(linked);
+		} catch (Exception e) {
+			Status stat = new Status(Status.ERROR, "de.unisb.prog.mips.parser.ui", String.format("Error: Unknown exception occured", e));
+			StatusManager.getManager().handle(stat, StatusManager.SHOW | StatusManager.BLOCK);
+			runnable = false;
+		}
 
 		if (runnable) {
 			asm = linked;
 			assemblyLoaded(asm, sys);
-		}
-		else {
-			// TODO Say that project still contains errors
+			return true;
+		} else {
+			proj = null;
+			return false;
 		}
 	}
 
