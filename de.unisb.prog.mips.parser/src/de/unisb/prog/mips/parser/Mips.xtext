@@ -11,7 +11,7 @@ Directive: {Global} ".globl" label=[Label]
          | {SetAt} ".set" ID
          ;
 
-TextSegment: ".text" (addr=PNInt)? (items+=TextItem | items+=Directive)+;
+TextSegment: ".text" (addr=HEXINT)? (items+=TextItem | items+=Directive)+;
 TextItem:    label=(LabelDef)? item=(Insn | Align | Word);
 
 Insn hidden(COMMENT,WHITE): opcode=ID (regs+=Reg)* (addr=Addr ('(' base=Reg ')')?)? NL;
@@ -19,11 +19,12 @@ Insn hidden(COMMENT,WHITE): opcode=ID (regs+=Reg)* (addr=Addr ('(' base=Reg ')')
 Reg: (INTREG | TXTREG);
 
 Addr:  label=[Label] ("+"|"-") expr=CExpr | label=[Label] | expr=CExpr;
-CExpr returns Expression: Mult (({Plus.left=current} '+'| {Minus.left=current} '-') right=Mult)*;
-Mult  returns Expression: Prim (({Mul.left=current} '*' | {Shra.left=current} ">>" | {Shr.left=current} ">>>" | {Shl.left=current} "<<") right=Prim)*;
+CExpr returns Expression: Mult (({Add.left=current} '+'| {Sub.left=current} '-') right=Mult)*;
+Mult  returns Expression: Unary (({Mul.left=current} '*' | {Shra.left=current} ">>" | {Shr.left=current} ">>>" | {Shl.left=current} "<<") right=Unary)*;
+Unary returns Expression: ({Minus} '-' | {Unary}) expr=Prim;
 Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
-DataSegment: ".data" (addr=PNInt)? (items+=DataItem | items+=Directive)+;
+DataSegment: ".data" (addr=HEXINT)? (items+=DataItem | items+=Directive)+;
 
 DataItem: label=(LabelDef)? data=DataDecl;
 	
@@ -40,8 +41,10 @@ Str:         ({Asciiz} ".asciiz" | {Ascii} ".ascii") val=STRING;
 
 IntList:     vals+=PNInt (',' vals+=PNInt)*;
 AddrList:    vals+=Addr (',' vals+=Addr)*;
+PNInt:       val=(INT | HEXINT);
 
-PNInt returns ecore::EInt: ('-')? (INT | HEXINT);
+terminal INT    returns ecore::EInt: ('1'..'9') ('0'..'9')*;
+terminal HEXINT returns ecore::EInt: '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
 	
 terminal INTREG   : '$' ('0'..'9')+;
 terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;
@@ -50,8 +53,6 @@ terminal WHITE    : (' '|'\t')+;
 terminal NL       : ('\r'|'\n')+;
 
 terminal ID       : '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
-terminal INT returns ecore::EInt: ('0'..'9')+;
-terminal HEXINT returns ecore::EInt: '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
 terminal STRING	  : '"' ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|'"') )* '"' 
                   | "'" ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|"'") )* "'" ; 
 	

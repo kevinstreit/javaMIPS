@@ -19,6 +19,7 @@ import de.unisb.prog.mips.assembler.generators.InstructionGenerator;
 import de.unisb.prog.mips.assembler.generators.OperandInstance;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
+import de.unisb.prog.mips.parser.mips.Add;
 import de.unisb.prog.mips.parser.mips.Addr;
 import de.unisb.prog.mips.parser.mips.Align;
 import de.unisb.prog.mips.parser.mips.Ascii;
@@ -37,14 +38,16 @@ import de.unisb.prog.mips.parser.mips.Insn;
 import de.unisb.prog.mips.parser.mips.LabelDef;
 import de.unisb.prog.mips.parser.mips.Minus;
 import de.unisb.prog.mips.parser.mips.Mul;
-import de.unisb.prog.mips.parser.mips.Plus;
+import de.unisb.prog.mips.parser.mips.PNInt;
 import de.unisb.prog.mips.parser.mips.SetAt;
 import de.unisb.prog.mips.parser.mips.Shl;
 import de.unisb.prog.mips.parser.mips.Shr;
 import de.unisb.prog.mips.parser.mips.Shra;
 import de.unisb.prog.mips.parser.mips.Space;
+import de.unisb.prog.mips.parser.mips.Sub;
 import de.unisb.prog.mips.parser.mips.TextItem;
 import de.unisb.prog.mips.parser.mips.TextSegment;
+import de.unisb.prog.mips.parser.mips.Unary;
 import de.unisb.prog.mips.parser.mips.Word;
 import de.unisb.prog.mips.parser.util.EObjectPosition;
 import de.unisb.prog.mips.simulator.Type;
@@ -138,10 +141,10 @@ public class Generate {
 		return addData(w.getVals().getVals(), Type.BYTE);
 	}
 
-	private Element addData(List<Integer> vals, Type ty) {
+	private Element addData(List<PNInt> vals, Type ty) {
 		List<Expr> exprs = new ArrayList<Expr>(vals.size());
-		for (Integer v : vals)
-			exprs.add(Expressions.constantInt(v));
+		for (PNInt v : vals)
+			exprs.add(Expressions.constantInt(v.getVal()));
 		return assembly.getData().values(exprs, ty);
 	}
 
@@ -209,11 +212,11 @@ public class Generate {
 		return Expressions.binary(op, l, r);
 	}
 
-	public Expr exprGen(Plus e) {
+	public Expr exprGen(Add e) {
 		return exprGenBinOp(Expressions.IntOp.ADD, e.getLeft(), e.getRight());
 	}
 
-	public Expr exprGen(Minus e) {
+	public Expr exprGen(Sub e) {
 		return exprGenBinOp(Expressions.IntOp.SUB, e.getLeft(), e.getRight());
 	}
 
@@ -233,8 +236,17 @@ public class Generate {
 		return exprGenBinOp(Expressions.IntOp.SHRA, e.getLeft(), e.getRight());
 	}
 
+	public Expr exprGen(Minus e) {
+		Expr o = exprDispatcher.invoke(e.getExpr());
+		return Expressions.binary(Expressions.IntOp.SUB, Expressions.constantInt(0), o);
+	}
+
+	public Expr exprGen(Unary e) {
+		return exprDispatcher.invoke(e.getExpr());
+	}
+
 	public Expr exprGen(Const cnst) {
-		return Expressions.constantInt(cnst.getCnst());
+		return Expressions.constantInt(cnst.getCnst().getVal());
 	}
 
 }
