@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.parser.ui;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -391,6 +392,13 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		Assembly linked = Assembly.link(assemblies, new UIErrorReporter(true));
 		linked.prepare();
 		sys.load(linked);
+
+		try {
+			linked.append(System.out);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		if (!hasErrors.get()) {
 			this.asm = linked;

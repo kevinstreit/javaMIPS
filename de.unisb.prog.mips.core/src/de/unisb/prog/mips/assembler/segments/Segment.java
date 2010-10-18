@@ -206,4 +206,8 @@ public abstract class Segment implements Iterable<Element> {
 	public abstract void prepare(ErrorReporter<Position> reporter);
 	public abstract Kind getKind();
 
+	public State getState() {
+		return state;
+	}
+
 }

@@ -36,25 +36,27 @@ public class Assembly extends SymbolTable {
 	}
 
 	public void prepare() {
-		text.prepare(reporter);
 		data.prepare(reporter);
+		text.prepare(reporter);
 	}
 
 	public void relocate(MemoryLayout layout) {
 		// set base addresses of segments
-		text.setBase(layout.textStart());
 		data.setBase(layout.dataStart());
-		text.relocate(reporter);
+		text.setBase(layout.textStart());
 		data.relocate(reporter);
+		text.relocate(reporter);
 	}
 
 	public void writeToMem(Memory mem) {
-		text.writeToMem(mem);
 		data.writeToMem(mem);
+		text.writeToMem(mem);
 	}
 
+	@Override
 	public void append(Appendable app) throws IOException {
 		app.append("Assembly\n");
+		super.append(app);
 		data.append(app);
 		text.append(app);
 	}
@@ -94,6 +96,7 @@ public class Assembly extends SymbolTable {
 
 		for (String u : linked.getUnresolved().keySet())
 			reporter.error("symbol \"%s\" cannot be resolved", u);
+
 		return linked;
 	}
 

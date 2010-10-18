@@ -30,10 +30,11 @@ import de.unisb.prog.mips.parser.mips.DataDecl;
 import de.unisb.prog.mips.parser.mips.DataItem;
 import de.unisb.prog.mips.parser.mips.DataSegment;
 import de.unisb.prog.mips.parser.mips.Expression;
+import de.unisb.prog.mips.parser.mips.Extern;
 import de.unisb.prog.mips.parser.mips.Global;
 import de.unisb.prog.mips.parser.mips.Half;
 import de.unisb.prog.mips.parser.mips.Insn;
-import de.unisb.prog.mips.parser.mips.Label;
+import de.unisb.prog.mips.parser.mips.LabelDef;
 import de.unisb.prog.mips.parser.mips.Minus;
 import de.unisb.prog.mips.parser.mips.Mul;
 import de.unisb.prog.mips.parser.mips.Plus;
@@ -77,23 +78,28 @@ public class Generate {
 	}
 
 	public void generate(Global global, Segment seg) {
-		assembly.makeGlobal(global.getLabel());
+		assembly.makeGlobal(global.getLabel().getName());
+	}
+
+	public void generate(Extern extern, Segment seg) {
+		// this is only here to make the xtext resolver happy ;)
 	}
 
 	public void generate(SetAt dummy, Segment seg) {
 	}
 
-	private void labelElement(Label label, EObject item, Element elm) {
+	private void labelElement(LabelDef label, EObject item, Element elm) {
 		Position pos = new EObjectPosition(item);
 		if (label != null) {
-			elm.setLabel(label.getName());
+			String name = label.getLabel().getName();
+			elm.setLabel(name);
 			try {
 				assembly.defineLabel(elm);
 			} catch (LabelAlreadyDefinedException e) {
-				assembly.getReporter().error(String.format("label \"%s\" is multiply defined", label), pos);
+				assembly.getReporter().error(String.format("label \"%s\" is multiply defined", name), pos);
 			}
 		}
-		elm.setPosition(new EObjectPosition(item));
+		elm.setPosition(pos);
 	}
 
 	public void generate(DataItem item, Segment s) {

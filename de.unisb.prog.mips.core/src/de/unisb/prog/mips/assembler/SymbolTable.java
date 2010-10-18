@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.assembler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Segment;
 
 public class SymbolTable {
 
@@ -98,7 +100,20 @@ public class SymbolTable {
 
 	public Map<String, List<LabelRef>> getUnresolved() {
 		return unresolved;
+	}
 
+	public void append(Appendable app) throws IOException {
+		for (String s : defined.keySet()) {
+			Element e = defined.get(s);
+			app.append(String.format("%20s %s", s, global.contains(s) ? "D" : "d", e.getOffset()));
+			if (e.getSegment().getState() == Segment.State.RELOCATED)
+				app.append(String.format(" %08x", e.addressOf()));
+			app.append('\n');
+		}
+
+		for (String s : unresolved.keySet()) {
+			app.append(String.format("%20s u %08x\n", s, defined.get(s).getOffset()));
+		}
 	}
 
 }
