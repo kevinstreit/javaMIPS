@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.parser.util;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parsetree.CompositeNode;
 import org.eclipse.xtext.parsetree.NodeUtil;
@@ -16,24 +17,32 @@ public class EObjectPosition implements Position {
 	}
 
 	public String getFilename() {
-		if (this.obj.eResource() == null)
+		if (obj.eResource() == null)
 			return null;
 
-		String uri = this.obj.eResource().getURI().toString();
-		String worspaceRootRelativePath = uri.startsWith("platform:/resource") ? uri.substring("platform:/resource".length()) : null;
-		return worspaceRootRelativePath;
+		String uri = obj.eResource().getURI().toString();
+		String workspaceRootRelativePath = null;
+
+		if (uri.startsWith("platform:/resource")) {
+			workspaceRootRelativePath = uri.substring("platform:/resource".length());
+		} else if (uri.startsWith("file:")) {
+			String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toString();
+			workspaceRootRelativePath = uri.substring(workspacePath.length() + 5); // plus 5 for the "file:"
+		}
+
+		return workspaceRootRelativePath;
 	}
 
 	public int getLineNumber() {
-		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getLine();
+		return NodeUtil.getNodeAdapter(obj).getParserNode().getLine();
 	}
 
 	public int getCharStart() {
-		return NodeUtil.getNodeAdapter(this.obj).getParserNode().getOffset();
+		return NodeUtil.getNodeAdapter(obj).getParserNode().getOffset();
 	}
 
 	public int getCharEnd() {
-		CompositeNode node = NodeUtil.getNodeAdapter(this.obj).getParserNode();
+		CompositeNode node = NodeUtil.getNodeAdapter(obj).getParserNode();
 		return node.getOffset() + node.getLength();
 	}
 

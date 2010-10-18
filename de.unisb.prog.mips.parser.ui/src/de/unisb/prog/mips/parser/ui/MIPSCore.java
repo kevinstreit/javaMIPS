@@ -117,6 +117,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		for (IExecutionListener l : execListener)
 			l.execFinished(sys, asm, interrupted);
 
+		if (sys != null)
+			sys.getProcessor().state = ExecutionState.HALTED;
 		runningJob = null;
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
@@ -244,6 +246,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 		if (runningJob != null) {
 			runningJob.cancel();
+			Processor proc = sys.getProcessor();
+			proc.state = ExecutionState.HALTED;
 			execFinished(sys, asm, true);
 		}
 
@@ -393,8 +397,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		sys.load(linked);
 
 		if (!hasErrors.get()) {
-			this.asm = linked;
-			assemblyLoaded(this.asm, sys);
+			asm = linked;
+			assemblyLoaded(asm, sys);
 		}
 	}
 
