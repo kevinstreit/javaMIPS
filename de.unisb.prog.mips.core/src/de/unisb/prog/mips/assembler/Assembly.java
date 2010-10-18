@@ -35,6 +35,10 @@ public class Assembly extends SymbolTable {
 		return reporter;
 	}
 
+	public LabelRef createRef(String label) {
+		return createRef(this, label);
+	}
+
 	public void prepare() {
 		data.prepare(reporter);
 		text.prepare(reporter);

@@ -3,15 +3,25 @@
  */
 package de.unisb.prog.mips.parser.scoping;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider;
 
 /**
  * This class contains custom scoping description.
- * 
+ *
  * see : http://www.eclipse.org/Xtext/documentation/latest/xtext.html#scoping
- * on how and when to use it 
+ * on how and when to use it
  *
  */
 public class MipsScopeProvider extends AbstractDeclarativeScopeProvider {
+
+	@Override
+	public IScope getScope(EObject context, EReference reference) {
+		System.out.println(context.getClass().getCanonicalName());
+		System.out.println(reference.getClass().getCanonicalName());
+		return super.getScope(context, reference);
+	}
 
 }

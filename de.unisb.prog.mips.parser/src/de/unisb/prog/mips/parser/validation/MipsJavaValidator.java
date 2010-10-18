@@ -9,6 +9,7 @@ import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
 import de.unisb.prog.mips.assembler.Expressions;
 import de.unisb.prog.mips.assembler.LabelRef;
+import de.unisb.prog.mips.assembler.Null;
 import de.unisb.prog.mips.assembler.Offset;
 import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.generators.Generators;
@@ -21,9 +22,9 @@ import de.unisb.prog.mips.util.Option;
 
 public class MipsJavaValidator extends AbstractMipsJavaValidator {
 
-	private static final Option<LabelRef> DUMMY_LABEL_REF = new Option<LabelRef>(LabelRef.NULL);
-	private static final Option<Expr>     DUMMY_EXPR      = new Option<Expr>(Expressions.ZERO);
-	private static final Option<Reg>      DUMMY_REG       = new Option<Reg>(Reg.zero);
+	private final Option<LabelRef> DUMMY_LABEL_REF = new Option<LabelRef>(Null.getRef());
+	private final Option<Expr>     DUMMY_EXPR      = new Option<Expr>(Expressions.ZERO);
+	private final Option<Reg>      DUMMY_REG       = new Option<Reg>(Reg.zero);
 
 	private final Generators generators = Generators.getInstance();
 

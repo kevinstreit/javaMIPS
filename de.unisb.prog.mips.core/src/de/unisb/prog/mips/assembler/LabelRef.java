@@ -4,21 +4,8 @@ import java.io.IOException;
 
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
-import de.unisb.prog.mips.assembler.segments.Space;
 
 public class LabelRef implements Address {
-
-	private static final Assembly NULL_ASSEMBLY = new Assembly();
-	private static final Segment NULL_SEGMENT = new Segment(NULL_ASSEMBLY) {
-		{
-			this.state = State.RELOCATED;
-		}
-		@Override public Kind getKind() { return Kind.NULL; }
-		@Override protected void relocateInternal(int addr, ErrorReporter<Position> reporter) { }
-		@Override public void prepare(ErrorReporter<Position> reporter) { }
-	};
-
-	public static final LabelRef NULL = new LabelRef(new Space(NULL_SEGMENT, 0));
 
 	private Element target;
 	private final String name;
@@ -28,8 +15,8 @@ public class LabelRef implements Address {
 		this.name = target.getLabel();
 	}
 
-	LabelRef(String label) {
-		this.target = null;
+	LabelRef(Assembly asm, String label) {
+		this.target = Null.getElement();
 		this.name = label;
 	}
 
@@ -57,7 +44,7 @@ public class LabelRef implements Address {
 	}
 
 	public Segment getSegment() {
-		return getElement().getSegment();
+		return target.getSegment();
 	}
 
 	public boolean isValid() {

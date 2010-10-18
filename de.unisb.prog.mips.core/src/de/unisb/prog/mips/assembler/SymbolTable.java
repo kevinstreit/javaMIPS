@@ -17,7 +17,7 @@ public class SymbolTable {
 	private final Map<String, Element> defined           = new HashMap<String, Element>();
 	private final Set<String> global                     = new HashSet<String>();
 
-	public LabelRef createRef(String label) {
+	public LabelRef createRef(Assembly asm, String label) {
 		Element target = defined.get(label);
 		if (target != null)
 			return new LabelRef(target);
@@ -27,7 +27,7 @@ public class SymbolTable {
 			referrers = new LinkedList<LabelRef>();
 			unresolved.put(label, referrers);
 		}
-		LabelRef res = new LabelRef(label);
+		LabelRef res = new LabelRef(asm, label);
 		referrers.add(res);
 		return res;
 	}

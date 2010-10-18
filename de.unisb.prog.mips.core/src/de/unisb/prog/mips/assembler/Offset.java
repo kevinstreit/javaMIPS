@@ -29,7 +29,7 @@ public class Offset implements Address {
 	}
 
 	public LabelRef getLabel() {
-		return this.label.otherwise(LabelRef.NULL);
+		return this.label.otherwise(Null.getRef());
 	}
 
 	public Expr getExpr() {
@@ -45,7 +45,7 @@ public class Offset implements Address {
 	}
 
 	public boolean isValid() {
-		return this.label.otherwise(LabelRef.NULL).isValid();
+		return this.label.otherwise(Null.getRef()).isValid();
 	}
 
 }
