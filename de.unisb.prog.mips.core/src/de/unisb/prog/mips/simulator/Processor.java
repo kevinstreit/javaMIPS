@@ -1,5 +1,8 @@
 package de.unisb.prog.mips.simulator;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import de.unisb.prog.mips.insn.Handler;
 import de.unisb.prog.mips.insn.IllegalOpcodeException;
 import de.unisb.prog.mips.insn.Instruction;
@@ -17,6 +20,38 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	private int subsequentNops = 0;
 	private final int haltAfterSeenNops = 20;
 
+	private long brkpointBloomFilter = 0;
+	private Set<Integer> brkpoints = new HashSet<Integer>();
+
+	private static long brkpointFilterBit(int addr) {
+		return 1L << ((addr >>> 2) & 0x3f);
+	}
+
+	public void addBreakpoint(int addr) {
+		brkpointBloomFilter |= brkpointFilterBit(addr);
+		brkpoints.add(addr);
+	}
+
+	public void clearBreakpoints() {
+		brkpoints.clear();
+		brkpointBloomFilter = 0;
+	}
+
+	public void removeBreakpoint(int addr) {
+		if (brkpoints.remove(addr)) {
+			brkpointBloomFilter = 0;
+			for (int a : brkpoints)
+				brkpointBloomFilter |= brkpointFilterBit(a);
+		}
+	}
+
+	public boolean isBreakpoint(int addr) {
+		long bit = brkpointFilterBit(addr);
+		if ((brkpointBloomFilter & bit) == 0)
+			return false;
+		return brkpoints.contains(addr);
+	}
+
 	public boolean ignoresBreak() {
 		return this.ignoreBreaks;
 	}
@@ -33,17 +68,21 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	}
 
 	private static int cmpltu(int a, int b) {
-		int la = a & 0xffff;
-		int lb = b & 0xffff;
-		a >>>= 16;
-		b >>>= 16;
-		return a < b || la < lb ? 1 : 0;
+		long la = a & 0xffffffffL;
+		long lb = b & 0xffffffffL;
+		return la < lb ? 1 : 0;
 	}
 
 	public boolean step() {
 		if (this.state != ExecutionState.RUNNING)
 			return false;
 
+		if (!this.ignoreBreaks && isBreakpoint(this.pc)) {
+			this.state = ExecutionState.BREAKPOINT;
+			if (this.exc != null)
+				this.exc.breakpoint(this, this.mem);
+			return false;
+		}
 		int insn = load(this.pc, Type.WORD, false);
 
 		// count nops executed in a row
