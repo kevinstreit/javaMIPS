@@ -106,7 +106,7 @@ public class DataSegmentView extends DisassemblyView implements IExecutionListen
 
 	@Override
 	protected void createColumns() {
-		String[] titles = { "Line", "Content (Hex)", "Content (ASCII)" };
+		String[] titles = { "Address", "Content (Hex)", "Content (ASCII)" };
 		int[] bounds = { 80, 380, 140 };
 
 		for (int i = 0; i < titles.length; i++) {

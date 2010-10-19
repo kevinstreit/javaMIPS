@@ -165,7 +165,7 @@ public class DisassCodeView extends DisassemblyView implements IExecutionListene
 
 	@Override
 	protected void createColumns() {
-		String[] titles = { "Addr.", "Hex", "Disassembly" };
+		String[] titles = { "Address", "Hex", "Disassembly" };
 		int[] bounds = { 80, 80, 300 };
 
 		for (int i = 0; i < titles.length; i++) {
