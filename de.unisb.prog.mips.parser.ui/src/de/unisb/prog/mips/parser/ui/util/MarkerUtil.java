@@ -98,6 +98,7 @@ public class MarkerUtil {
 										try {
 											if (res instanceof IFile) {
 												if (page != null)
+													// TODO: Try to  scroll to the exact position of the marker without selecting the content
 													IDE.openEditor(page, (IFile) res, activateEditor);
 											} else {
 												if (page != null)
