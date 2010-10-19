@@ -18,5 +18,10 @@ public enum SysCallID {
 	/* 14 */ read,
 	/* 15 */ write,
 	/* 16 */ close,
-	/* 17 */ exit2
+	/* 17 */ exit2;
+
+	public boolean valid() {
+		return name().charAt(0) != '_';
+	}
+
 }
