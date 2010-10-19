@@ -2,11 +2,15 @@ package de.unisb.prog.mips.assembler;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.simulator.Memory;
+import de.unisb.prog.mips.util.Pair;
 
 public class Assembly extends SymbolTable {
 
@@ -104,4 +108,18 @@ public class Assembly extends SymbolTable {
 		return linked;
 	}
 
+	public Map<Pair<String, Integer>, Element> computeElementMap() {
+		Map<Pair<String, Integer>, Element> res = new HashMap<Pair<String,Integer>, Element>();
+		for (Segment seg : new Segment[] { text, data }) {
+			for (Element e : seg) {
+				Position pos = e.getPosition();
+				if (pos != null) {
+					Pair<String, Integer> p = new Pair<String, Integer>(pos.getFilename(), pos.getLineNumber());
+					if (!res.containsKey(p))
+						res.put(p, e);
+				}
+			}
+		}
+		return res;
+	}
 }
