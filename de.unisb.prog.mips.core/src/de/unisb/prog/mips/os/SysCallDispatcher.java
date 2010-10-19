@@ -40,7 +40,7 @@ public class SysCallDispatcher implements SysCallHandler {
 		case read_string: {
 			int a1 = Reg.a1.get(state.gp);
 			byte[] data = new byte[a1];
-			state.gp[Reg.v0.ordinal()] = this.impl.readString(data);
+			this.impl.readString(data);
 			for (int i = 0; i < a1; i++)
 				mem.store(a0 + i, data[i], Type.BYTE);
 		}
