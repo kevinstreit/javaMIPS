@@ -10,22 +10,22 @@ public class UISyscallImpl implements SysCallImplementation {
 	private final PrintStream out;
 
 	public UISyscallImpl(PrintStream output) {
-		this.out = output;
+		out = output;
 	}
 
 	public void print(CharSequence s) {
-		this.out.print(s);
-		this.out.flush();
+		out.print(s);
+		out.flush();
 	}
 
 	public void print(char ch) {
-		this.out.print(ch);
-		this.out.flush();
+		out.print(ch);
+		out.flush();
 	}
 
 	public void print(int v) {
-		this.out.print(v);
-		this.out.flush();
+		out.print(v);
+		out.flush();
 	}
 
 	public void exit(int ret) {
