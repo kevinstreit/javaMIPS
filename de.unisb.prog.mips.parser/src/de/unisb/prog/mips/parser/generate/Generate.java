@@ -116,13 +116,11 @@ public class Generate {
 
 	public Element generate(Asciiz str, Segment seg) {
 		String s = str.getVal();
-		s = s.substring(1, s.length() - 1);
 		return assembly.getData().string(s, true);
 	}
 
 	public Element generate(Ascii str, Segment seg) {
 		String s = str.getVal();
-		s = s.substring(1, s.length() - 1);
 		return assembly.getData().string(s, false);
 	}
 
