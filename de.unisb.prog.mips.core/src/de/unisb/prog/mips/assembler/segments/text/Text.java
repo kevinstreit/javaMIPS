@@ -40,9 +40,13 @@ public class Text extends Segment {
 		}
 	}
 
-	public Element word(int w) {
-		Element res = new Insn(this, w);
+	public Element word(int first, int... rest) {
+		Element res = new Insn(this, first);
 		add(res);
+		for (int w : rest) {
+			Element e = new Insn(this, w);
+			add(e);
+		}
 		return res;
 	}
 

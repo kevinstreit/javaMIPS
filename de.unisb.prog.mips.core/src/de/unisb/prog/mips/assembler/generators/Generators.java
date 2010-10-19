@@ -335,6 +335,21 @@ public class Generators {
 				return text.normal(IntFunct.jr, Reg.ra, Reg.zero, Reg.zero, 0);
 			}
 		});
+
+		// add convenience forms for div and mult that move the lower result back to a destination register
+		// and make the opcodes look like three-address code instructions
+		for (final IntFunct funct : new IntFunct[] { IntFunct.div, IntFunct.divu, IntFunct.mult, IntFunct.multu }) {
+			register(funct.name(), new InstructionGenerator(AddressMode.NONE, DST) {
+				@Override
+				public Element generate(Text text, String opcode, OperandInstance inst) {
+					List<Reg> regs = inst.getRegisters();
+					return text.word(
+							funct.encode(regs.get(1).ordinal(), regs.get(2).ordinal(), 0),
+							IntFunct.mflo.encode(0, 0, regs.get(0).ordinal())
+					);
+				}
+			});
+		}
 	}
 
 }
