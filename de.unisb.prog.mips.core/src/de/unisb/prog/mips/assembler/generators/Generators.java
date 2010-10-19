@@ -122,7 +122,7 @@ public class Generators {
 		public Element generate(Text text, String opcode, OperandInstance inst) {
 			Instruction i = Instructions.get(opcode);
 			List<Reg> regs = inst.getRegisters();
-			return text.condjump(i, regs.get(0), regs.get(1), inst.getLabel());
+			return text.condjump(i, regs.get(0), inst.getLabel());
 		}
 	};
 
