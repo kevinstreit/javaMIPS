@@ -33,18 +33,24 @@ public class UISyscallImpl implements SysCallImplementation {
 	}
 
 	public int readString(byte[] buffer) {
-		// TODO Auto-generated method stub
-		return 0;
+		String in = MIPSCore.getInstance().getConsoleOut().startInput(buffer.length);
+		byte[] inBytes = in.getBytes();
+		System.arraycopy(inBytes, 0, buffer, 0, Math.min(inBytes.length, buffer.length));
+		return inBytes.length;
 	}
 
 	public int readInt() {
-		// TODO Auto-generated method stub
-		return 0;
+		String in = MIPSCore.getInstance().getConsoleOut().startInput(10);
+		try {
+			return Integer.parseInt(in);
+		} catch (NumberFormatException e) {
+			return -1;
+		}
 	}
 
 	public char readChar() {
-		// TODO Auto-generated method stub
-		return 0;
+		String in = MIPSCore.getInstance().getConsoleOut().startInput(1);
+		return in.length() == 1 ? in.charAt(0) : 0;
 	}
 
 }

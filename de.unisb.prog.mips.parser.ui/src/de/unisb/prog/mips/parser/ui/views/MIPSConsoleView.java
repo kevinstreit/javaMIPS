@@ -21,6 +21,7 @@ import de.unisb.prog.mips.parser.ui.MIPSCore;
 import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
+import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
@@ -49,7 +50,7 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 
 	@Override
 	public void createPartControl(Composite parent) {
-		text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
+		text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setFont(JFaceResources.getTextFont());
 		out = new MIPSConsoleOutput(text);
 		MIPSCore.getInstance().setConsoleOut(out);
@@ -244,15 +245,29 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 			public void run() {
 				if (sys != null) {
 					continueAction.setEnabled(false);
+					stepAction.setEnabled(false);
 
-					Position pos = asm.getPosition(sys.getProcessor().pc);
-					int origLine = pos.getLineNumber();
-					int pcBefore;
-					do {
-						pcBefore = sys.getProcessor().pc;
-						MIPSCore.getInstance().step();
-						pos = asm.getPosition(sys.getProcessor().pc);
-					} while (pos.getLineNumber() == origLine && sys.getProcessor().pc != pcBefore);
+					Thread step = new Thread(new Runnable() {
+						public void run() {
+							Position pos = asm.getPosition(sys.getProcessor().pc);
+							int origLine = pos.getLineNumber();
+							int pcBefore;
+							Processor proc = sys.getProcessor();
+
+							do {
+								pcBefore = sys.getProcessor().pc;
+								MIPSCore.getInstance().step();
+								pos = asm == null || sys == null ? null : asm.getPosition(sys.getProcessor().pc);
+							} while (pos != null && pos.getLineNumber() == origLine && sys.getProcessor().pc != pcBefore && proc != null && proc.state == ExecutionState.RUNNING);
+
+							text.getDisplay().syncExec(new Runnable() {
+								public void run() {
+									stepAction.setEnabled(true);
+								}
+							});
+						}
+					});
+					step.start();
 				}
 			}
 		};
