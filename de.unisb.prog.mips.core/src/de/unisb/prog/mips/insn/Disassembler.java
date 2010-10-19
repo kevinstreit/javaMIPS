@@ -7,7 +7,7 @@ public class Disassembler implements Handler<String> {
 	public String i(Opcode opc, int rs, int rt, int imm) {
 		if (opc.getImmediate() == Immediate.SEXT_16)
 			imm = opc.extendImm(imm);
-		return String.format("%7s %3s %3s %-6d", opc, regName(rt), regName(rs), imm);
+		return String.format("%7s %3s %3s %-6d", opc, regName(rs), regName(rt), imm);
 	}
 
 	public String i(RegImm ri, int rs, int imm) {
@@ -20,9 +20,9 @@ public class Disassembler implements Handler<String> {
 
 	public String r(IntFunct funct, int rs, int rt, int rd, int shamt) {
 		if (funct.getKind() == Kind.SHAMT)
-			return String.format("%7s %3s %3s %3d", funct, regName(rd), regName(rt), shamt);
+			return String.format("%7s %3s %3s %3d", funct, regName(rt), regName(rd), shamt);
 		else
-			return String.format("%7s %3s %3s %3s", funct, regName(rd), regName(rs), regName(rt));
+			return String.format("%7s %3s %3s %3s", funct, regName(rs), regName(rt), regName(rd));
 	}
 
 	protected String regName(int reg) {
