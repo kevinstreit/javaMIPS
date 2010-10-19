@@ -14,7 +14,7 @@ Directive: {Global} ".globl" label=[Label]
 TextSegment: ".text" (addr=HEXINT)? (items+=TextItem | items+=Directive)+;
 TextItem:    label=(LabelDef)? item=(Insn | Align | Word);
 
-Insn hidden(COMMENT,WHITE): opcode=ID (regs+=Reg)* (addr=Addr ('(' base=Reg ')')?)? NL;
+Insn hidden(COMMENT,WHITE): opcode=ID (regs+=Reg)* (addr=Addr)? ('(' base=Reg ')')? NL;
 	
 Reg: (INTREG | TXTREG);
 
