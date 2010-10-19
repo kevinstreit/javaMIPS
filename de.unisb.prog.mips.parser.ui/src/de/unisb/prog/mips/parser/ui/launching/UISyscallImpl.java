@@ -32,4 +32,19 @@ public class UISyscallImpl implements SysCallImplementation {
 		MIPSCore.getInstance().setExitCode(ret);
 	}
 
+	public int readString(byte[] buffer) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int readInt() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public char readChar() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

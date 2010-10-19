@@ -5,6 +5,7 @@ import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.ProcessorState;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.SysCallHandler;
+import de.unisb.prog.mips.simulator.Type;
 
 public class SysCallDispatcher implements SysCallHandler {
 
@@ -31,6 +32,23 @@ public class SysCallDispatcher implements SysCallHandler {
 		case print_char:
 			this.impl.print((char) a0);
 			break;
+
+
+		case read_int:
+			state.gp[Reg.v0.ordinal()] = this.impl.readInt();
+			break;
+		case read_string: {
+			int a1 = Reg.a1.get(state.gp);
+			byte[] data = new byte[a1];
+			state.gp[Reg.v0.ordinal()] = this.impl.readString(data);
+			for (int i = 0; i < a1; i++)
+				mem.store(a0 + i, data[i], Type.BYTE);
+		}
+			break;
+		case read_char:
+			state.gp[Reg.v0.ordinal()] = this.impl.readChar();
+			break;
+
 		case exit:
 			state.state = ExecutionState.HALTED;
 			this.impl.exit(0);

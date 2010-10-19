@@ -1,10 +1,16 @@
 package de.unisb.prog.mips.os;
 
+import java.io.IOException;
+
 public interface SysCallImplementation {
 
 	void print(int v);
 	void print(char ch);
 	void print(CharSequence s);
+
+	int readString(byte[] buffer);
+	int readInt();
+	char readChar();
 
 	void exit(int ret);
 
@@ -25,6 +31,27 @@ public interface SysCallImplementation {
 		public void exit(int ret) {
 			// Nothing to do
 		}
+
+		public int readString(byte[] buffer) {
+			try {
+				return System.in.read(buffer);
+			} catch (IOException e) {
+				return 0;
+			}
+		}
+
+		public int readInt() {
+			try {
+				return System.in.read();
+			} catch (IOException e) {
+				return 0;
+			}
+		}
+
+		public char readChar() {
+			return (char) readInt();
+		}
+
 	};
 
 }
