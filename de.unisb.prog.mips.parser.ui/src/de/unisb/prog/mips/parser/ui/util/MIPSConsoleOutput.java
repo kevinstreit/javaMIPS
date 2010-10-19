@@ -134,7 +134,7 @@ public class MIPSConsoleOutput extends PrintStream {
 								)
 						);
 
-					textField.setSelection(textField.getText().length()-1);
+					textField.setSelection(textField.getText().length());
 				}
 			}
 		});
