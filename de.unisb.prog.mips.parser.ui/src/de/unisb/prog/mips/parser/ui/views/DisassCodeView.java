@@ -234,6 +234,7 @@ public class DisassCodeView extends DisassemblyView implements IExecutionListene
 				if (highlighted != null) {
 					highlighted.highlighted = true;
 					viewer.update(highlighted, null);
+					viewer.reveal(highlighted);
 				}
 			}
 		});
