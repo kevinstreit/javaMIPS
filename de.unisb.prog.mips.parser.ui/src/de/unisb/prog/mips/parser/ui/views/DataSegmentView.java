@@ -15,10 +15,14 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 
+import de.unisb.prog.mips.assembler.Assembly;
+import de.unisb.prog.mips.parser.ui.MIPSCore;
+import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.simulator.MemDumpFormatter;
+import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.simulator.Type;
 
-public class DataSegmentView extends DisassemblyView {
+public class DataSegmentView extends DisassemblyView implements IExecutionListener {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.DataSegmentView";
 
 	public DataSegmentView() {
@@ -61,7 +65,7 @@ public class DataSegmentView extends DisassemblyView {
 
 		@Override
 		public void update(ViewerCell cell) {
-			cell.setFont(this.regFont);
+			cell.setFont(regFont);
 			if (cell.getElement() instanceof DataSegLine) {
 				DataSegLine line = (DataSegLine) cell.getElement();
 
@@ -106,7 +110,7 @@ public class DataSegmentView extends DisassemblyView {
 		int[] bounds = { 80, 380, 140 };
 
 		for (int i = 0; i < titles.length; i++) {
-			TableViewerColumn column = new TableViewerColumn(this.viewer, SWT.NONE);
+			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
 			column.getColumn().setText(titles[i]);
 			column.getColumn().setWidth(bounds[i]);
 			column.getColumn().setResizable(true);
@@ -114,7 +118,7 @@ public class DataSegmentView extends DisassemblyView {
 			column.getColumn().setAlignment(SWT.LEFT);
 		}
 
-		Table table = this.viewer.getTable();
+		Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 	}
@@ -122,37 +126,18 @@ public class DataSegmentView extends DisassemblyView {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-
-		// The double click action might not be useful here due to the fact that the lines are unaligned.
-		/*
-		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				if (DataSegmentView.this.sys != null && DataSegmentView.this.asm != null && event.getSelection() instanceof IStructuredSelection) {
-					IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-					for (Object obj : sel.toArray()) {
-						if (obj instanceof DataSegLine) {
-							DataSegLine line = (DataSegLine) obj;
-							Position pos = DataSegmentView.this.asm.getPosition(line.addr);
-							MarkerUtil.cleanAllMarkers(MarkerUtil.ID_Highlighting);
-							MarkerUtil.markPosition(pos, MarkerUtil.ID_Highlighting, true, false);
-						}
-					}
-				}
-			}
-		});
-		 */
+		MIPSCore.getInstance().addExecutionListener(this);
 	}
 
 	@Override
 	protected Object getViewerInput() {
-		if (this.asm == null || this.sys == null)
+		if (asm == null || sys == null)
 			return null;
 
 		final ArrayList<DataSegLine> datalines = new ArrayList<DataSegLine>();
 
 		try {
-			this.asm.getData().dump(datalines, sys.getMemory(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
+			asm.getData().dump(datalines, sys.getMemory(), new MemDumpFormatter<ArrayList<DataSegLine>>() {
 				public Type granularity() { return Type.BYTE; }
 				public int chunkSize() { return 16; }
 				public void emit(ArrayList<DataSegLine> output, int addr, int[] data) throws IOException {
@@ -165,5 +150,49 @@ public class DataSegmentView extends DisassemblyView {
 		}
 
 		return datalines.toArray(new DataSegLine[datalines.size()]);
+	}
+
+	public void execStarted(Sys sys, Assembly asm) {
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(getViewerInput());
+			}
+		});
+	}
+
+	public void execPaused(Sys sys, Assembly asm) {
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(getViewerInput());
+			}
+		});
+	}
+
+	public void execContinued(Sys sys, Assembly asm) {
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(getViewerInput());
+			}
+		});
+	}
+
+	public void execStepped(Sys sys, Assembly asm) {
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(getViewerInput());
+			}
+		});
+	}
+
+	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
+		viewer.getControl().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				viewer.setInput(getViewerInput());
+			}
+		});
+	}
+
+	public void dbgBrkptReached(Sys sys, Assembly asm) {
+		// done in execPaused
 	}
 }
