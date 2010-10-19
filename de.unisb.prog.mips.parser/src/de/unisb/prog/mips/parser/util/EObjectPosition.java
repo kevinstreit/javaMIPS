@@ -46,4 +46,30 @@ public class EObjectPosition implements Position {
 		return node.getOffset() + node.getLength();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		String filename = getFilename();
+		int result = filename == null ? 1 : filename.hashCode();
+		result = prime * result + getCharStart();
+		result = prime * result + getCharEnd();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Position))
+			return false;
+		Position p = (Position) obj;
+		String filename = getFilename();
+		boolean sameFiles = filename == null ? false : filename.equals(p.getFilename());
+		return sameFiles && getCharStart() == p.getCharStart() && getCharEnd() == p.getCharEnd();
+	}
+
+
+
 }
