@@ -91,8 +91,8 @@ public class Generate {
 	public void generate(SetAt dummy, Segment seg) {
 	}
 
-	private void labelElement(LabelDef label, EObject item, Element elm) {
-		Position pos = new EObjectPosition(item);
+	private void labelElement(LabelDef label, EObject positionItem, Element elm) {
+		Position pos = new EObjectPosition(positionItem);
 		if (label != null) {
 			String name = label.getLabel().getName();
 			elm.setLabel(name);
@@ -107,7 +107,7 @@ public class Generate {
 
 	public void generate(DataItem item, Segment s) {
 		Element elm = elementDispatcher.invoke(item.getData(), assembly.getData());
-		labelElement(item.getLabel(), item, elm);
+		labelElement(item.getLabel(), item.getData(), elm);
 	}
 
 	public Element generate(DataDecl decl, Segment s) {
@@ -157,7 +157,7 @@ public class Generate {
 
 	public void generate(TextItem i, Segment s) {
 		Element elm = elementDispatcher.invoke(i.getItem(), assembly.getText());
-		labelElement(i.getLabel(), i, elm);
+		labelElement(i.getLabel(), i.getItem(), elm);
 	}
 
 	public Element generate(Space space, Segment s) {

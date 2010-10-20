@@ -23,6 +23,8 @@ import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.parser.generate.Generate;
 import de.unisb.prog.mips.parser.mips.Asm;
 import de.unisb.prog.mips.parser.ui.MIPSCore;
+import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
+import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.util.Pair;
 
 public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
@@ -50,7 +52,6 @@ public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
 
 				Assembly asm = doc.readOnly(new IUnitOfWork<Assembly, XtextResource>() {
 					public Assembly exec(XtextResource state) throws Exception {
-						MIPSCore.getInstance().init(1024);
 						Asm a = (Asm) state.getContents().get(0);
 						Assembly asm = new Assembly();
 						Generate gen = new Generate(asm);
@@ -61,10 +62,6 @@ public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
 
 				if (asm != null) {
 					Map<Pair<String, Integer>, Element> elts = asm.computeElementMap();
-					for (Pair<String, Integer> p : elts.keySet())
-						System.out.println(" + " + p.fst() + ":" + p.snd());
-
-					System.out.println(" ? " + resource.getFullPath().toString() + ":" + (lineNumber+1));
 					Element elt = elts.get(new Pair<String, Integer>(resource.getFullPath().toString(), (lineNumber+1)));
 
 					if (elt != null) {
@@ -76,6 +73,16 @@ public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
 						}
 						MIPSBreakpoint lineBreakpoint = new MIPSBreakpoint(resource, lineNumber + 1, charStart, charEnd);
 						DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(lineBreakpoint);
+
+						Sys sys = MIPSCore.getInstance().getSys();
+						Assembly sysAsm = MIPSCore.getInstance().getAsm();
+						if (sys != null && sysAsm != null && sys.getProcessor().state != null && sys.getProcessor().state != ExecutionState.HALTED) {
+							elts = sysAsm.computeElementMap();
+							elt = elts.get(new Pair<String, Integer>(resource.getFullPath().toString(), (lineNumber+1)));
+
+							if (elt != null)
+								sys.getProcessor().addBreakpoint(elt.addressOf());
+						}
 					}
 				}
 			}
