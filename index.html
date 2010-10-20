@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>kevinstreit/jMIPS</title>
+	
+	<style type="text/css">
+		body {
+  		margin-top: 1.0em;
+  		background-color: #51bb43;
+		  font-family: "helvetica"; 
+  		color: #ffffff;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+		h1 { font-size: 3.8em; color: #ae44bc; margin-bottom: 3px; }
+		h1 .small { font-size: 0.4em; }
+		h1 a { text-decoration: none }
+		h2 { font-size: 1.5em; color: #ae44bc; }
+    h3 { text-align: center; color: #ae44bc; }
+    a { color: #ae44bc; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+		pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+	
+</head>
+
+<body>
+  <a href="http://github.com/kevinstreit/jMIPS"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/kevinstreit/jMIPS/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/kevinstreit/jMIPS/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+      
+    <h1><a href="http://github.com/kevinstreit/jMIPS">jMIPS</a> 
+      <span class="small"></span></h1>
+
+    <div class="description">
+      jMIPS provides a complete MIPS Assembler development and debugging environment. It is implemented as a set of three plugins to the Eclipse IDE.
+    </div>
+
+    <h2>Authors</h2>
+<p>Kevin Streit (streit@cs.uni-saarland.de | <a href="http://www.st.cs.uni-saarland.de/~streit/">Profile at Saarland University</a>) 
+<br/>
+<p>Prof. Sebastian Hack | <a href="http://www.prog.uni-saarland.de/people/hack/">Profile at Saarland University</a>) 
+<br/>
+<br/>
+<br/>      </p>
+
+<h2>What does it look like</h2>
+<p>
+  In the following screenshot you can see an overview over the main views of jMIPS:<br />
+	<ul>
+		<li><strong>The MIPS Editor</strong> supports the usual features like syntax highlighting, context sensitive (syntactical and semantic) code completion, MIPS instruction documentation, ...</li>
+		<li><strong>The Instructions View</strong> provides a grouped list of MIPS instructions. On mouse hover, the documentation of the corresponding instruction is shown.</li>
+		<li>During a run of a MIPS application, <strong>The Registers View</strong> shows the current content of the processor registers. Additionally the registers that changed in the last step of execution are highlighted.</li>
+		<li><strong>The MIPS Console</strong> is responsible for output and user input. Additionally it acts as the interface to the debugger and provides buttons to control execution.</li>
+		<li><strong>The Disassembly and Data Segment Views</strong> show the generated machine code of the complete project. Upon assembly load or execution, every MIPS file in a project is taken and linked together to one big assembly file. The content of this is shown in these two views.</li>
+		<li><strong>Breakpoints</strong> are supported in two different ways: Setting breakpoints as usual by double clicking to the editor ruler. And inserting the special <em>brk</em> instruction.</li>
+		<li>Additionally the plugins provide predefined <strong>Code Templates</strong> to ease the use of complex instructions like for example syscalls.</li>
+	</ul>
+  <img src="./images/screenshot.jpg" />
+<br/>
+<br/>
+</p>
+
+<h2>Installing jMIPS</h2>
+<p>
+  You can use the following eclipse update site to install eSee
+  <pre>http://www.prog.uni-saarland.de/software/jmips/</pre>
+<br/>
+<br/>
+</p>
+
+    <h2>Download the sources</h2>
+    <p>
+      You can download this project in either
+      <a href="http://github.com/kevinstreit/jMIPS/zipball/master">zip</a> or
+      <a href="http://github.com/kevinstreit/jMIPS/tarball/master">tar</a> formats.
+    </p>
+    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/kevinstreit/jMIPS</pre>
+    </p>
+      
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/kevinstreit/jMIPS">kevinstreit/jMIPS</a>
+    </div>
+    
+  </div>
+
+  
+</body>
+</html>
