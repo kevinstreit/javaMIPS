@@ -128,7 +128,11 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 					}
 				}
 			}
-			@Override public void editorClosed(IEditorPart editor) {}
+			@Override public void editorClosed(IEditorPart editor) {
+				if (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor() == null) {
+					MIPSCore.getInstance().unloadASM();
+				}
+			}
 		};
 
 		PlatformUI.getWorkbench().addWindowListener(editorListener);
