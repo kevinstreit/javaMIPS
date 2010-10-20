@@ -299,8 +299,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		proj = null;
 	}
 
-	private void continueExecution(Processor proc) {
-		proc.run(true);
+	private void continueExecution(Processor proc, boolean ignoreNextBreakpoint) {
+		proc.run(ignoreNextBreakpoint);
 		switch (proc.state) {
 		case BREAKPOINT:
 			dbgBrkptReached(sys, asm);
@@ -332,7 +332,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				proc.state = ExecutionState.RUNNING;
 				proc.setIgnoreBreaks(!dbg);
 				execStarted(sys, asm);
-				continueExecution(proc);
+				continueExecution(proc, false);
 				return Status.OK_STATUS;
 			}
 
@@ -363,7 +363,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 				Processor proc = sys.getProcessor();
 				proc.setContinue();
 				execContinued(sys, asm);
-				continueExecution(proc);
+				continueExecution(proc, true);
 				return Status.OK_STATUS;
 			}
 
