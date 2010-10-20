@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: de.unisb.prog.mips.parser.ui
 Bundle-Vendor: Saarland University
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Bundle-SymbolicName: de.unisb.prog.mips.parser.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: de.unisb.prog.mips.parser;visibility:=reexport,
@@ -19,7 +19,11 @@ Require-Bundle: de.unisb.prog.mips.parser;visibility:=reexport,
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: de.unisb.prog.mips.parser.ui.internal.MipsActivator
-Bundle-ClassPath: icons/,icons/icn/,icons/wzrdHd/,.
+Bundle-ClassPath: icons/,
+ icons/icn/,
+ icons/wzrdHd/,
+ templates/,
+ .
 Export-Package: de.unisb.prog.mips.parser.ui,
  de.unisb.prog.mips.parser.ui.contentassist,
  de.unisb.prog.mips.parser.ui.contentassist.antlr,

@@ -3,8 +3,6 @@ hello_msg:
 	.asciiz "Hello World!\n";
 	
 	.text
-	.globl main
-main:
 	la $a0 hello_msg
 	li $v0 4
 	syscall
