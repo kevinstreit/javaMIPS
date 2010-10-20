@@ -8,7 +8,10 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.ide.IDE;
 
 public class NewMIPSFileWizard extends Wizard implements INewWizard {
 
@@ -37,7 +40,17 @@ public class NewMIPSFileWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 		IFile newFile = pageOne.createNewFile();
-		return newFile != null;
+
+		if (newFile != null) {
+			try {
+				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), newFile, true);
+			} catch (PartInitException e) {
+				// Nothing to do. The file was created anyway.
+			}
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
