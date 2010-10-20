@@ -6,4 +6,16 @@ public interface ExceptionHandler {
 	void illegalInstruction(ProcessorState state, Memory mem, int addr);
 	void unalignedMemory(ProcessorState state, Memory mem, int addr);
 
+	public static final ExceptionHandler SILENT = new ExceptionHandler() {
+
+		public void unalignedMemory(ProcessorState state, Memory mem, int addr) {
+		}
+
+		public void illegalInstruction(ProcessorState state, Memory mem, int addr) {
+		}
+
+		public void breakpoint(ProcessorState state, Memory mem) {
+		}
+	};
+
 }

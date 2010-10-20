@@ -300,7 +300,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 	}
 
 	private void continueExecution(Processor proc) {
-		proc.run();
+		proc.run(true);
 		switch (proc.state) {
 		case BREAKPOINT:
 			dbgBrkptReached(sys, asm);
@@ -423,7 +423,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			execPaused(sys, asm);
 	}
 
-	public synchronized void step() {
+	public synchronized void step(boolean ignoreNextBreak) {
 		if (sys == null)
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
@@ -432,7 +432,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 		Processor proc = sys.getProcessor();
 		proc.setContinue();
-		boolean ran = proc.step();
+		boolean ran = proc.step(ignoreNextBreak);
 
 		switch (proc.state) {
 		case BREAKPOINT:

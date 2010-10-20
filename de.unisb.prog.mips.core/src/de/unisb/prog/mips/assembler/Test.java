@@ -13,6 +13,7 @@ import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.os.SysCallImplementation;
+import de.unisb.prog.mips.simulator.ExceptionHandler;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
@@ -68,14 +69,14 @@ public class Test {
 		t.address(Reg.a3, asm.createRef("test"));
 		// asm.append(System.out);
 
-		Sys sys = new Sys(1000, null, new SysCallDispatcher(SysCallImplementation.DEFAULT));
+		Sys sys = new Sys(1000, ExceptionHandler.SILENT, new SysCallDispatcher(SysCallImplementation.DEFAULT));
 		Assembly linked = Assembly.link(asms, ErrorReporter.POSITION_STD_REPORTER);
 		linked.prepare();
 		sys.load(linked);
 		linked.append(System.out);
 		Processor proc = sys.getProcessor();
 		proc.state = ExecutionState.RUNNING;
-		proc.run();
+		proc.run(false);
 	}
 
 }
