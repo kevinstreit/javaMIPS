@@ -20,6 +20,7 @@ import de.unisb.prog.mips.assembler.Position;
 public class MarkerUtil {
 	public static final String ID_CurrentIP = "de.unisb.prog.mips.currentIPMarker";
 	public static final String ID_Highlighting = "de.unisb.prog.mips.highlightMarker";
+	public static final String ID_Breakpoint = "de.unisb.prog.mips.breakMarker";
 
 	public static final String ANN_ID_CurrentIP = "de.unisb.prog.mips.currentIPAnnotation";
 	public static final String ANN_ID_Highlighting = "de.unisb.prog.mips.highlightAnnotation";

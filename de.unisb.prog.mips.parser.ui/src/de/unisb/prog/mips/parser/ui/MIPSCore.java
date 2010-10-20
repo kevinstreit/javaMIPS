@@ -2,6 +2,7 @@ package de.unisb.prog.mips.parser.ui;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -12,6 +13,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
@@ -27,6 +30,7 @@ import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.os.SysCallDispatcher;
 import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
 import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
+import de.unisb.prog.mips.parser.ui.launching.MIPSBreakpoint;
 import de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester;
 import de.unisb.prog.mips.parser.ui.launching.UIExceptionHandler;
 import de.unisb.prog.mips.parser.ui.launching.UISyscallImpl;
@@ -39,6 +43,7 @@ import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
+import de.unisb.prog.mips.util.Pair;
 
 public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
@@ -107,7 +112,22 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			}
 
 			@Override public void editorDeactivated(IEditorPart editor) {}
-			@Override public void editorOpened(IEditorPart editor) {}
+			@Override public void editorOpened(IEditorPart editor) {
+				// This is due to a "bug" in the XTextEditor which doesn't show markers correctly on editor opening
+				// So in order to show the breakpoint markers, we set some attribute just to fire a resource changed event to make the editor show it
+				IResource res = (IResource) editor.getEditorInput().getAdapter(IResource.class);
+				if (res != null) {
+					IMarker[] ms;
+					try {
+						ms = res.findMarkers(MarkerUtil.ID_Breakpoint, true, IResource.DEPTH_INFINITE);
+						for (IMarker m : ms) {
+							m.setAttribute(IMarker.LINE_NUMBER, m.getAttribute(IMarker.LINE_NUMBER));
+						}
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			@Override public void editorClosed(IEditorPart editor) {}
 		};
 
@@ -447,6 +467,8 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			throw new IllegalStateException("MIPSCore was not initialized (sys == null)");
 
 		proj = project;
+		Processor proc = sys.getProcessor();
+		proc.clearBreakpoints();
 
 		UIErrorReporter error = new UIErrorReporter(true);
 
@@ -465,6 +487,37 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 			if (runnable) {
 				asm = linked;
+				Map<Pair<String, Integer>, Element> elements = linked.computeElementMap();
+
+				try {
+					IMarker[] breakpts = project.findMarkers(MarkerUtil.ID_Breakpoint, true, IResource.DEPTH_INFINITE);
+					for (IMarker m : breakpts) {
+						IBreakpoint brk = DebugPlugin.getDefault().getBreakpointManager().getBreakpoint(m);
+						IResource res = m.getResource();
+						if (brk != null && res != null && brk instanceof MIPSBreakpoint) {
+							MIPSBreakpoint mbrk = (MIPSBreakpoint) brk;
+							Element elem = elements.get(new Pair<String, Integer>(res.getFullPath().toString(), mbrk.getLineNumber()));
+
+							if (elem != null) {
+								proc.addBreakpoint(elem.addressOf());
+								continue;
+							}
+						}
+
+						try {
+							// We delete the marker if we didn't succeed in setting a correct breakpoint
+							if (brk != null) {
+								brk.delete();
+								m.delete();
+							}
+						} catch (Exception e) {
+							// Nothing
+						}
+					}
+				} catch (CoreException e) {
+					// Nothing
+				}
+
 				assemblyLoaded(asm, sys);
 				return true;
 			} else {
