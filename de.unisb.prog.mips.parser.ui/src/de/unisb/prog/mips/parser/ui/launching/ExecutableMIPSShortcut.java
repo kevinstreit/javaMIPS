@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -26,7 +27,23 @@ import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 public class ExecutableMIPSShortcut implements ILaunchShortcut {
 
 	public void launch(ISelection selection, String mode) {
-		System.out.println("Launch Selection");
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection sel = (IStructuredSelection) selection;
+			IProject proj = null;
+
+			for (Object o : sel.toArray()) {
+				if (o instanceof IProject) {
+					proj = (IProject) o;
+				} else if (o instanceof IResource) {
+					IResource res = (IResource) o;
+					proj = res.getProject();
+				}
+			}
+
+			if (proj != null) {
+				launch(proj, "debug".equals(mode));
+			}
+		}
 	}
 
 	public void launch(IEditorPart editor, final String mode) {

@@ -17,7 +17,7 @@ import org.eclipse.xtext.ui.editor.XtextEditor;
 public class RunnableMIPSPropTester extends org.eclipse.core.expressions.PropertyTester {
 
 	public RunnableMIPSPropTester() {
-		System.out.println("PropTester create");
+
 	}
 
 	private static boolean hasMIPSFiles(IProject proj) {
@@ -91,7 +91,6 @@ public class RunnableMIPSPropTester extends org.eclipse.core.expressions.Propert
 	}
 
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-		System.out.println("PropTester test: " + receiver.getClass().getCanonicalName());
 		return receiver instanceof IAdaptable && isMIPSRunnable((IAdaptable) receiver);
 	}
 
