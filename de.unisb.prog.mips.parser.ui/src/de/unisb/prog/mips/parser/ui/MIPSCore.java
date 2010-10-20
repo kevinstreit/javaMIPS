@@ -510,10 +510,9 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 						try {
 							// We delete the marker if we didn't succeed in setting a correct breakpoint
-							if (brk != null) {
+							if (brk != null)
 								brk.delete();
-								m.delete();
-							}
+							m.delete();
 						} catch (Exception e) {
 							// Nothing
 						}
