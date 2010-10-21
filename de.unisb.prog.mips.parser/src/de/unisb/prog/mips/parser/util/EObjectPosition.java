@@ -1,5 +1,8 @@
 package de.unisb.prog.mips.parser.util;
 
+import java.io.File;
+import java.net.URI;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parsetree.CompositeNode;
@@ -20,14 +23,14 @@ public class EObjectPosition implements Position {
 		if (obj.eResource() == null)
 			return null;
 
-		String uri = obj.eResource().getURI().toString();
 		String workspaceRootRelativePath = null;
 
-		if (uri.startsWith("platform:/resource")) {
-			workspaceRootRelativePath = uri.substring("platform:/resource".length());
-		} else if (uri.startsWith("file:")) {
-			String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toString();
-			workspaceRootRelativePath = uri.substring(workspacePath.length() + 5); // plus 5 for the "file:"
+		if (obj.eResource().getURI().isFile()) {
+			URI uri = new File(obj.eResource().getURI().toFileString()).toURI();
+			URI workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
+			workspaceRootRelativePath = "/" + workspacePath.relativize(uri).toString();
+		} else if (obj.eResource().getURI().isPlatformResource()) {
+			workspaceRootRelativePath = obj.eResource().getURI().toPlatformString(true);
 		}
 
 		return workspaceRootRelativePath;
