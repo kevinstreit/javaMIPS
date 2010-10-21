@@ -258,13 +258,16 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 								pcBefore = sys.getProcessor().pc;
 								MIPSCore.getInstance().step(true);
 								pos = asm == null || sys == null ? null : asm.getPosition(sys.getProcessor().pc);
-							} while (pos != null && pos.getLineNumber() == origLine && sys.getProcessor().pc != pcBefore && proc != null && proc.state == ExecutionState.RUNNING);
+							} while (
+									pos != null &&
+									pos.getLineNumber() == origLine &&
+									sys.getProcessor() != null &&
+									proc.pc != pcBefore &&
+									proc.state != null &&
+									proc.state != ExecutionState.HALTED
+							);
 
-							text.getDisplay().syncExec(new Runnable() {
-								public void run() {
-									stepAction.setEnabled(true);
-								}
-							});
+							stepAction.setEnabled(proc.state == ExecutionState.INTERRUPT || proc.state == ExecutionState.BREAKPOINT);
 						}
 					});
 					step.start();
