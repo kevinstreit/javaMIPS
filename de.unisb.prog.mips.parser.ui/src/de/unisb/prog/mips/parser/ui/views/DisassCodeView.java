@@ -216,6 +216,7 @@ public class DisassCodeView extends DisassemblyView implements IExecutionListene
 	@Override
 	public void dispose() {
 		getViewSite().getPage().removePartListener(highlightDeletionListener);
+		MIPSCore.getInstance().removeExecutionListener(this);
 		super.dispose();
 	}
 

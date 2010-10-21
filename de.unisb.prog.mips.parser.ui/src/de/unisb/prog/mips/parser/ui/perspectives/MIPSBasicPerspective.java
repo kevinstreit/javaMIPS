@@ -10,11 +10,11 @@ import de.unisb.prog.mips.parser.ui.views.ISAView;
 import de.unisb.prog.mips.parser.ui.views.MIPSConsoleView;
 import de.unisb.prog.mips.parser.ui.views.RegisterView;
 
-public class MIPSPerspective implements IPerspectiveFactory {
+public class MIPSBasicPerspective implements IPerspectiveFactory {
 
 	private IPageLayout factory;
 
-	public MIPSPerspective() {
+	public MIPSBasicPerspective() {
 		super();
 	}
 
@@ -26,53 +26,45 @@ public class MIPSPerspective implements IPerspectiveFactory {
 	}
 
 	private void addViews() {
-		IFolderLayout bottomCenter =
-			factory.createFolder(
-				"bottomCenter", //NON-NLS-1
-				IPageLayout.BOTTOM,
-				0.6f,
-				factory.getEditorArea());
-		bottomCenter.addView(MIPSConsoleView.ID);
-		
 		IFolderLayout topLeft =
 			factory.createFolder(
-				"topLeft", //NON-NLS-1
-				IPageLayout.LEFT,
-				0.2f,
-				factory.getEditorArea());
+					"topLeft", //NON-NLS-1
+					IPageLayout.LEFT,
+					0.2f,
+					factory.getEditorArea());
 		topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
-		
+
 		IFolderLayout topRight =
 			factory.createFolder(
-				"topRight", //NON-NLS-1
-				IPageLayout.RIGHT,
-				0.75f,
-				factory.getEditorArea());
+					"topRight", //NON-NLS-1
+					IPageLayout.RIGHT,
+					0.75f,
+					factory.getEditorArea());
 		topRight.addView(ISAView.ID);
-		
+
 		IFolderLayout bottomLeft =
 			factory.createFolder(
-				"bottomLeft", //NON-NLS-1
-				IPageLayout.LEFT,
-				0.2f,
-				"bottomCenter");
-		bottomLeft.addView(RegisterView.ID);
-		
+					"bottomLeft", //NON-NLS-1
+					IPageLayout.BOTTOM,
+					0.6f,
+					factory.getEditorArea());
+		bottomLeft.addView(MIPSConsoleView.ID);
+
 		IFolderLayout bottomRight =
 			factory.createFolder(
-				"bottomRight", //NON-NLS-1
-				IPageLayout.RIGHT,
-				0.4f,
-				"bottomCenter");
-		bottomRight.addView(DisassCodeView.ID);
-		
-		IFolderLayout bottomBottomRight =
+					"bottomRight", //NON-NLS-1
+					IPageLayout.RIGHT,
+					0.5f,
+			"bottomLeft");
+		bottomRight.addView(IPageLayout.ID_PROBLEM_VIEW);
+
+		IFolderLayout bottomRightRight =
 			factory.createFolder(
-				"bottomBottomRight", //NON-NLS-1
-				IPageLayout.BOTTOM,
-				0.5f,
-				"bottomRight");
-		bottomBottomRight.addView(DataSegmentView.ID);
+					"bottomRightRight", //NON-NLS-1
+					IPageLayout.BOTTOM,
+					0.5f,
+			"topRight");
+		bottomRightRight.addView(RegisterView.ID);
 	}
 
 	private void addNewWizardShortcuts() {

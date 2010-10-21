@@ -189,7 +189,7 @@
       <wizard
             category="de.unisb.prog.mips.parser.ui.mipsCategory"
             class="de.unisb.prog.mips.parser.ui.wizards.NewMIPSProjectWizard"
-            finalPerspective="de.unisb.prog.mips.parser.ui.perspectives.MIPSPerspective"
+            finalPerspective="de.unisb.prog.mips.parser.ui.perspectives.MIPSBasicPerspective"
             icon="icons/icn/newmipsprj_wiz.gif"
             id="de.unisb.prog.mips.parser.ui.mipsProjectWizard"
             name="MIPS Project"
@@ -311,11 +311,18 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="de.unisb.prog.mips.parser.ui.perspectives.MIPSPerspective"
+            class="de.unisb.prog.mips.parser.ui.perspectives.MIPSBasicPerspective"
             fixed="false"
             icon="icons/icn/releng_gears.gif"
-            id="de.unisb.prog.mips.parser.ui.perspectives.MIPSPerspective"
-            name="MIPS">
+            id="de.unisb.prog.mips.parser.ui.perspectives.MIPSBasicPerspective"
+            name="MIPS (Basic)">
+      </perspective>
+      <perspective
+            class="de.unisb.prog.mips.parser.ui.perspectives.MIPSAdvancedPerspective"
+            fixed="false"
+            icon="icons/icn/releng_gears.gif"
+            id="de.unisb.prog.mips.parser.ui.perspectives.MIPSAdvancedPerspective"
+            name="MIPS (Advanced)">
       </perspective>
    </extension>
    <extension

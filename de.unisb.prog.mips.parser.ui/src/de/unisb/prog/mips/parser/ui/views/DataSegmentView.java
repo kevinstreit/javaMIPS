@@ -195,4 +195,10 @@ public class DataSegmentView extends DisassemblyView implements IExecutionListen
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		// done in execPaused
 	}
+
+	@Override
+	public void dispose() {
+		MIPSCore.getInstance().removeExecutionListener(this);
+		super.dispose();
+	}
 }
