@@ -43,7 +43,7 @@ public class NewMIPSFileWizard extends Wizard implements INewWizard {
 
 		if (newFile != null) {
 			try {
-				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), newFile, true);
+				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), newFile, false);
 			} catch (PartInitException e) {
 				// Nothing to do. The file was created anyway.
 			}

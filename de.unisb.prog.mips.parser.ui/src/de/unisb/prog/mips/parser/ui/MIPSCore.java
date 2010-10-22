@@ -104,7 +104,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 								loadable = MIPSCore.getInstance().load(asm, proj);
 							}
 
-							if (!loadable && MIPSCore.getInstance().getSys() != null)
+							if ((!loadable || asm != null && asm.isEmpty()) && MIPSCore.getInstance().getSys() != null)
 								MIPSCore.getInstance().unloadASM();
 						}
 					}

@@ -115,7 +115,7 @@ public class ExecutableMIPSShortcut implements ILaunchShortcut {
 
 		Collection<Assembly> assemblies = BuildUtil.getASM(proj, new UIErrorReporter(true));
 
-		if (assemblies != null) {
+		if (assemblies != null && assemblies.size() > 0) {
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MIPSConsoleView.ID);
 			} catch (PartInitException e1) {

@@ -43,10 +43,9 @@ public class BuildUtil {
 			for (Resource res : resSet.getResources()) {
 				if (res.getErrors().size() > 0) {
 					for (Diagnostic diag : res.getErrors())
-						// TODO: get position
 						error.error(diag.getMessage());
 					return null;
-				} else {
+				} else if (res.getContents().size() > 0) {
 					EObject eobj = res.getContents().get(0);
 					if (eobj instanceof Asm) {
 						Asm a = (Asm) eobj;

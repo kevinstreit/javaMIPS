@@ -30,6 +30,9 @@ public class XTextBuildParticipant implements IXtextBuilderParticipant {
 		if (asm != null && error.errorsReported() == 0) {
 			MIPSCore.getInstance().init(1024);
 			MIPSCore.getInstance().load(asm, proj);
+
+			if (asm.isEmpty())
+				MIPSCore.getInstance().unloadASM();
 		} else {
 			if (MIPSCore.getInstance().getSys() != null)
 				MIPSCore.getInstance().unloadASM();
