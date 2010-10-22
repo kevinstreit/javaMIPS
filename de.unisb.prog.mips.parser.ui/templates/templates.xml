@@ -19,6 +19,11 @@
 	syscall
 	${cursor}</template>
 	
+	<template id="sc_printString" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.TextItem" deleted="false" description="Perform a syscall to print a string to terminal" enabled="true" name="printString (syscall)">${load_string_address_to_a0}
+	li $$v0 4
+	syscall
+	${cursor}</template>
+	
 	<template id="sc_printInt" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.TextItem" deleted="false" description="Perform a syscall to print an integer to terminal" enabled="true" name="printInt (syscall)">${load_integer_to_a0}
 	li $$v0 1
 	syscall
