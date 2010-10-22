@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/de.unisb.prog.javaMIPS_1.0.4.jar" id="de.unisb.prog.javaMIPS" version="1.0.4">
+      <category name="javaMIPS"/>
+   </feature>
+   <category-def name="javaMIPS" label="javaMIPS">
+      <description>
+         The java MIPS category
+      </description>
+   </category-def>
+</site>
