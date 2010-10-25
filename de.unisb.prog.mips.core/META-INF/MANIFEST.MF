@@ -2,16 +2,30 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: de.unisb.prog.mips.core
 Bundle-SymbolicName: de.unisb.prog.mips.core;singleton:=true
-Bundle-Version: 1.0.3
+Bundle-Version: 1.0.5
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: de.unisb.prog.mips.assembler,
- de.unisb.prog.mips.assembler.generators,
- de.unisb.prog.mips.assembler.segments,
- de.unisb.prog.mips.assembler.segments.text,
+Export-Package: de.unisb.prog.mips.assembler;
+  uses:="de.unisb.prog.mips.assembler.segments,
+   de.unisb.prog.mips.insn,
+   de.unisb.prog.mips.simulator,
+   de.unisb.prog.mips.assembler.segments.text,
+   de.unisb.prog.mips.util",
+ de.unisb.prog.mips.assembler.generators;
+  uses:="de.unisb.prog.mips.assembler.segments,
+   de.unisb.prog.mips.assembler.segments.text,
+   de.unisb.prog.mips.util,
+   de.unisb.prog.mips.assembler",
+ de.unisb.prog.mips.assembler.segments;uses:="de.unisb.prog.mips.simulator,de.unisb.prog.mips.assembler",
+ de.unisb.prog.mips.assembler.segments.text;
+  uses:="de.unisb.prog.mips.assembler.segments,
+   de.unisb.prog.mips.insn,
+   de.unisb.prog.mips.simulator,
+   de.unisb.prog.mips.util,
+   de.unisb.prog.mips.assembler",
  de.unisb.prog.mips.doc,
- de.unisb.prog.mips.insn,
- de.unisb.prog.mips.os,
- de.unisb.prog.mips.simulator,
+ de.unisb.prog.mips.insn;uses:="de.unisb.prog.mips.util",
+ de.unisb.prog.mips.os;uses:="de.unisb.prog.mips.simulator",
+ de.unisb.prog.mips.simulator;uses:="de.unisb.prog.mips.insn,de.unisb.prog.mips.assembler",
  de.unisb.prog.mips.util
 Bundle-ClassPath: doc/,
  .
