@@ -1,218 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <instructions>
 	<group name="Arithmetic and Logic">
-		<insn mnemonic="add" 
-		      purpose="Add two 32-bit integers. Trap on overflow."
-		      exceptions="Integer overflow.">
-	The 32-bit word value in register rt is added to the 32-bit value in
-	register rs to produce a 32-bit result.
-	If the addition results in 32-bit 2’s complement arithmetic overflow then
-	the destination register is not modified and an Integer Overflow
-	exception occurs. If it does not overflow, the 32-bit result is placed
-	into GPR rd.
+		<insn mnemonic="addi"    short="add immediate"                    purpose="dst &lt;- op + imm" exceptions="integer overflow">Immediate is sign extended</insn>
+		<insn mnemonic="addiu"   short="add immediate unsigned"           purpose="dst &lt;- op + imm">Immediate is sign extended</insn>
+		<insn mnemonic="andi"    short="and immediate"                    purpose="dst &lt;- op1 and imm">Immediate is not sign extended</insn>
+		<insn mnemonic="ori"     short="or immediate"                     purpose="dst &lt;- op1 or imm">Immediate is not sign extended</insn>
+		<insn mnemonic="xori"    short="xor immediate"                    purpose="dst &lt;- op1 xor imm">Immediate is not sign extended</insn>
+		<insn mnemonic="lui"     short="load upper 16 bit with immediate" purpose="dst &lt;- imm &lt;&lt; 16"> </insn>
+		
+		<insn mnemonic="add"     short="add signed"                       purpose="dst &lt;- op1 + op2"   exceptions="integer overflow"> </insn>
+		<insn mnemonic="addu"    short="add unsigned"                     purpose="dst &lt;- op1 + op2">No exception thrown upon overflow</insn>
+		<insn mnemonic="sub"     short="subtract signed"                  purpose="dst &lt;- op1 - op2"   exceptions="integer overflow"> </insn>
+		<insn mnemonic="subu"    short="subtract unsigned"                purpose="dst &lt;- op1 - op2">No exception thrown. </insn>
+		<insn mnemonic="and"     short="bitwise and"                      purpose="dst &lt;- op1 &amp; op2"> </insn>
+		<insn mnemonic="or"      short="bitwise or"                       purpose="dst &lt;- op1 | op2"> </insn>
+		<insn mnemonic="nor"     short="bitwise nor"                      purpose="dst &lt;- ~(op1 | op2)"> </insn>
+		<insn mnemonic="xor"     short="bitwise xor"                      purpose="dst &lt;- op1 ^ op2"> </insn>
+		
+		<insn mnemonic="sll"     short="shift left by immediate"             purpose="dst &lt;- op &lt;&lt; imm"> </insn>
+		<insn mnemonic="srl"     short="shift right logically by immediate"  purpose="dst &lt;- op &gt;&gt;&gt; imm">
+		  The operand is shifted right by imm bits. 
+		  The most significant bit is filled with 0.
+		</insn>
+		<insn mnemonic="sra"     short="shift right arithmetically by immediate" purpose="dst &lt;- op &gt;&gt; op2">
+  		  The operand is shifted right by imm bits.
+		  The most significant bit is replicated.
+	    </insn>
+	    
+		<insn mnemonic="sllv"    short="shift left by register"            purpose="dst &lt;- op1 &lt;&lt; op2"> </insn>
+		<insn mnemonic="srlv"    short="shift right logically by register" purpose="dst &lt;- op1 &gt;&gt;&gt; op2">
+		  The operand is shifted right by op2 bits. 
+		  The most significant bit is filled with 0.
+		</insn>
+		<insn mnemonic="srav"    short="shift right arithmetically by register"  purpose="dst &lt;- op1 &gt;&gt; op2">
+  		  The operand is shifted right by op2 bits.
+		  The most significant bit is replicated.
+	    </insn>
+		
+		
+		<insn mnemonic="div"     short="signed division"                   purpose="lo &lt;- op1 / op2; hi &lt;- reminder of op1 / op2"> </insn>
+		<insn mnemonic="divu"    short="unsigned division"                 purpose="lo &lt;- op1 / op2; hi &lt;- reminder of op1 / op2"> 
+		  op1 and op2 are interpreted as unsigned integers.
+		</insn>
+		<insn mnemonic="mult"    short="signed multiplication"             purpose="lo &lt;- lower_32_bit(op1 * op2); hi &lt;- higher_32_bit(op1 * op2)"> </insn>
+		<insn mnemonic="multu"   short="unsigned multiplication"           purpose="lo &lt;- lower_32_bit(op1 * op2); hi &lt;- higher_32_bit(op1 * op2)"> 
+		  op1 and op2 are interpreted as unsigned integers.
 		</insn>
 		
-		<insn mnemonic="addi" 
-		      purpose="Add a constant to a 32-bit integer. If overflow occurs, then trap."
-		      exceptions="Integer overflow.">
-The 16-bit signed immediate is added to the 32-bit value in register rs
-to produce a 32-bit result.
-If the addition results in 32-bit 2’s complement arithmetic overflow then
-the destination register is not modified and an Integer Overflow
-exception occurs. If it does not overflow, the 32-bit result is placed
-into GPR rt.
-		</insn>
-		
-		<insn mnemonic="addiu" 
-		      purpose="Add a constant to a 32-bit integer.">
-The 16-bit signed immediate is added to the 32-bit value in GPR rs and
-the 32-bit arithmetic result is placed into GPR rt. No Integer Overflow
-exception occurs under any circumstances.
-		</insn>
-		
-		<insn mnemonic="addu" 
-		      purpose="Add two 32-bit integers">
-The 32-bit word value in GPR rt is added to the 32-bit value in GPR rs
-and the 32-bit arithmetic result is placed into GPR rd. No Integer
-Overflow exception occurs under any circumstances.
-		</insn>
-		
-		<insn mnemonic="and" 
-		      purpose="Do a bitwise logical AND.">
-The contents of GPR rs are combined with the contents of GPR rt in a
-bitwise logical AND operation. The result is placed into GPR rd.
-		</insn>
-		
-		<insn mnemonic="andi" 
-		      purpose="Do a bitwise logical AND with a constant.">
-The 16-bit immediate is zero-extended to the left and combined with the
-contents of GPR rs in a bitwise logical AND operation. The result is
-placed into GPR rt.
-		</insn>
-		
-		<insn mnemonic="div" 
-		      purpose="Divide two 32-bit integers">
-The 32-bit word value in GPR rs is divided by the 32-bit value in GPR
-rt, treating both operands as signed values. The 32-bit quotient is
-placed into special register LO and the 32-bit remainder is placed into
-special register HI.
-No arithmetic exception occurs under any circumstances.
-		</insn>
-		
-		<insn mnemonic="divu" 
-		      purpose="Divide two unsigned 32-bit integers">
-The 32-bit word value in GPR rs is divided by the 32-bit value in GPR
-rt, treating both operands as unsigned values. The 32-bit quotient is
-placed into special register LO and the 32-bit remainder is placed into
-special register HI.
-No arithmetic exception occurs under any circumstances.
-		</insn>
-		
+		<insn mnemonic="mflo"    short="move from lo register"             purpose="dst &lt;- lo"></insn>
+		<insn mnemonic="mfhi"    short="move from hi register"             purpose="dst &lt;- hi"></insn>
+		<insn mnemonic="mtlo"    short="move to lo register"               purpose="lo &lt;- op"></insn>
+		<insn mnemonic="mthi"    short="move to hi register"               purpose="hi &lt;- op"></insn>
 	</group>
 	
 	<group name="Constant-Manipulation">
+		<insn mnemonic="li"      short="load immediate" purpose="dst &lt;- 32-bit constant">
+			Load a 32-bit constant into register dst. 
+			This might generate multiple machine instructions.
+		</insn>
 	
+		<insn mnemonic="la"      short="load address"   purpose="dst &lt;- 32-bit label">
+			Load address of a label into register dst.
+			This might generate multiple machine instructions.
+		</insn>
 	</group>
 	
 	<group name="Comparison">
-	
+		<insn mnemonic="slt"    short="set if less than"           purpose="dst &lt;- if op1 &lt; op2 then 1 else 0"> </insn>
+		<insn mnemonic="slti"   short="set if less than immediate" purpose="dst &lt;- if op1 &lt; imm then 1 else 0"> </insn>
+		<insn mnemonic="sltu"   short="set if less than (unsigned comparison)" purpose="dst &lt; if op1 &lt; op2 then 1 else 0">op1 and op2 are interpreted as unsigned numbers.</insn>
+		<insn mnemonic="sltiu"  short="set if less than immediate (unsigned comparison)" purpose="dst &lt;- if op1 &lt; imm then 1 else 0">op1 and imm are interpreted as unsigned numbers</insn>
 	</group>
 	
 	<group name="Branching and Jumping">
-		<insn mnemonic="beq" purpose="Compare two registers for equality and do a conditional branch.">
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits)
-is added to the address of the instruction following the branch (not
-the branch itself), in the branch delay slot, to form a PC-relative
-effective target address.
-If the contents of GPR rs and GPR rt are equal, branch to the effective
-target address after the instruction in the delay slot is executed.
+		<insn mnemonic="beq"  short="branch if equal"                 purpose="if op1 == op2 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bne"  short="branch if unequal"               purpose="if op1 != op2 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bgez" short="branch if greater or equal to 0" purpose="if op &gt;= 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bgtz" short="branch if greater than 0"        purpose="if op &gt; 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="blez" short="branch if less or equal to 0"    purpose="if op &lt;= 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bltz" short="branch if less than 0"           purpose="if op &lt; 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="j"    short="jump to abolsute address"        purpose="pc &lt;- address"></insn>
+		<insn mnemonic="jal"  short="procedure call"                  purpose="$ra &lt;- pc + 4; pc &lt;- address"></insn>
+		<insn mnemonic="jr"   short="jump to address in register"     purpose="pc &lt;- op"></insn>
+		<insn mnemonic="jalr" short="jump to address in register and link"  purpose="dst &lt;- pc + 4; pc &lt;- op">
+		  Indirect procedure call. 
+		  If no destination register is given, $ra is used.
 		</insn>
-		
-		<insn mnemonic="bgez" purpose="Compare a register against 0 and do a conditional branch.">
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits)
-is added to the address of the instruction following the branch (not
-the branch itself), in the branch delay slot, to form a PC-relative
-effective target address.
-If the contents of GPR rs are greater than or equal to zero (sign bit is 0),
-branch to the effective target address after the instruction in the
-delay slot is executed.
-		</insn>
-		
-		<insn mnemonic="bgezl" purpose="Compare a register against 0 and do a PC-relative conditional procedure call.">
-Place the return address link in GPR 31. The return link is the address
-of the second instruction following the branch, where execution would
-continue after a procedure call.
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits) is
-added to the address of the instruction following the branch (not the
-branch itself), in the branch delay slot, to form a PC-relative
-effective target address.
-If the contents of GPR rs are greater than or equal to zero (sign bit is
-0), branch to the effective target address after the instruction in the
-delay slot is executed.
-		</insn>
-		
-		<insn mnemonic="bgtz" purpose="Test a GPR of its contents are greater than 0, then do a PC-relative conditional branch.">
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits)
-is added to the address of the instruction following the branch (not
-the branch itself), in the branch delay slot, to form a PC-relative
-effective target address.
-f the contents of GPR rs are greater than zero (sign bit is 0 but value
-not zero), branch to the effective target address after the instruction
-in the delay slot is executed.
-		</insn>
-		
-		<insn mnemonic="blez" purpose="Test a GPR if its contents are less or equal than 0, then do a PC-relative conditional branch.">
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits)
-is added to the address of the instruction following the branch (not
-the branch itself), in the branch delay slot, to form a PC-relative
-effective target address.
-If the contents of GPR rs are less than or equal to zero (sign bit is 1
-or value is zero), branch to the effective target address after the
-instruction in the delay slot is executed.
-		</insn>
-		
-		<insn mnemonic="bltzal" purpose="Test a GPR if its contents are less than 0, then do a PC-relative procedure call.">
-Place the return address link in GPR 31. The return link is the address
-of the second instruction following the branch (not the branch itself),
-where execution would continue after a procedure call.
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits) is
-added to the address of the instruction following the branch, in the
-branch delay slot, to form a PC-relative effective target address.
-If the contents of GPR rs are less than zero (sign bit is 1), branch to
-the effective target address after the instruction in the delay slot is
-executed.
-		</insn>
-		
-		<insn mnemonic="bne" purpose="Compare two registers for inequality, then do a conditional branch.">
-An 18-bit signed offset (the 16-bit offset field shifted left 2 bits)
-is added to the address of the instruction following the branch (not
-the branch itself), in the branch delay slot, to form a PC-relative
-effective target address.
-If the contents of GPR rs and GPR rt are not equal, branch to the
-effective target address after the instruction in the delay slot is
-executed.
-		</insn>
-	
-		<insn mnemonic="j" purpose="Jump to an abolsute address">
-This is a PC-region branch (not PC-relative); the effective target
-address is in the “current” 256 MB aligned region. The low 28 bits of
-the target address is the instr_index field shifted left 2 bits. The
-remaining upper bits are the corresponding bits of the address of the
-instruction in the delay slot (not the branch itself).
-Jump to the effective target address. Execute the instruction following the
-jump, in the branch delay slot, before jumping.
-		</insn>
-	
-		<insn mnemonic="jal" purpose="Procedure call. Store return address in $31.">
-Place the return address link in GPR 31. The return link is the address
-of the second instruction following the branch, where execution would
-continue after a procedure call.
-This is a PC-region branch (not PC-relative); the effective target address
-is in the “current” 256 MB aligned region. The low 28 bits of the
-target address is the instr_index field shifted left 2 bits. The
-remaining upper bits are the corresponding bits of the address of the
-instruction in the delay slot (not the branch itself).
-Jump to the effective target address. Execute the instruction following the
-jump, in the branch delay slot, before jumping.
-		</insn>
-	
-		<insn mnemonic="jal" purpose="Procedure call. Store return address in $31.">
-Place the return address link in GPR rd. The return link is the address
-of the second instruction following the branch, where execution would
-continue after a procedure call.
-Jump to the effective target address in GPR rs. Execute the instruction
-following the jump, in the branch delay slot, before jumping.
-		</insn>
-		
-		<insn mnemonic="jr" purpose="Jump indirect">
-Jump to the effective target address in GPR rs. Execute the instruction following the
-jump, in the branch delay slot, before jumping.
-		</insn>
-		
 	</group>
 	
 	<group name="Exceptions, Interrupts and Traps">
-		<insn mnemonic="syscall" purpose="Call the operating system">
-Call the operating system.
+		<insn mnemonic="syscall" short="enter operating system" purpose="syscall">
 Register $v0 contains the number of the system call. 
 		</insn>
-		<insn mnemonic="brk" purpose="Break to the debugger.">
-Pauses execution and enters the debugger.
-		</insn>
+		<insn mnemonic="brk" short="break to the debugger" purpose="brk"> </insn>
 	</group>
 	
-	<group name="Loading">
+	<group name="Memory Loads and Stores">
+		<insn mnemonic="lw"    short="load word"              purpose="dst &lt;- load 4 bytes from base + offset"> </insn>
+		<insn mnemonic="lh"    short="load halfword"          purpose="dst &lt;- load 2 bytes from base + offset and sign extend"> </insn>
+		<insn mnemonic="lb"    short="load byte"              purpose="dst &lt;- load 1 byte from base + offset and sign extend"> </insn>
+		<insn mnemonic="lhu"   short="load unsigned halfword" purpose="dst &lt;- load 2 bytes from base + offset and do not sign extend"> </insn>
+		<insn mnemonic="lbu"   short="load unsigned byte"     purpose="dst &lt;- load 1 byte from base + offset and do not sign extend"> </insn>
 	</group>
 	
-	<group name="Storing">
-	
-	</group>
-	
-	<group name="Data Movement">
-	
-	</group>
-	
-	<group name="Floating-Point Instructions">
-	
-	</group>
 </instructions>

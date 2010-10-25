@@ -57,13 +57,15 @@ public class Documentation {
 
 				    		if (insn.hasAttributes()) {
 				    			Node iMnemonic = insn.getAttributes().getNamedItem("mnemonic");
-				    			Node iName = insn.getAttributes().getNamedItem("purpose");
+				    			Node iPseudo   = insn.getAttributes().getNamedItem("purpose");
+				    			Node iShort    = insn.getAttributes().getNamedItem("short");
 
 				    			String mnemonic = iMnemonic==null ? "<empty>" : iMnemonic.getNodeValue();
-				    			String name = iName==null ? "<empty>" : iName.getNodeValue();
-				    			String desc = insn.getTextContent().trim();
+				    			String pseudo   = iPseudo==null ? "<empty>" : iPseudo.getNodeValue();
+				    			String shrt     = iShort==null ? "<empty>" : iShort.getNodeValue();
+				    			String desc     = insn.getTextContent().trim();
 
-				    			InsnDoc doc = new InsnDoc(gInsnDocGroup, mnemonic, name, desc);
+				    			InsnDoc doc = new InsnDoc(gInsnDocGroup, mnemonic, pseudo, shrt, desc);
 				    			mnemonicDocMap.put(mnemonic, doc);
 				    			gInsnDocGroup.addInsn(doc);
 				    		}
