@@ -1,88 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <instructions>
 	<group name="Arithmetic and Logic">
-		<insn mnemonic="addi"    short="add immediate"                    purpose="dst &lt;- op + imm" exceptions="integer overflow">Immediate is sign extended</insn>
-		<insn mnemonic="addiu"   short="add immediate unsigned"           purpose="dst &lt;- op + imm">Immediate is sign extended</insn>
-		<insn mnemonic="andi"    short="and immediate"                    purpose="dst &lt;- op1 and imm">Immediate is not sign extended</insn>
-		<insn mnemonic="ori"     short="or immediate"                     purpose="dst &lt;- op1 or imm">Immediate is not sign extended</insn>
-		<insn mnemonic="xori"    short="xor immediate"                    purpose="dst &lt;- op1 xor imm">Immediate is not sign extended</insn>
-		<insn mnemonic="lui"     short="load upper 16 bit with immediate" purpose="dst &lt;- imm &lt;&lt; 16"> </insn>
+		<insn mnemonic="addi"    short="add immediate"                    purpose="reg0 &lt;- reg1 + imm" exceptions="integer overflow">Immediate is sign extended</insn>
+		<insn mnemonic="addiu"   short="add immediate unsigned"           purpose="reg0 &lt;- reg1 + imm">Immediate is sign extended</insn>
+		<insn mnemonic="andi"    short="and immediate"                    purpose="reg0 &lt;- reg1 &amp; imm">Immediate is not sign extended</insn>
+		<insn mnemonic="ori"     short="or immediate"                     purpose="reg0 &lt;- reg1 | imm">Immediate is not sign extended</insn>
+		<insn mnemonic="xori"    short="xor immediate"                    purpose="reg0 &lt;- reg1 ^ imm">Immediate is not sign extended</insn>
+		<insn mnemonic="lui"     short="load upper 16 bit with immediate" purpose="reg0 &lt;- imm &lt;&lt; 16"> </insn>
 		
-		<insn mnemonic="add"     short="add signed"                       purpose="dst &lt;- op1 + op2"   exceptions="integer overflow"> </insn>
-		<insn mnemonic="addu"    short="add unsigned"                     purpose="dst &lt;- op1 + op2">No exception thrown upon overflow</insn>
-		<insn mnemonic="sub"     short="subtract signed"                  purpose="dst &lt;- op1 - op2"   exceptions="integer overflow"> </insn>
-		<insn mnemonic="subu"    short="subtract unsigned"                purpose="dst &lt;- op1 - op2">No exception thrown. </insn>
-		<insn mnemonic="and"     short="bitwise and"                      purpose="dst &lt;- op1 &amp; op2"> </insn>
-		<insn mnemonic="or"      short="bitwise or"                       purpose="dst &lt;- op1 | op2"> </insn>
-		<insn mnemonic="nor"     short="bitwise nor"                      purpose="dst &lt;- ~(op1 | op2)"> </insn>
-		<insn mnemonic="xor"     short="bitwise xor"                      purpose="dst &lt;- op1 ^ op2"> </insn>
+		<insn mnemonic="add"     short="add signed"                       purpose="reg0 &lt;- reg1 + reg2"   exceptions="integer overflow"> </insn>
+		<insn mnemonic="addu"    short="add unsigned"                     purpose="reg0 &lt;- reg1 + reg2">No exception thrown upon overflow</insn>
+		<insn mnemonic="sub"     short="subtract signed"                  purpose="reg0 &lt;- reg1 - reg2"   exceptions="integer overflow"> </insn>
+		<insn mnemonic="subu"    short="subtract unsigned"                purpose="reg0 &lt;- reg1 - reg2">No exception thrown. </insn>
+		<insn mnemonic="and"     short="bitwise and"                      purpose="reg0 &lt;- reg1 &amp; reg2"> </insn>
+		<insn mnemonic="or"      short="bitwise or"                       purpose="reg0 &lt;- reg1 | reg2"> </insn>
+		<insn mnemonic="nor"     short="bitwise nor"                      purpose="reg0 &lt;- ~(reg1 | reg2)"> </insn>
+		<insn mnemonic="xor"     short="bitwise xor"                      purpose="reg0 &lt;- reg1 ^ reg2"> </insn>
 		
-		<insn mnemonic="sll"     short="shift left by immediate"             purpose="dst &lt;- op &lt;&lt; imm"> </insn>
-		<insn mnemonic="srl"     short="shift right logically by immediate"  purpose="dst &lt;- op &gt;&gt;&gt; imm">
+		<insn mnemonic="sll"     short="shift left by immediate"             purpose="reg0 &lt;- reg1 &lt;&lt; imm"> </insn>
+		<insn mnemonic="srl"     short="shift right logically by immediate"  purpose="reg0 &lt;- reg1 &gt;&gt;&gt; imm">
 		  The operand is shifted right by imm bits. 
 		  The most significant bit is filled with 0.
 		</insn>
-		<insn mnemonic="sra"     short="shift right arithmetically by immediate" purpose="dst &lt;- op &gt;&gt; op2">
+		<insn mnemonic="sra"     short="shift right arithmetically by immediate" purpose="reg0 &lt;- reg1 &gt;&gt; reg2">
   		  The operand is shifted right by imm bits.
 		  The most significant bit is replicated.
 	    </insn>
 	    
-		<insn mnemonic="sllv"    short="shift left by register"            purpose="dst &lt;- op1 &lt;&lt; op2"> </insn>
-		<insn mnemonic="srlv"    short="shift right logically by register" purpose="dst &lt;- op1 &gt;&gt;&gt; op2">
+		<insn mnemonic="sllv"    short="shift left by register"            purpose="reg0 &lt;- reg1 &lt;&lt; reg2"> </insn>
+		<insn mnemonic="srlv"    short="shift right logically by register" purpose="reg0 &lt;- reg1 &gt;&gt;&gt; reg2">
 		  The operand is shifted right by op2 bits. 
 		  The most significant bit is filled with 0.
 		</insn>
-		<insn mnemonic="srav"    short="shift right arithmetically by register"  purpose="dst &lt;- op1 &gt;&gt; op2">
+		<insn mnemonic="srav"    short="shift right arithmetically by register"  purpose="reg0 &lt;- reg1 &gt;&gt; reg2">
   		  The operand is shifted right by op2 bits.
 		  The most significant bit is replicated.
 	    </insn>
 		
 		
-		<insn mnemonic="div"     short="signed division"                   purpose="lo &lt;- op1 / op2; hi &lt;- reminder of op1 / op2"> </insn>
-		<insn mnemonic="divu"    short="unsigned division"                 purpose="lo &lt;- op1 / op2; hi &lt;- reminder of op1 / op2"> 
+		<insn mnemonic="div"     short="signed division"                   purpose="lo &lt;- reg0 / reg1; hi &lt;- reminder of reg0 / reg1"> </insn>
+		<insn mnemonic="divu"    short="unsigned division"                 purpose="lo &lt;- reg0 / reg1; hi &lt;- reminder of reg0 / reg1"> 
 		  op1 and op2 are interpreted as unsigned integers.
 		</insn>
-		<insn mnemonic="mult"    short="signed multiplication"             purpose="lo &lt;- lower_32_bit(op1 * op2); hi &lt;- higher_32_bit(op1 * op2)"> </insn>
-		<insn mnemonic="multu"   short="unsigned multiplication"           purpose="lo &lt;- lower_32_bit(op1 * op2); hi &lt;- higher_32_bit(op1 * op2)"> 
+		<insn mnemonic="mult"    short="signed multiplication"             purpose="lo &lt;- lower_32_bit(reg0 * reg1); hi &lt;- higher_32_bit(reg0 * reg1)"> </insn>
+		<insn mnemonic="multu"   short="unsigned multiplication"           purpose="lo &lt;- lower_32_bit(reg0 * reg1); hi &lt;- higher_32_bit(reg0 * reg1)"> 
 		  op1 and op2 are interpreted as unsigned integers.
 		</insn>
 		
-		<insn mnemonic="mflo"    short="move from lo register"             purpose="dst &lt;- lo"></insn>
-		<insn mnemonic="mfhi"    short="move from hi register"             purpose="dst &lt;- hi"></insn>
-		<insn mnemonic="mtlo"    short="move to lo register"               purpose="lo &lt;- op"></insn>
-		<insn mnemonic="mthi"    short="move to hi register"               purpose="hi &lt;- op"></insn>
+		<insn mnemonic="mflo"    short="move from lo register"             purpose="reg0 &lt;- lo"></insn>
+		<insn mnemonic="mfhi"    short="move from hi register"             purpose="reg0 &lt;- hi"></insn>
+		<insn mnemonic="mtlo"    short="move to lo register"               purpose="lo &lt;- reg0"></insn>
+		<insn mnemonic="mthi"    short="move to hi register"               purpose="hi &lt;- reg0"></insn>
 	</group>
 	
 	<group name="Constant-Manipulation">
-		<insn mnemonic="li"      short="load immediate" purpose="dst &lt;- 32-bit constant">
+		<insn mnemonic="li"      short="load immediate" purpose="reg0 &lt;- 32-bit constant">
 			Load a 32-bit constant into register dst. 
 			This might generate multiple machine instructions.
 		</insn>
 	
-		<insn mnemonic="la"      short="load address"   purpose="dst &lt;- 32-bit label">
+		<insn mnemonic="la"      short="load address"   purpose="reg0 &lt;- 32-bit label">
 			Load address of a label into register dst.
 			This might generate multiple machine instructions.
 		</insn>
 	</group>
 	
 	<group name="Comparison">
-		<insn mnemonic="slt"    short="set if less than"           purpose="dst &lt;- if op1 &lt; op2 then 1 else 0"> </insn>
-		<insn mnemonic="slti"   short="set if less than immediate" purpose="dst &lt;- if op1 &lt; imm then 1 else 0"> </insn>
-		<insn mnemonic="sltu"   short="set if less than (unsigned comparison)" purpose="dst &lt; if op1 &lt; op2 then 1 else 0">op1 and op2 are interpreted as unsigned numbers.</insn>
-		<insn mnemonic="sltiu"  short="set if less than immediate (unsigned comparison)" purpose="dst &lt;- if op1 &lt; imm then 1 else 0">op1 and imm are interpreted as unsigned numbers</insn>
+		<insn mnemonic="slt"    short="set if less than"           purpose="reg0 &lt;- if reg1 &lt; reg2 then 1 else 0"> </insn>
+		<insn mnemonic="slti"   short="set if less than immediate" purpose="reg0 &lt;- if reg1 &lt; imm then 1 else 0"> </insn>
+		<insn mnemonic="sltu"   short="set if less than (unsigned comparison)" purpose="dst &lt; if reg1 &lt; reg2 then 1 else 0">op1 and op2 are interpreted as unsigned numbers.</insn>
+		<insn mnemonic="sltiu"  short="set if less than immediate (unsigned comparison)" purpose="dst &lt;- if reg1 &lt; imm then 1 else 0">op1 and imm are interpreted as unsigned numbers</insn>
 	</group>
 	
 	<group name="Branching and Jumping">
-		<insn mnemonic="beq"  short="branch if equal"                 purpose="if op1 == op2 then pc &lt;- pc + offset"> </insn>
-		<insn mnemonic="bne"  short="branch if unequal"               purpose="if op1 != op2 then pc &lt;- pc + offset"> </insn>
-		<insn mnemonic="bgez" short="branch if greater or equal to 0" purpose="if op &gt;= 0 then pc &lt;- pc + offset"> </insn>
-		<insn mnemonic="bgtz" short="branch if greater than 0"        purpose="if op &gt; 0 then pc &lt;- pc + offset"> </insn>
-		<insn mnemonic="blez" short="branch if less or equal to 0"    purpose="if op &lt;= 0 then pc &lt;- pc + offset"> </insn>
-		<insn mnemonic="bltz" short="branch if less than 0"           purpose="if op &lt; 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="beq"  short="branch if equal"                 purpose="if reg0 == reg1 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bne"  short="branch if unequal"               purpose="if reg0 != reg1 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bgez" short="branch if greater or equal to 0" purpose="if reg0 &gt;= 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bgtz" short="branch if greater than 0"        purpose="if reg0 &gt; 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="blez" short="branch if less or equal to 0"    purpose="if reg0 &lt;= 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bltz" short="branch if less than 0"           purpose="if reg0 &lt; 0 then pc &lt;- pc + offset"> </insn>
 		<insn mnemonic="j"    short="jump to abolsute address"        purpose="pc &lt;- address"></insn>
 		<insn mnemonic="jal"  short="procedure call"                  purpose="$ra &lt;- pc + 4; pc &lt;- address"></insn>
 		<insn mnemonic="jr"   short="jump to address in register"     purpose="pc &lt;- op"></insn>
-		<insn mnemonic="jalr" short="jump to address in register and link"  purpose="dst &lt;- pc + 4; pc &lt;- op">
+		<insn mnemonic="jalr" short="jump to address in register and link"  purpose="reg0 &lt;- pc + 4; pc &lt;- op">
 		  Indirect procedure call. 
 		  If no destination register is given, $ra is used.
 		</insn>
@@ -96,11 +96,14 @@ Register $v0 contains the number of the system call.
 	</group>
 	
 	<group name="Memory Loads and Stores">
-		<insn mnemonic="lw"    short="load word"              purpose="dst &lt;- load 4 bytes from base + offset"> </insn>
-		<insn mnemonic="lh"    short="load halfword"          purpose="dst &lt;- load 2 bytes from base + offset and sign extend"> </insn>
-		<insn mnemonic="lb"    short="load byte"              purpose="dst &lt;- load 1 byte from base + offset and sign extend"> </insn>
-		<insn mnemonic="lhu"   short="load unsigned halfword" purpose="dst &lt;- load 2 bytes from base + offset and do not sign extend"> </insn>
-		<insn mnemonic="lbu"   short="load unsigned byte"     purpose="dst &lt;- load 1 byte from base + offset and do not sign extend"> </insn>
+		<insn mnemonic="lw"    short="load word"              exception="alignment" purpose="reg0 &lt;- load 4 bytes from base + offset">Address needs to be aligned to 4 bytes</insn>
+		<insn mnemonic="lh"    short="load halfword"          exception="alignment" purpose="reg0 &lt;- load 2 bytes from base + offset and sign extend">Address needs to be aligned to 2 Bytes</insn>
+		<insn mnemonic="lb"    short="load byte"              exception="alignment" purpose="reg0 &lt;- load 1 byte from base + offset and sign extend"> </insn>
+		<insn mnemonic="lhu"   short="load unsigned halfword" exception="alignment" purpose="reg0 &lt;- load 2 bytes from base + offset and do not sign extend">Address needs to be aligned to 2 Bytes</insn>
+		<insn mnemonic="lbu"   short="load unsigned byte"     exception="alignment" purpose="reg0 &lt;- load 1 byte from base + offset and do not sign extend"> </insn>
+		<insn mnemonic="sw"    short="store word"             exception="alignment" purpose="store reg0 to memory">Address needs to be 4 Byte aligned</insn>
+		<insn mnemonic="sh"    short="store half"             exception="alignment" purpose="store lower halfword of reg0 in register to memory">Address needs to be 2 Byte aligned</insn>
+		<insn mnemonic="sb"    short="store byte"             exception="alignment" purpose="store byte in reg0 to memory"></insn>
 	</group>
 	
 </instructions>

@@ -34,7 +34,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return LABEL_EXPR.stringRepr() + "($base)";
+			return LABEL_EXPR.stringRepr() + "(base_reg)";
 		}
 	},
 
@@ -58,7 +58,7 @@ public enum AddressMode {
 
 		@Override
 		public String stringRepr() {
-			return "offset($base)";
+			return "offset(base_reg)";
 		}
 	},
 

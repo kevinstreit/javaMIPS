@@ -63,7 +63,7 @@ public class InsnDoc {
 		sb.append('\n');
 		sb.append("Operation: " + pseudo);
 		sb.append('\n');
-		sb.append("Is Pseudo: " + (Instructions.get(mnemonic).valid() ? "no" : "yes"));
+		sb.append("Pseudo operation: " + (Instructions.get(mnemonic).valid() ? "no" : "yes"));
 		sb.append('\n');
 		try {
 			appendExamples(sb);

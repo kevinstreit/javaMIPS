@@ -63,7 +63,12 @@ public abstract class InstructionGenerator {
 	}
 
 	public String stringRepr() {
-		return regOpsStringRepr() + " " + am.stringRepr();
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < regFields.size(); i++) {
+			sb.append("reg" + i + " ");
+		}
+		sb.append(am.stringRepr());
+		return sb.toString();
 	}
 
 	public abstract Element generate(Text text, String opcode, OperandInstance inst);
