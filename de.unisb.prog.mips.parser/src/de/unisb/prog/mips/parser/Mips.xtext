@@ -48,7 +48,7 @@ terminal HEXINT returns ecore::EInt: '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
 	
 terminal INTREG   : '$' ('0'..'9')+;
 terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;
-terminal COMMENT  : (';'|'#') !('\n'|'\r')* ('\r'? '\n') ;
+terminal COMMENT  : (';'|'#') !('\n'|'\r')* ;
 terminal WHITE    : (' '|'\t')+;
 terminal NL       : ('\r'|'\n')+;
 

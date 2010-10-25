@@ -1,6 +1,6 @@
 	.data
 hello_msg:
-	.asciiz "Hello World!\n";
+	.asciiz "Hello World!\n"
 	
 	.text
 	la $a0 hello_msg
