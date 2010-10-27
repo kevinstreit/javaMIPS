@@ -76,6 +76,7 @@ public class Generate {
 	}
 
 	public void generate(DataSegment s) {
+		// TODO: Respect the optionally given base address (-> s.getAddr())
 		for (EObject i : s.getItems())
 			voidDispatcher.invoke(i, assembly.getData());
 	}
