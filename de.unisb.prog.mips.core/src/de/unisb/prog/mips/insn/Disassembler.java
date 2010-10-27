@@ -11,7 +11,7 @@ public class Disassembler implements Handler<String> {
 	}
 
 	public String i(RegImm ri, int rs, int imm) {
-		return String.format("%7s %3s %-6d", ri, rs, imm);
+		return String.format("%7s %3s %-6d", ri, regName(rs), imm);
 	}
 
 	public String j(Opcode opc, int imm) {
