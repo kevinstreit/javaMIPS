@@ -3,9 +3,12 @@ package de.unisb.prog.mips.parser.ui.launching;
 import java.net.URI;
 import java.util.Map;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IBreakpointListener;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
@@ -29,6 +32,43 @@ import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.util.Pair;
 
 public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
+	static {
+		// Managing breakpoints added or removed while a program is running
+		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(new IBreakpointListener() {
+			public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
+				IResource resource = breakpoint.getMarker().getResource();
+				int lineNumber = breakpoint.getMarker().getAttribute(IMarker.LINE_NUMBER, -1);
+
+				Sys sys = MIPSCore.getInstance().getSys();
+				Assembly sysAsm = MIPSCore.getInstance().getAsm();
+				if (resource != null && sys != null && sysAsm != null && sys.getProcessor().state != null && sys.getProcessor().state != ExecutionState.HALTED) {
+					Map<Pair<URI, Integer>, Element> elts = sysAsm.computeElementMap();
+					Element elt = elts.get(new Pair<URI, Integer>(resource.getLocationURI(), lineNumber));
+
+					if (elt != null)
+						sys.getProcessor().removeBreakpoint(elt.addressOf());
+				}
+			}
+
+			public void breakpointAdded(IBreakpoint breakpoint) {
+				IResource resource = breakpoint.getMarker().getResource();
+				int lineNumber = breakpoint.getMarker().getAttribute(IMarker.LINE_NUMBER, -1);
+
+				Sys sys = MIPSCore.getInstance().getSys();
+				Assembly sysAsm = MIPSCore.getInstance().getAsm();
+				if (resource != null && sys != null && sysAsm != null && sys.getProcessor().state != null && sys.getProcessor().state != ExecutionState.HALTED) {
+					Map<Pair<URI, Integer>, Element> elts = sysAsm.computeElementMap();
+					Element elt = elts.get(new Pair<URI, Integer>(resource.getLocationURI(), lineNumber));
+
+					if (elt != null)
+						sys.getProcessor().addBreakpoint(elt.addressOf());
+				}
+			}
+
+			public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {}
+		});
+	}
+
 	public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
 		if (part instanceof XtextEditor && selection instanceof TextSelection) {
 			XtextEditor textEditor = (XtextEditor) part;
@@ -74,16 +114,6 @@ public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
 						}
 						MIPSBreakpoint lineBreakpoint = new MIPSBreakpoint(resource, lineNumber + 1, charStart, charEnd);
 						DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(lineBreakpoint);
-
-						Sys sys = MIPSCore.getInstance().getSys();
-						Assembly sysAsm = MIPSCore.getInstance().getAsm();
-						if (sys != null && sysAsm != null && sys.getProcessor().state != null && sys.getProcessor().state != ExecutionState.HALTED) {
-							elts = sysAsm.computeElementMap();
-							elt = elts.get(new Pair<URI, Integer>(resource.getLocationURI(), (lineNumber+1)));
-
-							if (elt != null)
-								sys.getProcessor().addBreakpoint(elt.addressOf());
-						}
 					}
 				}
 			}
