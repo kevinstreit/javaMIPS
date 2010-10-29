@@ -43,7 +43,7 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 
 		public final String description;
 		PReg(String desc) {
-			this.description = desc;
+			description = desc;
 		}
 	}
 
@@ -77,18 +77,18 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 
 		@Override
 		public void update(ViewerCell cell) {
-			Processor proc = RegisterView.this.system == null ? null : RegisterView.this.system.getProcessor();
+			Processor proc = system == null ? null : system.getProcessor();
 
 			if (cell.getElement() instanceof Reg) {
 				Reg reg = (Reg) cell.getElement();
-				cell.setFont(RegisterView.this.regChanged[reg.ordinal()] ? this.changedFont : this.regFont);
+				cell.setFont(regChanged[reg.ordinal()] ? changedFont : regFont);
 
 				switch (cell.getColumnIndex()) {
 				case 0:
 					cell.setText(reg.name());
 					break;
 				case 1:
-					if (RegisterView.this.system == null || RegisterView.this.system.getProcessor().state == ExecutionState.RUNNING)
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
 						cell.setText("---");
 					else {
 						int val = proc.gp[reg.ordinal()];
@@ -96,7 +96,7 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 					}
 					break;
 				case 2:
-					if (RegisterView.this.system == null || RegisterView.this.system.getProcessor().state == ExecutionState.RUNNING)
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
 						cell.setText("---");
 					else {
 						int val = proc.gp[reg.ordinal()];
@@ -107,18 +107,18 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 			} else if (cell.getElement() instanceof PReg) {
 				int val = -1;
 				PReg reg = (PReg) cell.getElement();
-				cell.setFont(RegisterView.this.pregChanged[reg.ordinal()] ? this.changedFont : this.regFont);
+				cell.setFont(pregChanged[reg.ordinal()] ? changedFont : regFont);
 
-				if (RegisterView.this.system != null) {
+				if (system != null) {
 					switch (reg) {
 					case pc:
-						val = RegisterView.this.system.getProcessor().pc;
+						val = system.getProcessor().pc;
 						break;
 					case hi:
-						val = RegisterView.this.system.getProcessor().hi;
+						val = system.getProcessor().hi;
 						break;
 					case lo:
-						val = RegisterView.this.system.getProcessor().lo;
+						val = system.getProcessor().lo;
 						break;
 					}
 				}
@@ -128,14 +128,14 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 					cell.setText(reg.name());
 					break;
 				case 1:
-					if (RegisterView.this.system == null || RegisterView.this.system.getProcessor().state == ExecutionState.RUNNING)
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
 						cell.setText("---");
 					else {
 						cell.setText("" + val);
 					}
 					break;
 				case 2:
-					if (RegisterView.this.system == null || RegisterView.this.system.getProcessor().state == ExecutionState.RUNNING)
+					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
 						cell.setText("---");
 					else {
 						cell.setText(String.format("0x%08x", val));
@@ -180,25 +180,25 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 
 	public void createPartControl(Composite parent) {
 
-		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
-		createColumns(this.viewer);
-		ColumnViewerToolTipSupport.enableFor(this.viewer);
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
+		createColumns(viewer);
+		ColumnViewerToolTipSupport.enableFor(viewer);
 		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.TEXT_FONT);
 		Font regFont = JFaceResources.getTextFont();
-		this.viewer.getTable().setFont(regFont);
+		viewer.getTable().setFont(regFont);
 
-		this.viewer.setContentProvider(new ViewContentProvider());
-		this.viewer.setLabelProvider(new ViewLabelProvider(regFont, boldFont));
-		this.viewer.setInput(getViewSite());
+		viewer.setContentProvider(new ViewContentProvider());
+		viewer.setLabelProvider(new ViewLabelProvider(regFont, boldFont));
+		viewer.setInput(getViewSite());
 
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(this.viewer.getControl(), "de.unisb.prog.mips.parser.ui.viewer");
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "de.unisb.prog.mips.parser.ui.viewer");
 
 		MIPSCore.getInstance().addExecutionListener(this);
 
 	}
 
 	public void setFocus() {
-		this.viewer.getControl().setFocus();
+		viewer.getControl().setFocus();
 	}
 
 	@Override
@@ -207,45 +207,45 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 	}
 
 	private void resetChangedRegs(Sys sys) {
-		Arrays.fill(this.regChanged, false);
-		Arrays.fill(this.pregChanged, false);
+		Arrays.fill(regChanged, false);
+		Arrays.fill(pregChanged, false);
 
 		Processor proc = sys.getProcessor();
 
 		for (Reg r : Reg.values())
-			this.lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
-		this.lastPRegValues[PReg.pc.ordinal()] = proc.pc;
-		this.lastPRegValues[PReg.hi.ordinal()] = proc.hi;
-		this.lastPRegValues[PReg.lo.ordinal()] = proc.lo;
+			lastRegValues[r.ordinal()] = sys.getProcessor().gp[r.ordinal()];
+		lastPRegValues[PReg.pc.ordinal()] = proc.pc;
+		lastPRegValues[PReg.hi.ordinal()] = proc.hi;
+		lastPRegValues[PReg.lo.ordinal()] = proc.lo;
 	}
 
 	private void checkChangedRegs(Sys sys) {
 		Processor proc = sys.getProcessor();
 
 		for (Reg r : Reg.values()) {
-			int oldVal = this.lastRegValues[r.ordinal()];
+			int oldVal = lastRegValues[r.ordinal()];
 			int newVal = proc.gp[r.ordinal()];
-			this.regChanged[r.ordinal()] = oldVal != newVal;
+			regChanged[r.ordinal()] = oldVal != newVal;
 		}
 
-		this.pregChanged[PReg.pc.ordinal()] = this.lastPRegValues[PReg.pc.ordinal()] != proc.pc;
-		this.pregChanged[PReg.lo.ordinal()] = this.lastPRegValues[PReg.lo.ordinal()] != proc.lo;
-		this.pregChanged[PReg.hi.ordinal()] = this.lastPRegValues[PReg.hi.ordinal()] != proc.hi;
+		pregChanged[PReg.pc.ordinal()] = lastPRegValues[PReg.pc.ordinal()] != proc.pc;
+		pregChanged[PReg.lo.ordinal()] = lastPRegValues[PReg.lo.ordinal()] != proc.lo;
+		pregChanged[PReg.hi.ordinal()] = lastPRegValues[PReg.hi.ordinal()] != proc.hi;
 	}
 
 	// Execution Event Handling
 
 	public void execStarted(Sys sys, Assembly asm) {
-		this.system = sys;
+		system = sys;
 		resetChangedRegs(sys);
 	}
 
 	public void execPaused(Sys sys, Assembly asm) {
 		checkChangedRegs(sys);
 
-		this.viewer.getTable().getDisplay().syncExec(new Runnable() {
+		viewer.getTable().getDisplay().syncExec(new Runnable() {
 			public void run() {
-				RegisterView.this.viewer.refresh();
+				viewer.refresh();
 			}
 		});
 
@@ -262,6 +262,14 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 
 	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
 		execPaused(sys, asm); // Does the same
+	}
+
+	public void inputModeStarted() {
+		// Nothing
+	}
+
+	public void inputModeDone() {
+		// Nothing
 	}
 
 	public void dbgBrkptReached(Sys sys, Assembly asm) {

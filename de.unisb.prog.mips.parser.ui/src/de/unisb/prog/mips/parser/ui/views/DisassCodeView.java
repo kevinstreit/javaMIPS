@@ -265,6 +265,14 @@ public class DisassCodeView extends DisassemblyView implements IExecutionListene
 		highlight(null);
 	}
 
+	public void inputModeStarted() {
+		// Nothing
+	}
+
+	public void inputModeDone() {
+		// Nothing
+	}
+
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		// done in execPaused
 	}

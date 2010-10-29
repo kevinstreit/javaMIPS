@@ -192,6 +192,14 @@ public class DataSegmentView extends DisassemblyView implements IExecutionListen
 		});
 	}
 
+	public void inputModeStarted() {
+		// Nothing
+	}
+
+	public void inputModeDone() {
+		// Nothing
+	}
+
 	public void dbgBrkptReached(Sys sys, Assembly asm) {
 		// done in execPaused
 	}

@@ -96,6 +96,8 @@ public class MIPSConsoleOutput extends PrintStream {
 		String val = "\0";
 
 		if (proc != null) {
+			MIPSCore.getInstance().inputModeStarted();
+
 			while (input == null && proc.state == ExecutionState.RUNNING) {
 				try {
 					Thread.sleep(100);
@@ -103,6 +105,8 @@ public class MIPSConsoleOutput extends PrintStream {
 					// Nothing
 				}
 			}
+
+			MIPSCore.getInstance().inputModeDone();
 
 			val = input;
 		}
@@ -185,6 +189,11 @@ public class MIPSConsoleOutput extends PrintStream {
 				}
 			});
 		}
+	}
+
+	public void leaveInputMode() {
+		editMaxLength = -1;
+		input = null;
 	}
 
 }

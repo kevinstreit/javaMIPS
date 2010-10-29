@@ -46,7 +46,7 @@ import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 import de.unisb.prog.mips.util.Pair;
 
-public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
+public class MIPSCore {
 
 	public static final String ICN_RUN_MIPS = "de.unisb.cs.prog.mips.runmips";
 	public static final String ICN_RESUME_MIPS = "de.unisb.cs.prog.mips.resumemips";
@@ -158,35 +158,35 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		execListener.remove(l);
 	}
 
-	public void execStarted(Sys sys, Assembly asm) {
+	private void execStarted(Sys sys, Assembly asm) {
 		for (IExecutionListener l : execListener)
 			l.execStarted(sys, asm);
 
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
-	public void execPaused(Sys sys, Assembly asm) {
+	private void execPaused(Sys sys, Assembly asm) {
 		for (IExecutionListener l : execListener)
 			l.execPaused(sys, asm);
 
 		createExecutionMarker(asm, sys);
 	}
 
-	public void execContinued(Sys sys, Assembly asm) {
+	private void execContinued(Sys sys, Assembly asm) {
 		for (IExecutionListener l : execListener)
 			l.execContinued(sys, asm);
 
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
-	public void execStepped(Sys sys, Assembly asm) {
+	private void execStepped(Sys sys, Assembly asm) {
 		for (IExecutionListener l : execListener)
 			l.execStepped(sys, asm);
 
 		createExecutionMarker(asm, sys);
 	}
 
-	public void execFinished(Sys sys, Assembly asm, boolean interrupted) {
+	private void execFinished(Sys sys, Assembly asm, boolean interrupted) {
 		for (IExecutionListener l : execListener)
 			l.execFinished(sys, asm, interrupted);
 
@@ -196,7 +196,17 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		MarkerUtil.cleanAllMarkers(MarkerUtil.ID_CurrentIP);
 	}
 
-	public void dbgBrkptReached(Sys sys, Assembly asm) {
+	public void inputModeStarted() {
+		for (IExecutionListener l : execListener)
+			l.inputModeStarted();
+	}
+
+	public void inputModeDone() {
+		for (IExecutionListener l : execListener)
+			l.inputModeDone();
+	}
+
+	private void dbgBrkptReached(Sys sys, Assembly asm) {
 		for (IExecutionListener l : execListener) {
 			l.dbgBrkptReached(sys, asm);
 			l.execPaused(sys, asm);
@@ -215,12 +225,12 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 		loadListener.remove(l);
 	}
 
-	public void assemblyLoaded(Assembly asm, Sys sys) {
+	private void assemblyLoaded(Assembly asm, Sys sys) {
 		for (IAssemblyLoadListener l : loadListener)
 			l.assemblyLoaded(asm, sys);
 	}
 
-	public void assemblyReset() {
+	private void assemblyReset() {
 		for (IAssemblyLoadListener l : loadListener)
 			l.assemblyReset();
 	}

@@ -179,11 +179,22 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		this.asm = asm;
 		continueAction.setImageDescriptor(JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_RESUME_MIPS));
 
+		out.leaveInputMode();
+
 		if (interrupted)
 			out.println("[ Execution interrupted ]", true);
 		else
 			out.println("[ Execution finished with return code " + MIPSCore.getInstance().getExitCode() + " ]", true);
 
+		checkActionEnablement();
+	}
+
+	public void inputModeStarted() {
+		stepAction.setEnabled(false);
+		continueAction.setEnabled(false);
+	}
+
+	public void inputModeDone() {
 		checkActionEnablement();
 	}
 
