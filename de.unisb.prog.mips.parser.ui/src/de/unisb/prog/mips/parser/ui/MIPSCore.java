@@ -401,7 +401,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 			try {
 				runningJob.join();
 			} catch (InterruptedException e) {
-				// WHat shall we do?
+				// What shall we do?
 			}
 		}
 

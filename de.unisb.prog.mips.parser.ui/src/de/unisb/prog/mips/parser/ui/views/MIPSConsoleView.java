@@ -251,16 +251,16 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 						public void run() {
 							Position pos = asm.getPosition(sys.getProcessor().pc);
 							int origLine = pos.getLineNumber();
-							int pcBefore;
+							int pcBefore, posLine;
 							Processor proc = sys.getProcessor();
 
 							do {
 								pcBefore = sys.getProcessor().pc;
 								MIPSCore.getInstance().step(true);
 								pos = asm == null || sys == null ? null : asm.getPosition(sys.getProcessor().pc);
+								posLine = pos == null || pos.getLineNumber()==-1 ? origLine : pos.getLineNumber();
 							} while (
-									pos != null &&
-									pos.getLineNumber() == origLine &&
+									posLine == origLine &&
 									sys.getProcessor() != null &&
 									proc.pc != pcBefore &&
 									proc.state != null &&
