@@ -225,13 +225,27 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 			hi = (int) (r >> 32 & 0xffffffff);
 		}
 		break;
-		case div:     lo = s / t; hi = s % t; break;
+		case div:     {
+			try {
+				lo = s / t;
+				hi = s % t;
+			} catch (ArithmeticException ex) {
+				// According to MIPS spec, "No arithmetic exception occurs under any circumstances".
+				// => result undefined
+			}
+			break;
+		}
 		// TODO: Check, if this is ok.
 		case divu:    {
-			long a = s & 0xffffffffL;
-			long b = t & 0xffffffffL;
-			lo = (int) (a / b);
-			hi = (int) (a % b);
+			try {
+				long a = s & 0xffffffffL;
+				long b = t & 0xffffffffL;
+				lo = (int) (a / b);
+				hi = (int) (a % b);
+			} catch (ArithmeticException ex) {
+				// According to MIPS spec, "No arithmetic exception occurs under any circumstances".
+				// => result undefined
+			}
 		}
 		break;
 		case add:     gp[rd] = s + t; break;
