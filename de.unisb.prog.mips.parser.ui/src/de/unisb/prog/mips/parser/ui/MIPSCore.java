@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.parser.ui;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -491,7 +492,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 
 			if (runnable) {
 				asm = linked;
-				Map<Pair<String, Integer>, Element> elements = linked.computeElementMap();
+				Map<Pair<URI, Integer>, Element> elements = linked.computeElementMap();
 
 				try {
 					IMarker[] breakpts = project.findMarkers(MarkerUtil.ID_Breakpoint, true, IResource.DEPTH_INFINITE);
@@ -500,7 +501,7 @@ public class MIPSCore implements IExecutionListener, IAssemblyLoadListener {
 						IResource res = m.getResource();
 						if (brk != null && res != null && brk instanceof MIPSBreakpoint) {
 							MIPSBreakpoint mbrk = (MIPSBreakpoint) brk;
-							Element elem = elements.get(new Pair<String, Integer>(res.getFullPath().toString(), mbrk.getLineNumber()));
+							Element elem = elements.get(new Pair<URI, Integer>(res.getLocationURI(), mbrk.getLineNumber()));
 
 							if (elem != null) {
 								proc.addBreakpoint(elem.addressOf());

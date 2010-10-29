@@ -1,5 +1,6 @@
 package de.unisb.prog.mips.parser.ui.launching;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
@@ -61,8 +62,8 @@ public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
 				});
 
 				if (asm != null) {
-					Map<Pair<String, Integer>, Element> elts = asm.computeElementMap();
-					Element elt = elts.get(new Pair<String, Integer>(resource.getFullPath().toString(), (lineNumber+1)));
+					Map<Pair<URI, Integer>, Element> elts = asm.computeElementMap();
+					Element elt = elts.get(new Pair<URI, Integer>(resource.getLocationURI(), (lineNumber+1)));
 
 					if (elt != null) {
 						try {
@@ -78,7 +79,7 @@ public class MIPSBreakpointAdapter implements IToggleBreakpointsTarget {
 						Assembly sysAsm = MIPSCore.getInstance().getAsm();
 						if (sys != null && sysAsm != null && sys.getProcessor().state != null && sys.getProcessor().state != ExecutionState.HALTED) {
 							elts = sysAsm.computeElementMap();
-							elt = elts.get(new Pair<String, Integer>(resource.getFullPath().toString(), (lineNumber+1)));
+							elt = elts.get(new Pair<URI, Integer>(resource.getLocationURI(), (lineNumber+1)));
 
 							if (elt != null)
 								sys.getProcessor().addBreakpoint(elt.addressOf());

@@ -8,7 +8,6 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -34,14 +33,9 @@ public class MarkerUtil {
 	}
 
 	private static IResource findResource(Position pos) {
-		String pathStr = pos.getFilename();
-
-		if (pathStr != null) {
-			Path resPath = new Path(pathStr);
-			if (resPath != null) {
-				IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(resPath);
-				return res;
-			}
+		if (pos.getURI() != null) {
+			IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(pos.getURI());
+			return files.length > 0 ? files[0] : null;
 		}
 
 		return null;

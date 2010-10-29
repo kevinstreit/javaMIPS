@@ -2,6 +2,7 @@ package de.unisb.prog.mips.parser.util;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
@@ -19,21 +20,23 @@ public class EObjectPosition implements Position {
 		this.obj = obj;
 	}
 
-	public String getFilename() {
+	public URI getURI() {
 		if (obj.eResource() == null)
 			return null;
 
-		String workspaceRootRelativePath = null;
+		URI uri = null;
 
 		if (obj.eResource().getURI().isFile()) {
-			URI uri = new File(obj.eResource().getURI().toFileString()).toURI();
-			URI workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
-			workspaceRootRelativePath = "/" + workspacePath.relativize(uri).toString();
+			uri = new File(obj.eResource().getURI().toFileString()).toURI();
 		} else if (obj.eResource().getURI().isPlatformResource()) {
-			workspaceRootRelativePath = obj.eResource().getURI().toPlatformString(true);
+			try {
+				uri = new URI(ResourcesPlugin.getWorkspace().getRoot().getLocationURI().toString() + obj.eResource().getURI().toPlatformString(false));
+			} catch (URISyntaxException e) {
+				uri = null;
+			}
 		}
 
-		return workspaceRootRelativePath;
+		return uri;
 	}
 
 	public int getLineNumber() {
@@ -52,8 +55,8 @@ public class EObjectPosition implements Position {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		String filename = getFilename();
-		int result = filename == null ? 1 : filename.hashCode();
+		URI uri = getURI();
+		int result = uri == null ? 1 : uri.hashCode();
 		result = prime * result + getCharStart();
 		result = prime * result + getCharEnd();
 		return result;
@@ -68,8 +71,8 @@ public class EObjectPosition implements Position {
 		if (!(obj instanceof Position))
 			return false;
 		Position p = (Position) obj;
-		String filename = getFilename();
-		boolean sameFiles = filename == null ? false : filename.equals(p.getFilename());
+		URI uri = getURI();
+		boolean sameFiles = uri == null ? false : uri.equals(p.getURI());
 		return sameFiles && getCharStart() == p.getCharStart() && getCharEnd() == p.getCharEnd();
 	}
 

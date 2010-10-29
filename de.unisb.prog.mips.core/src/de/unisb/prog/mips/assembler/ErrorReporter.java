@@ -13,7 +13,7 @@ public interface ErrorReporter<T> {
 
 		public void error(Position arg, String fmt, Object... args) {
 			String msg = String.format(fmt, args);
-			System.out.format("error %s(%d): %s\n", arg.getFilename(), arg.getLineNumber(), msg);
+			System.out.format("error %s(%d): %s\n", arg.getURI(), arg.getLineNumber(), msg);
 			errs++;
 		}
 
@@ -24,7 +24,7 @@ public interface ErrorReporter<T> {
 
 		public void warning(Position arg, String fmt, Object... args) {
 			String msg = String.format(fmt, args);
-			System.out.format("warning %s(%d): %s\n", arg.getFilename(), arg.getLineNumber(), msg);
+			System.out.format("warning %s(%d): %s\n", arg.getURI(), arg.getLineNumber(), msg);
 			errs++;
 		}
 

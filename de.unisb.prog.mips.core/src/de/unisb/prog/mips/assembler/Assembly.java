@@ -1,6 +1,7 @@
 package de.unisb.prog.mips.assembler;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,13 +109,13 @@ public class Assembly extends SymbolTable {
 		return linked;
 	}
 
-	public Map<Pair<String, Integer>, Element> computeElementMap() {
-		Map<Pair<String, Integer>, Element> res = new HashMap<Pair<String,Integer>, Element>();
+	public Map<Pair<URI, Integer>, Element> computeElementMap() {
+		Map<Pair<URI, Integer>, Element> res = new HashMap<Pair<URI,Integer>, Element>();
 		for (Segment seg : new Segment[] { text, data }) {
 			for (Element e : seg) {
 				Position pos = e.getPosition();
 				if (pos != null) {
-					Pair<String, Integer> p = new Pair<String, Integer>(pos.getFilename(), pos.getLineNumber());
+					Pair<URI, Integer> p = new Pair<URI, Integer>(pos.getURI(), pos.getLineNumber());
 					if (!res.containsKey(p))
 						res.put(p, e);
 				}

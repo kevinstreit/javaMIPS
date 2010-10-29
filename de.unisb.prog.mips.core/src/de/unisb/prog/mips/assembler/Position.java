@@ -1,8 +1,10 @@
 package de.unisb.prog.mips.assembler;
 
+import java.net.URI;
+
 public interface Position {
 
-	String getFilename();
+	URI getURI();
 	int getLineNumber();
 	int getCharStart();
 	int getCharEnd();
@@ -12,8 +14,8 @@ public interface Position {
 			return -1;
 		}
 
-		public String getFilename() {
-			return "<no such file>";
+		public URI getURI() {
+			return null;
 		}
 
 		public int getCharStart() {
