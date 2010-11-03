@@ -16,6 +16,7 @@
 		<insn mnemonic="or"      short="bitwise or"                       purpose="reg0 &lt;- reg1 | reg2"> </insn>
 		<insn mnemonic="nor"     short="bitwise nor"                      purpose="reg0 &lt;- ~(reg1 | reg2)"> </insn>
 		<insn mnemonic="xor"     short="bitwise xor"                      purpose="reg0 &lt;- reg1 ^ reg2"> </insn>
+		<insn mnemonic="move"    short="move register content"            purpose="reg0 &lt;- reg1"> </insn>
 		
 		<insn mnemonic="sll"     short="shift left by immediate"             purpose="reg0 &lt;- reg1 &lt;&lt; imm"> </insn>
 		<insn mnemonic="srl"     short="shift right logically by immediate"  purpose="reg0 &lt;- reg1 &gt;&gt;&gt; imm">
@@ -75,6 +76,8 @@
 	<group name="Branching and Jumping">
 		<insn mnemonic="beq"  short="branch if equal"                 purpose="if reg0 == reg1 then pc &lt;- pc + offset"> </insn>
 		<insn mnemonic="bne"  short="branch if unequal"               purpose="if reg0 != reg1 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="beqz" short="branch if equal"                 purpose="if reg0 == 0 then pc &lt;- pc + offset"> </insn>
+		<insn mnemonic="bnez" short="branch if unequal"               purpose="if reg0 != 0 then pc &lt;- pc + offset"> </insn>
 		<insn mnemonic="bgez" short="branch if greater or equal to 0" purpose="if reg0 &gt;= 0 then pc &lt;- pc + offset"> </insn>
 		<insn mnemonic="bgtz" short="branch if greater than 0"        purpose="if reg0 &gt; 0 then pc &lt;- pc + offset"> </insn>
 		<insn mnemonic="blez" short="branch if less or equal to 0"    purpose="if reg0 &lt;= 0 then pc &lt;- pc + offset"> </insn>
