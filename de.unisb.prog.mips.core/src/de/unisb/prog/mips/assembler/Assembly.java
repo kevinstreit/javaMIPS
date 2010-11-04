@@ -114,7 +114,7 @@ public class Assembly extends SymbolTable {
 		for (Segment seg : new Segment[] { text, data }) {
 			for (Element e : seg) {
 				Position pos = e.getPosition();
-				if (pos != null) {
+				if (pos != null && pos.getURI() != null) {
 					Pair<URI, Integer> p = new Pair<URI, Integer>(pos.getURI(), pos.getLineNumber());
 					if (!res.containsKey(p))
 						res.put(p, e);
