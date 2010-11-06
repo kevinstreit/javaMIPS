@@ -7,12 +7,12 @@ import de.unisb.prog.mips.assembler.segments.Segment;
 public class Expressions {
 
 	public static enum IntOp {
-		ADD("+") { public int op(int a, int b) { return a + b; } },
-		SUB("-") { public int op(int a, int b) { return a - b; } },
-		MUL("*") { public int op(int a, int b) { return a * b; } },
-		SHL("<<") { public int op(int a, int b) { return a << b; } },
-		SHRA(">>") { public int op(int a, int b) { return a >> b; } },
-		SHR(">>>") { public int op(int a, int b) { return a >>> b; } };
+		ADD("+") { @Override public int op(int a, int b) { return a + b; } },
+		SUB("-") { @Override public int op(int a, int b) { return a - b; } },
+		MUL("*") { @Override public int op(int a, int b) { return a * b; } },
+		SHL("<<") { @Override public int op(int a, int b) { return a << b; } },
+		SHRA(">>") { @Override public int op(int a, int b) { return a >> b; } },
+		SHR(">>>") { @Override public int op(int a, int b) { return a >>> b; } };
 
 		public final String sym;
 
@@ -67,14 +67,26 @@ public class Expressions {
 		return addr;
 	}
 
-	public static final Expr absolute(final Address addr) {
-		return new Expr() {
+	public static final Address absolute(final Address addr) {
+		return absolute(addr, addr.getSegment().getBase());
+	}
+
+	public static final Address absolute(final Address addr, final int base) {
+		return new Address() {
 			public int eval() {
-				return addr.getSegment().getBase() + addr.eval();
+				return base + addr.eval();
 			}
 
 			public void append(Appendable app) throws IOException {
 				addr.append(app);
+			}
+
+			public Segment getSegment() {
+				return addr.getSegment();
+			}
+
+			public boolean isValid() {
+				return addr.isValid();
 			}
 		};
 	}
