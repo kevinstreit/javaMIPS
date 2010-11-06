@@ -9,7 +9,7 @@ import de.unisb.prog.mips.simulator.Memory;
 public class ProxyElement<T extends Element> extends Element {
 
 	protected List<? extends T> elements = Collections.emptyList();
-	
+
 	protected ProxyElement(Segment seg) {
 		super(seg);
 	}
@@ -17,7 +17,11 @@ public class ProxyElement<T extends Element> extends Element {
 	public final void set(List<? extends T> elements) {
 		this.elements = elements;
 	}
-	
+
+	protected final int proxyElements() {
+		return elements.size();
+	}
+
 	@Override
 	public void setOffset(int offset) {
 		super.setOffset(offset);
@@ -26,7 +30,7 @@ public class ProxyElement<T extends Element> extends Element {
 			offset = element.nextElementOffset(offset);
 		}
 	}
-	
+
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
 		String sep = "";

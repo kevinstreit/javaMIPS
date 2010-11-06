@@ -37,7 +37,6 @@ public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 		opcodeMap.put(Opcode.addiu, IntFunct.addu);
 		opcodeMap.put(Opcode.slti, IntFunct.slt);
 		opcodeMap.put(Opcode.sltiu, IntFunct.sltu);
-
 	}
 
 	ImmGen(Segment seg, String pseudoOpName, Opcode opc, Reg rt, Option<Reg> base, T expr) {
@@ -57,9 +56,12 @@ public abstract class ImmGen<T extends Expr> extends ProxyElement<Insn> {
 		return genImm(base, temp, expr);
 	}
 
-	protected final List<Insn> genImm(Reg base, Reg temp, T expr) {
+	protected final List<Insn> genImm(Reg base, Reg temp, T addr) {
+		return genImm(base, temp, addr.eval());
+	}
+
+	protected final List<Insn> genImm(Reg base, Reg temp, int addr) {
 		List<Insn> res;
-		int addr = expr.eval();
 
 		if (opcode.getKind() == Kind.LOAD_STORE)
 			res = immGenLoadStore(base, temp, addr);

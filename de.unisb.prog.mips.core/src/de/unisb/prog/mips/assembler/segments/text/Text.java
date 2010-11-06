@@ -79,7 +79,7 @@ public class Text extends Segment {
 
 	}
 	public Element address(Reg rt, Option<Reg> reg, Address addr) {
-		LoadAddress e = new LoadAddress(this, rt, reg, addr);
+		AddrInsn e = new AddrInsn(this, "la", Opcode.addiu, rt, reg, addr);
 		immGenInsns.add(e);
 		relocate.add(e);
 		add(e);
@@ -98,9 +98,10 @@ public class Text extends Segment {
 	}
 
 	public Element loadstore(Opcode opc, Reg rt, Option<Reg> base, Address addr) {
-		DataRef dr = new DataRef(this, opc, rt, base, addr);
+		AddrInsn dr = new AddrInsn(this, opc, rt, base, addr);
 		add(dr);
 		immGenInsns.add(dr);
+		relocate.add(dr);
 		return dr;
 	}
 

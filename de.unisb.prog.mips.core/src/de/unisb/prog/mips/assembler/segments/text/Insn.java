@@ -49,4 +49,8 @@ class Insn extends Element {
 		return true;
 	}
 
+	public static Insn nop(Segment s) {
+		return new Insn(s, 0);
+	}
+
 }
