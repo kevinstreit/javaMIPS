@@ -131,7 +131,11 @@ public class MIPSCore {
 			}
 			@Override public void editorClosed(IEditorPart editor) {
 				if (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor() == null) {
-					MIPSCore.getInstance().unloadASM();
+					try {
+						MIPSCore.getInstance().unloadASM();
+					} catch (Exception e) {
+						// Nothing to be done
+					}
 				}
 			}
 		};
