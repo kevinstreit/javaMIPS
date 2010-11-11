@@ -121,10 +121,6 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		mem.store(addr, val, tp);
 	}
 
-	private int gp(int reg) {
-		return reg == 0 ? 0 : gp[reg & 0x1f];
-	}
-
 	public Instruction j(Opcode opc, int imm) {
 		switch (opc) {
 		case jal: gp[31] = pc + 4;
@@ -134,7 +130,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	}
 
 	public Instruction i(RegImm ri, int rs, int imm) {
-		int s = gp(rs);
+		int s = gp[rs];
 		imm = ri.extendImm(imm);
 		switch (ri) {
 		case bgezl:
@@ -150,8 +146,8 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	}
 
 	public Instruction i(Opcode opc, int rs, int rt, int imm) {
-		int s = gp(rs);
-		int t = gp(rt);
+		int s = gp[rs];
+		int t = gp[rt];
 		imm = opc.extendImm(imm);
 		switch (opc) {
 		case beql:
@@ -185,12 +181,13 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case sw:    store(s + imm, Type.WORD, t); break;
 		case swr:   break; // TODO Implement
 		}
+		gp[0] = 0;
 		return opc;
 	}
 
 	public Instruction r(IntFunct funct, int rs, int rt, int rd, int shamt) {
-		int s = gp(rs);
-		int t = gp(rt);
+		int s = gp[rs];
+		int t = gp[rt];
 		switch (funct) {
 		case sll:     gp[rd] = t << shamt; break;
 		case srl:     gp[rd] = t >>> shamt; break;
@@ -263,6 +260,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case slt:     gp[rd] = s < t ? 1 : 0; break;
 		case sltu:    gp[rd] = cmpltu(s, t); break;
 		}
+		gp[0] = 0;
 		return funct;
 	}
 }
