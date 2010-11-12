@@ -67,12 +67,6 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		gp  = new int[32];
 	}
 
-	private static int cmpltu(int a, int b) {
-		long la = a & 0xffffffffL;
-		long lb = b & 0xffffffffL;
-		return la < lb ? 1 : 0;
-	}
-
 	public boolean step(boolean dontBreakOnFirst) {
 		if (state != ExecutionState.RUNNING)
 			return false;
@@ -121,6 +115,25 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		mem.store(addr, val, tp);
 	}
 
+	private static int cmpltu(int a, int b) {
+		long la = a & 0xffffffffL;
+		long lb = b & 0xffffffffL;
+		return la < lb ? 1 : 0;
+	}
+
+	private static boolean doesOverflow(int x, int y) {
+		// compute the carry bits at every position
+		int c = (x + y) ^ x ^ y;
+		return c < 0;
+	}
+
+	private void addSigned(int targetReg, int x, int y) {
+		if (doesOverflow(x, y))
+			exc.overflow(this, mem, pc);
+		else
+			gp[targetReg] = x + y;
+	}
+
 	public Instruction j(Opcode opc, int imm) {
 		switch (opc) {
 		case jal: gp[31] = pc + 4;
@@ -159,8 +172,8 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		case bgtzl:
 		case bgtz:  pc += s > 0 ? imm << 2 : 4; break;
 
-		case addi:  gp[rt] = s + imm; break;
-		case addiu: gp[rt] = s + imm; break; // TODO: Correct!
+		case addi:  addSigned(rt, s, imm); break;
+		case addiu: gp[rt] = s + imm; break;
 		case slti:  gp[rt] = s < imm ? 1 : 0; break;
 		case sltiu: gp[rt] = cmpltu(s, imm); break;
 		case andi:  gp[rt] = s & imm; break;
@@ -249,9 +262,9 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 			}
 		}
 		break;
-		case add:     gp[rd] = s + t; break;
+		case add:     addSigned(rd, s, t); break;
 		case addu:    gp[rd] = s + t; break;
-		case sub:     gp[rd] = s - t; break;
+		case sub:     addSigned(rs, s, -t); break;
 		case subu:    gp[rd] = s - t; break;
 		case and:     gp[rd] = s & t; break;
 		case or:      gp[rd] = s | t; break;

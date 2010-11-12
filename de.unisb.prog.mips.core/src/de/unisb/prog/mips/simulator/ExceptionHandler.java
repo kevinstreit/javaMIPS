@@ -5,6 +5,7 @@ public interface ExceptionHandler {
 	void breakpoint(ProcessorState state, Memory mem);
 	void illegalInstruction(ProcessorState state, Memory mem, int addr);
 	void unalignedMemory(ProcessorState state, Memory mem, int addr);
+	void overflow(ProcessorState state, Memory mem, int addr);
 
 	public static final ExceptionHandler SILENT = new ExceptionHandler() {
 
@@ -15,6 +16,9 @@ public interface ExceptionHandler {
 		}
 
 		public void breakpoint(ProcessorState state, Memory mem) {
+		}
+
+		public void overflow(ProcessorState state, Memory mem, int addr) {
 		}
 	};
 

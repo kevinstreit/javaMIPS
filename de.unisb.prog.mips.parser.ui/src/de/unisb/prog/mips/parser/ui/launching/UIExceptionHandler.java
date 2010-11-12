@@ -27,6 +27,11 @@ public class UIExceptionHandler implements ExceptionHandler {
 		reportError(state, mem, addr, "Unaligned Memory");
 	}
 
+	public void overflow(ProcessorState state, Memory mem, int addr) {
+		reportError(state, mem, addr, "Overflow");
+	}
+
+
 	private void reportError(ProcessorState state, Memory mem, int addr, String message, Object... args) {
 		Assembly asm = MIPSCore.getInstance().getAsm();
 
