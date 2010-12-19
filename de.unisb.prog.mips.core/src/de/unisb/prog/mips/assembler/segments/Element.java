@@ -42,14 +42,6 @@ public abstract class Element implements Expr {
 		this.offset = offset;
 	}
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
 	public int eval() {
 		return getOffset();
 	}

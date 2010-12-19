@@ -28,7 +28,6 @@ import de.unisb.prog.mips.parser.mips.Asm;
 import de.unisb.prog.mips.parser.mips.Byte;
 import de.unisb.prog.mips.parser.mips.Const;
 import de.unisb.prog.mips.parser.mips.DataDecl;
-import de.unisb.prog.mips.parser.mips.DataItem;
 import de.unisb.prog.mips.parser.mips.DataSegment;
 import de.unisb.prog.mips.parser.mips.Expression;
 import de.unisb.prog.mips.parser.mips.Extern;
@@ -92,27 +91,14 @@ public class Generate {
 	public void generate(SetAt dummy, Segment seg) {
 	}
 
-	private void labelElement(LabelDef label, EObject positionItem, Element elm) {
-		Position pos = new EObjectPosition(positionItem);
-		if (label != null) {
-			String name = label.getLabel().getName();
-			elm.setLabel(name);
-			try {
-				assembly.defineLabel(elm);
-			} catch (LabelAlreadyDefinedException e) {
-				assembly.getReporter().error(String.format("label \"%s\" is multiply defined", name), pos);
-			}
-		}
+	private void setPosition(Element elm, EObject posItem) {
+		Position pos = new EObjectPosition(posItem);
 		elm.setPosition(pos);
 	}
 
-	public void generate(DataItem item, Segment s) {
-		Element elm = elementDispatcher.invoke(item.getData(), assembly.getData());
-		labelElement(item.getLabel(), item.getData(), elm);
-	}
-
-	public Element generate(DataDecl decl, Segment s) {
-		return elementDispatcher.invoke(decl.getItem(), s);
+	public void generate(DataDecl item, Segment s) {
+		Element elm = elementDispatcher.invoke(item.getItem(), assembly.getData());
+		setPosition(elm, item);
 	}
 
 	public Element generate(Asciiz str, Segment seg) {
@@ -158,7 +144,18 @@ public class Generate {
 
 	public void generate(TextItem i, Segment s) {
 		Element elm = elementDispatcher.invoke(i.getItem(), assembly.getText());
-		labelElement(i.getLabel(), i.getItem(), elm);
+		setPosition(elm, i);
+	}
+
+	public void generate(LabelDef l, Segment s) {
+		String name = l.getLabel().getName();
+		Position pos = new EObjectPosition(l);
+		try {
+			Element e = s.label(name);
+			e.setPosition(pos);
+		} catch (LabelAlreadyDefinedException e) {
+			assembly.getReporter().error(String.format("label \"%s\" is multiply defined", name), pos);
+		}
 	}
 
 	public Element generate(Space space, Segment s) {

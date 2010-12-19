@@ -10,6 +10,7 @@ import java.util.List;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.ErrorReporter;
 import de.unisb.prog.mips.assembler.Expr;
+import de.unisb.prog.mips.assembler.LabelAlreadyDefinedException;
 import de.unisb.prog.mips.assembler.MemoryLayout;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.simulator.MemDumpFormatter;
@@ -196,6 +197,20 @@ public abstract class Segment implements Iterable<Element> {
 		Element res = new Values(this, vals, Type.WORD);
 		add(res);
 		return res;
+	}
+
+	public Label label(String name) throws LabelAlreadyDefinedException {
+		assertState(Segment.State.BUILDING);
+		Label label = new Label(this, name);
+		add(label);
+		assembly.defineLabel(label);
+		return label;
+	}
+
+	public Label global(String name) throws LabelAlreadyDefinedException {
+		Label l = label(name);
+		assembly.makeGlobal(l);
+		return l;
 	}
 
 	public final <T> void dump(T out, Memory mem, MemDumpFormatter<T> fmt) throws IOException {

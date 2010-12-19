@@ -1,6 +1,6 @@
 package de.unisb.prog.mips.assembler;
 
-import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Label;
 import de.unisb.prog.mips.assembler.segments.Segment;
 
 public class Null {
@@ -24,13 +24,12 @@ public class Null {
 	};
 
 	private static final String NULL_LABEL = "@null";
-	private static Element NULL_ELEMENT = null;
+	private static Label NULL_ELEMENT = null;
 	private static LabelRef NULL_REF = null;
 
-	public static Element getElement() {
+	public static Label getElement() {
 		if (NULL_ELEMENT == null) {
-			NULL_ELEMENT = NULL_SEGMENT.space(0);
-			NULL_ELEMENT.setLabel(NULL_LABEL);
+			NULL_ELEMENT = new Label(NULL_SEGMENT, NULL_LABEL);
 			NULL_SEGMENT.prepare(ErrorReporter.POSITION_STD_REPORTER);
 			NULL_SEGMENT.relocate(ErrorReporter.POSITION_STD_REPORTER);
 		}

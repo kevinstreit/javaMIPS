@@ -9,16 +9,17 @@ import java.util.Map;
 import java.util.Set;
 
 import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Label;
 import de.unisb.prog.mips.assembler.segments.Segment;
 
 public class SymbolTable {
 
 	private final Map<String, List<LabelRef>> unresolved = new HashMap<String, List<LabelRef>>();
-	private final Map<String, Element> defined           = new HashMap<String, Element>();
+	private final Map<String, Label> defined             = new HashMap<String, Label>();
 	private final Set<String> global                     = new HashSet<String>();
 
 	public LabelRef createRef(Assembly asm, String label) {
-		Element target = defined.get(label);
+		Label target = defined.get(label);
 		if (target != null)
 			return new LabelRef(target);
 
@@ -32,7 +33,7 @@ public class SymbolTable {
 		return res;
 	}
 
-	public void defineLabel(Element definer) throws LabelAlreadyDefinedException {
+	public void defineLabel(Label definer) throws LabelAlreadyDefinedException {
 		String label = definer.getLabel();
 		if (label == null)
 			return;
@@ -59,14 +60,14 @@ public class SymbolTable {
 		global.add(label);
 	}
 
-	public void makeGlobal(Element e) {
+	public void makeGlobal(Label e) {
 		makeGlobal(e.getLabel());
 	}
 
 	public void integrate(SymbolTable other) throws LabelAlreadyDefinedException {
 		// connect unresolved labels in other assembly to this if possible
 		for (String global : this.global) {
-			Element e = defined.get(global);
+			Label e = defined.get(global);
 			if (e == null)
 				throw new IllegalStateException("global label " + global + " should be defined in this assembly");
 			List<LabelRef> refs = other.unresolved.get(e.getLabel());
@@ -78,7 +79,7 @@ public class SymbolTable {
 
 		// kill unresolved labels in this assembly
 		for (String global : other.global) {
-			Element e = other.defined.get(global);
+			Label e = other.defined.get(global);
 			if (e != null) {
 				defineLabel(e);
 				this.global.add(global);
@@ -112,7 +113,7 @@ public class SymbolTable {
 		}
 
 		for (String s : unresolved.keySet()) {
-			app.append(String.format("%20s u %08x\n", s, defined.get(s).getOffset()));
+			app.append(String.format("%20s u\n", s, unresolved.get(s)));
 		}
 	}
 

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import de.unisb.prog.mips.assembler.segments.Data;
 import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Label;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.assembler.segments.text.Text;
 import de.unisb.prog.mips.simulator.Memory;
@@ -98,7 +99,7 @@ public class Assembly extends SymbolTable {
 			try {
 				linked.linkWith(asm);
 			} catch (LabelAlreadyDefinedException e) {
-				Element labelled = e.definer;
+				Label labelled = e.label;
 				reporter.error(labelled.getPosition(), "label \"%s\" multiply defined", labelled.getLabel());
 			}
 		}

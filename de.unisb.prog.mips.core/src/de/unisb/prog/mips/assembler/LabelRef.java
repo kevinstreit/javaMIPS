@@ -3,14 +3,15 @@ package de.unisb.prog.mips.assembler;
 import java.io.IOException;
 
 import de.unisb.prog.mips.assembler.segments.Element;
+import de.unisb.prog.mips.assembler.segments.Label;
 import de.unisb.prog.mips.assembler.segments.Segment;
 
 public class LabelRef implements Address {
 
-	private Element target;
+	private Label target;
 	private final String name;
 
-	LabelRef(Element target) {
+	LabelRef(Label target) {
 		this.target = target;
 		this.name = target.getLabel();
 	}
@@ -26,9 +27,9 @@ public class LabelRef implements Address {
 		return this.target;
 	}
 
-	void connectToElement(Element elm) {
-		assert elm != null;
-		this.target = elm;
+	void connectToElement(Label l) {
+		assert l != null;
+		this.target = l;
 	}
 
 	String getLabel() {
@@ -49,6 +50,10 @@ public class LabelRef implements Address {
 
 	public boolean isValid() {
 		return this.target != null;
+	}
+
+	public Label makeLabel(Segment s) throws LabelAlreadyDefinedException {
+		return s.label(name);
 	}
 
 }
