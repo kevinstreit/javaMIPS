@@ -14,7 +14,9 @@ import de.unisb.prog.mips.assembler.Reg;
 import de.unisb.prog.mips.assembler.segments.Element;
 import de.unisb.prog.mips.assembler.segments.Segment;
 import de.unisb.prog.mips.insn.Instruction;
+import de.unisb.prog.mips.insn.IntFunct;
 import de.unisb.prog.mips.insn.Opcode;
+import de.unisb.prog.mips.os.SysCallID;
 import de.unisb.prog.mips.util.Option;
 
 public class Text extends Segment {
@@ -55,6 +57,7 @@ public class Text extends Segment {
 		word = rd.encodeInto(word, Instruction.FIELD_RD);
 		word = rs.encodeInto(word, Instruction.FIELD_RS);
 		word = rt.encodeInto(word, Instruction.FIELD_RT);
+		word = Instruction.FIELD_SHAMT.insert(word, shamt);
 		Element res = new Insn(this, word);
 		add(res);
 		return res;
@@ -133,6 +136,14 @@ public class Text extends Segment {
 		return aj;
 	}
 
+	public Element syscall(SysCallID id) {
+		return syscall(id.ordinal());
+	}
+
+	public Element syscall(int id) {
+		imm(Opcode.addiu, Reg.zero, Reg.v0, id);
+		return normal(IntFunct.syscall, Reg.zero, Reg.zero, Reg.zero);
+	}
 
 	private void rewriteDataInsns() {
 		assertState(State.BUILDING);
