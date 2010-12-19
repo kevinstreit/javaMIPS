@@ -17,7 +17,7 @@ public class Sys implements MemoryLayout {
 		this.sim = new Processor(this.mem, exch, sys);
 	}
 
-	public boolean load(Assembly asm) {
+	public boolean load(Assembly asm, int initPc) {
 		this.vm.reset();
 		asm.relocate(this);
 		asm.writeToMem(this.mem);
@@ -37,6 +37,29 @@ public class Sys implements MemoryLayout {
 		}
 	}
 
+	public boolean load(Assembly asm) {
+		return load(asm, "main");
+	}
+
+	public boolean load(Assembly asm, String symbol) {
+		this.vm.reset();
+		asm.relocate(this);
+		asm.writeToMem(this.mem);
+
+		this.sim.gp[Reg.gp.ordinal()] = dataStart() + 32768;
+		this.sim.gp[Reg.sp.ordinal()] = stackStart();
+		this.sim.pc = textStart();
+
+		try {
+			Element main = asm.lookupElement(symbol);
+			this.sim.pc = main.addressOf();
+			return true;
+		} catch (LabelNotDefinedException e) {
+			asm.getReporter().error("global label \"" + symbol + "\" not found");
+			this.sim.pc = textStart();
+			return false;
+		}
+	}
 	public Memory getMemory() {
 		return this.mem;
 	}
