@@ -8,6 +8,7 @@ import de.unisb.prog.mips.insn.IllegalOpcodeException;
 import de.unisb.prog.mips.insn.Instruction;
 import de.unisb.prog.mips.insn.Instructions;
 import de.unisb.prog.mips.insn.IntFunct;
+import de.unisb.prog.mips.insn.Kind;
 import de.unisb.prog.mips.insn.Opcode;
 import de.unisb.prog.mips.insn.RegImm;
 
@@ -88,7 +89,23 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 
 		try {
 			Instruction i = Instructions.decode(insn, this);
-			if (! i.getKind().changesPc())
+			Kind kind = i.getKind();
+
+			switch (kind) {
+			case ABS_JUMP:
+			case INDIR_JUMP:
+			case REL_JUMP_CMP_REG:
+			case REL_JUMP_CMP_ZERO:
+				ticks += 5;
+				break;
+			case LOAD_STORE:
+				ticks += 20;
+				break;
+			default:
+				ticks += 1;
+			}
+
+			if (! kind.changesPc())
 				pc += 4;
 		} catch (IllegalOpcodeException e) {
 			if (exc != null)
