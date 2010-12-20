@@ -2,7 +2,7 @@
 
 FILENAME=`ls -1 javaMIPS\ Update\ Site/plugins/de.unisb.prog.mips.core_*.jar`;
 
-if [ -z $FILENAME ]; then
+if [ -z ${FILENAME} ]; then
     echo Could not find the mips core jar \(javaMIPS Update Site/plugins/de.unisb.prog.mips.core_*.jar\)
     exit
 fi
