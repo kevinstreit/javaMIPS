@@ -18,6 +18,7 @@ import org.eclipse.ui.part.ViewPart;
 import de.unisb.prog.mips.assembler.Assembly;
 import de.unisb.prog.mips.assembler.Position;
 import de.unisb.prog.mips.parser.ui.MIPSCore;
+import de.unisb.prog.mips.parser.ui.launching.IAssemblyLoadListener;
 import de.unisb.prog.mips.parser.ui.launching.IExecutionListener;
 import de.unisb.prog.mips.parser.ui.launching.RunnableMIPSPropTester;
 import de.unisb.prog.mips.parser.ui.util.MIPSConsoleOutput;
@@ -25,7 +26,7 @@ import de.unisb.prog.mips.simulator.Processor;
 import de.unisb.prog.mips.simulator.ProcessorState.ExecutionState;
 import de.unisb.prog.mips.simulator.Sys;
 
-public class MIPSConsoleView extends ViewPart implements IExecutionListener, IActiveEditorProvider {
+public class MIPSConsoleView extends ViewPart implements IExecutionListener, IActiveEditorProvider, IAssemblyLoadListener {
 	public static final String ID = "de.unisb.prog.mips.parser.ui.views.MIPSConsoleView";
 
 	private StyledText text;
@@ -55,6 +56,7 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 		out = new MIPSConsoleOutput(text);
 		MIPSCore.getInstance().setConsoleOut(out);
 		MIPSCore.getInstance().addExecutionListener(this);
+		MIPSCore.getInstance().addAssemblyLoadListener(this);
 		makeActions();
 		contributeToActionBars();
 
@@ -307,5 +309,13 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 
 	public IEditorPart getActiveEditor() {
 		return lastActiveEditor;
+	}
+
+	public void assemblyLoaded(Assembly asm, Sys sys) {
+		checkActionEnablement();
+	}
+
+	public void assemblyReset() {
+		checkActionEnablement();
 	}
 }

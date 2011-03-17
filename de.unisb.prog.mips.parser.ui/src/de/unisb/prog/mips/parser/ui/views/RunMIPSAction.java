@@ -41,6 +41,7 @@ public class RunMIPSAction extends Action {
 	public void checkEnablement() {
 		setEnabled(
 				editorProvider.getActiveEditor() != null
+				&& MIPSCore.getInstance().getAsm() != null
 				&& (
 						MIPSCore.getInstance().getExecutionState() == null
 						|| MIPSCore.getInstance().getExecutionState() == ExecutionState.HALTED
