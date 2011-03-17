@@ -64,10 +64,10 @@ public class MIPSConsoleView extends ViewPart implements IExecutionListener, IAc
 			IPropertyListener propListener = new IPropertyListener() {
 				public void propertyChanged(Object source, int propId) {
 					if (
-							source instanceof IEditorPart
-							&& propId == IEditorPart.PROP_DIRTY
-							&& ((IEditorPart) source).isDirty()
-							&& RunnableMIPSPropTester.isMIPSRunnable(((IEditorPart) source).getEditorInput())
+						source instanceof IEditorPart
+						&& propId == IEditorPart.PROP_DIRTY
+						&& ((IEditorPart) source).isDirty()
+						&& RunnableMIPSPropTester.isMIPSRunnable(((IEditorPart) source).getEditorInput())
 					) {
 						ExecutionState state = MIPSCore.getInstance().getExecutionState();
 

@@ -344,6 +344,7 @@ public class MIPSCore {
 			execFinished(sys, asm, true);
 		}
 
+		setExitCode(0);
 		runningJob = new Job("Run MIPS") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
