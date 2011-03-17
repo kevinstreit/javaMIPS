@@ -59,6 +59,8 @@ public class BuildUtil {
 			return assemblies;
 		} catch (CoreException e) {
 			return null;
+		} catch (IllegalStateException e) {
+			return null;
 		}
 	}
 }
