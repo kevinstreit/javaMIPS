@@ -11,7 +11,7 @@ Directive: {Global} ".globl" label=[Label]
          | {SetAt} ".set" ID
          ;
 
-TextSegment: ".text" (addr=HEXINT)? (items+=LabelDef? (items+=TextItem | items+=Directive))+;
+TextSegment: ".text" (addr=HEXINT)? (items+=TextItem | items+=Directive | items+=LabelDef)+;
 TextItem:    item=(Insn | Align | Word);
 
 Insn hidden(COMMENT,WHITE): opcode=ID (regs+=Reg)* (addr=Addr)? ('(' base=Reg ')')? NL;
@@ -24,12 +24,12 @@ Mult  returns Expression: Unary (({Mul.left=current} '*' | {Shra.left=current} "
 Unary returns Expression: ({Minus} '-' | {Unary}) expr=Prim;
 Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
-DataSegment: ".data" (addr=HEXINT)? (items+=LabelDef? (items+=DataDecl | items+=Directive))+;
+DataSegment:  ".data" (addr=HEXINT)? (items+=DataDecl | items+=Directive | items+=LabelDef)+;
 
 DataDecl : item=(Str | Align | Space | Byte | Half | Word);
 	
-Label:       ^name=ID ;
-LabelDef:    label=Label ':' ;
+Label:       ^name=ID;
+LabelDef:    label=Label ':';
 Align:       ".align" (align=INT) ;
 Space:       ".space" (bytes=INT);
 Word:        ".word" vals=AddrList;
