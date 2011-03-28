@@ -14,8 +14,8 @@ public class Memory {
 
 	public void store(int addr, int val, Type tp) {
 		int sz    = tp.sizeof();
-		int start = bigEndian ? 0 : (sz - 1);
-		int inc   = bigEndian ? 1 : -1;
+		int start = bigEndian ? (sz - 1) : 0;
+		int inc   = bigEndian ? -1 : 1;
 		int end   = start + sz * inc;
 		for (int i = start; i != end; i += inc) {
 			byte b = (byte) (val & 0xff);
@@ -26,8 +26,8 @@ public class Memory {
 
 	public int load(int addr, Type tp) {
 		int sz    = tp.sizeof();
-		int start = !bigEndian ? 0 : (sz - 1);
-		int inc   = !bigEndian ? 1 : -1;
+		int start = bigEndian ? 0 : (sz - 1);
+		int inc   = bigEndian ? 1 : -1;
 		int end   = start + sz * inc;
 		int res   = 0;
 		for (int i = start; i != end; i += inc) {
