@@ -107,6 +107,8 @@ public abstract class Segment implements Iterable<Element> {
 		for (Element e : this) {
 			e.setOffset(ofs);
 			ofs = e.nextElementOffset(ofs);
+			// TODO: Automatic alignment of .word, .half and .double
+			// TODO: Switching off automatic alignment by .align 0
 		}
 
 		this.size = ofs;
