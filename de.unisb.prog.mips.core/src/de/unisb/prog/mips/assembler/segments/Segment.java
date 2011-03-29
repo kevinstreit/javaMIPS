@@ -103,12 +103,15 @@ public abstract class Segment implements Iterable<Element> {
 	public final void assignOffsets() {
 		assertState(State.PSEUDOS_EXPANDED);
 		int ofs = 0;
+		boolean automaticAlignment = true;
 
 		for (Element e : this) {
-			e.setOffset(ofs);
-			ofs = e.nextElementOffset(ofs);
-			// TODO: Automatic alignment of .word, .half and .double
-			// TODO: Switching off automatic alignment by .align 0
+			e.setOffset(ofs, automaticAlignment);
+			ofs = e.nextElementOffset(e.getOffset());
+			if (e instanceof Align) {
+				Align a = (Align) e;
+				automaticAlignment &= !a.turnsOffAlignment();
+			}
 		}
 
 		this.size = ofs;
@@ -157,7 +160,7 @@ public abstract class Segment implements Iterable<Element> {
 			@Override public void writeToMem(Memory mem, int addr) {  }
 		};
 		int offset = addr - getBase();
-		dummy.setOffset(offset);
+		dummy.setOffset(offset, false);
 
 		int index = Collections.binarySearch(this.elements, dummy, new Comparator<Element>() {
 			public int compare(Element p, Element q) {

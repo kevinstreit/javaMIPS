@@ -38,7 +38,7 @@ public abstract class Element implements Expr {
 		return offset;
 	}
 
-	public void setOffset(int offset) {
+	public void setOffset(int offset, boolean automaticallyAlign) {
 		this.offset = offset;
 	}
 
@@ -65,7 +65,9 @@ public abstract class Element implements Expr {
 	}
 
 	protected abstract void appendInternal(Appendable app) throws IOException;
+
 	public abstract int nextElementOffset(int pos);
+
 	public abstract void writeToMem(Memory mem, int addr);
 
 }

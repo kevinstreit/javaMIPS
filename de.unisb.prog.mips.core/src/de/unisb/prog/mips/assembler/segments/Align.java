@@ -5,9 +5,9 @@ import java.io.IOException;
 import de.unisb.prog.mips.simulator.Memory;
 
 public class Align extends Element {
-	
+
 	private final int powerOfTo;
-	
+
 	public Align(Segment seg, int powerOfTo) {
 		super(seg);
 		this.powerOfTo = powerOfTo;
@@ -27,6 +27,10 @@ public class Align extends Element {
 	@Override
 	protected void appendInternal(Appendable app) throws IOException {
 		app.append(String.format(".align %d", powerOfTo));
+	}
+
+	public boolean turnsOffAlignment() {
+		return powerOfTo == 0;
 	}
 
 }

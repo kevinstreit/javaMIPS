@@ -8,10 +8,10 @@ import de.unisb.prog.mips.simulator.Memory;
 import de.unisb.prog.mips.simulator.Type;
 
 public class Values extends Element {
-	
+
 	private final Type elementType;
 	private final List<Expr> values;
-	
+
 	Values(Segment seg, List<Expr> values, Type elementType) {
 		super(seg);
 		this.elementType = elementType;
@@ -39,5 +39,10 @@ public class Values extends Element {
 			e.append(app);
 			prefix = ", ";
 		}
+	}
+
+	@Override
+	public void setOffset(int offset, boolean automaticallyAlign) {
+		super.setOffset(automaticallyAlign ? elementType.align(offset) : offset, false);
 	}
 }

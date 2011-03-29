@@ -23,10 +23,10 @@ public class ProxyElement<T extends Element> extends Element {
 	}
 
 	@Override
-	public void setOffset(int offset) {
-		super.setOffset(offset);
+	public void setOffset(int offset, boolean automaticallyAlign) {
+		super.setOffset(offset, automaticallyAlign);
 		for (T element : elements) {
-			element.setOffset(offset);
+			element.setOffset(offset, automaticallyAlign);
 			offset = element.nextElementOffset(offset);
 		}
 	}
