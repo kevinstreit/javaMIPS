@@ -121,9 +121,9 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 	}
 
 	private int load(int addr, Type tp, boolean signExtend) {
-		if (! tp.isAligned(addr))
+		if (!tp.isAligned(addr))
 			exc.unalignedMemory(this, mem, addr);
-		return mem.load(addr, tp);
+		return signExtend ? tp.signExtend(mem.load(addr, tp)) : mem.load(addr, tp);
 	}
 
 	private void store(int addr, Type tp, int val) {
