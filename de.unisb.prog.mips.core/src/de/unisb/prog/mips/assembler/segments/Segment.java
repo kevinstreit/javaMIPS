@@ -101,6 +101,9 @@ public abstract class Segment implements Iterable<Element> {
 	}
 
 	public final void assignOffsets() {
+		// Alignment here assumes the base address to be word aligned since it aligns the offsets as opposed to the addresses
+		// TODO: Ensure alignment of base address or take base address into account when aligning
+
 		assertState(State.PSEUDOS_EXPANDED);
 		int ofs = 0;
 		boolean automaticAlignment = true;
