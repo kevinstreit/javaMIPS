@@ -15,7 +15,6 @@ public class NumLiteralConverter extends AbstractValueConverter<Integer> {
 
 	public Integer toValue(String string, AbstractNode node) {
 		try {
-			System.out.println(string);
 			long v = Long.decode(string);
 			int hi = (int) (v >>> 32);
 			int lo = (int) (v & 0xffffffff);
