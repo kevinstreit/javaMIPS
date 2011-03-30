@@ -100,6 +100,13 @@ public class Generators {
 		}
 	};
 
+	public static final InstructionGenerator LUI = new RegGenerator(AddressMode.EXPR, T) {
+		@Override
+		protected int addEncoding(int word, OperandInstance inst) {
+			return Instruction.FIELD_IMM.insert(word, inst.getExpr().eval());
+		}
+	};
+
 	public static final InstructionGenerator ABSJUMP = new InstructionGenerator(AddressMode.LABEL, NONE) {
 		@Override
 		public Element generate(Text text, String opcode, OperandInstance inst) {
@@ -213,6 +220,11 @@ public class Generators {
 		register(RegImm.class);
 
 		// some exceptions :)
+
+		// grrrr! lui is the only opcode instruction where RS has to be 0!
+		registry.get(Opcode.lui.name()).clear();
+		register(Opcode.lui,       LUI);
+
 		register(IntFunct.sll,     SHAMT);
 		register(IntFunct.srl,     SHAMT);
 		register(IntFunct.sra,     SHAMT);
