@@ -14,19 +14,16 @@ public class NumLiteralConverter extends AbstractValueConverter<Integer> {
 	}
 
 	public Integer toValue(String string, AbstractNode node) {
-		if (string.length() == 0)
-			throw new ValueConverterException("Couldn't convert empty string to int.", node, null);
-		if (string.startsWith("0x") || string.startsWith("0x")) {
-			try {
-				return Integer.parseInt(string.substring(2), 16);
-			}
-			catch (NumberFormatException e) {
-				throw new ValueConverterException("Couldn't convert '" + string + "' to int.", node, e);
-			}
-		}
 		try {
-			return Integer.valueOf(string);
-		} catch (NumberFormatException e) {
+			System.out.println(string);
+			long v = Long.decode(string);
+			int hi = (int) (v >>> 32);
+			int lo = (int) (v & 0xffffffff);
+			if (hi == -1 || hi == 0)
+				return lo;
+			throw new ValueConverterException("Couldn't convert '" + string + "' to int.", node, null);
+		}
+		catch (NumberFormatException e) {
 			throw new ValueConverterException("Couldn't convert '" + string + "' to int.", node, e);
 		}
 	}

@@ -21,8 +21,8 @@ Reg: (INTREG | TXTREG);
 Addr:  label=[Label] ("+"|"-") expr=CExpr | label=[Label] | expr=CExpr;
 CExpr returns Expression: Mult (({Add.left=current} '+'| {Sub.left=current} '-') right=Mult)*;
 Mult  returns Expression: Unary (({Mul.left=current} '*' | {Shra.left=current} ">>" | {Shr.left=current} ">>>" | {Shl.left=current} "<<") right=Unary)*;
-Unary returns Expression: ({Minus} '-' | {Unary}) expr=Prim;
-Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
+Unary returns Expression: ({Minus} '-' '(' expr=CExpr ')' | {Prim} '(' expr=CExpr ')' | {Const} cnst=PNInt);
+// Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
 DataSegment: ".data" (addr=HEXINT)? NL* (items+=DataDecl | items+=Directive | items+=LabelDef) (items+=DataDecl | items+=Directive | items+=LabelDef | NL)*;
 
@@ -39,10 +39,13 @@ Str:         ({Asciiz} ".asciiz" | {Ascii} ".ascii") val=STRING;
 
 IntList:     vals+=PNInt (',' vals+=PNInt)*;
 AddrList:    vals+=Addr (',' vals+=Addr)*;
-PNInt:       val=(INT | HEXINT);
+PNInt:       val=(INT | HEXINT | NINT | NHEXINT);
+PInt:        val=(INT | HEXINT);
 
-terminal INT    returns ecore::EInt: ('0'..'9') ('0'..'9')*;
-terminal HEXINT returns ecore::EInt: '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
+terminal INT     returns ecore::EInt: '0' | (('1'..'9') ('0'..'9')*);
+terminal HEXINT  returns ecore::EInt: '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
+terminal NINT    returns ecore::EInt: '-' ('0' | (('1'..'9') ('0'..'9')*));
+terminal NHEXINT returns ecore::EInt: '-' '0' 'x' ('0'..'9'|'a'..'f'|'A'..'F')+;
 	
 terminal INTREG   : '$' ('0'..'9')+;
 terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;

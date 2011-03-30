@@ -38,6 +38,7 @@ import de.unisb.prog.mips.parser.mips.LabelDef;
 import de.unisb.prog.mips.parser.mips.Minus;
 import de.unisb.prog.mips.parser.mips.Mul;
 import de.unisb.prog.mips.parser.mips.PNInt;
+import de.unisb.prog.mips.parser.mips.Prim;
 import de.unisb.prog.mips.parser.mips.SetAt;
 import de.unisb.prog.mips.parser.mips.Shl;
 import de.unisb.prog.mips.parser.mips.Shr;
@@ -46,7 +47,6 @@ import de.unisb.prog.mips.parser.mips.Space;
 import de.unisb.prog.mips.parser.mips.Sub;
 import de.unisb.prog.mips.parser.mips.TextItem;
 import de.unisb.prog.mips.parser.mips.TextSegment;
-import de.unisb.prog.mips.parser.mips.Unary;
 import de.unisb.prog.mips.parser.mips.Word;
 import de.unisb.prog.mips.parser.util.EObjectPosition;
 import de.unisb.prog.mips.simulator.Type;
@@ -241,7 +241,7 @@ public class Generate {
 		return Expressions.binary(Expressions.IntOp.SUB, Expressions.constantInt(0), o);
 	}
 
-	public Expr exprGen(Unary e) {
+	public Expr exprGen(Prim e) {
 		return exprDispatcher.invoke(e.getExpr());
 	}
 
