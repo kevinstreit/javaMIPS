@@ -38,10 +38,19 @@ public class UISyscallImpl implements SysCallImplementation {
 
 	public int readInt() {
 		String in = MIPSCore.getInstance().getConsoleOut().startInput(11);
+
 		try {
-			return Integer.parseInt(in);
+			long v = Long.decode(in);
+
+			int hi = (int) (v >>> 32);
+			int lo = (int) (v & 0xffffffff);
+
+			if (hi == -1 || hi == 0)
+				return lo;
+			else
+				return Integer.MIN_VALUE;
 		} catch (NumberFormatException e) {
-			return -1;
+			return Integer.MIN_VALUE;
 		}
 	}
 
