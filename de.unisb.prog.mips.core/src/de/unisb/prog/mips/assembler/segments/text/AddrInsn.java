@@ -47,7 +47,7 @@ class AddrInsn extends ImmGen<Address> implements Relocateable {
 
 			// we need to allocate enough instructions to generate the address!
 			if (addrGen.size() > proxyElements())
-				throw new IllegalStateException("address generation took to many instructions!");
+				throw new IllegalStateException("address generation took too many instructions!");
 
 			// fill up with nops, if address generation took surprisingly less instructions
 			for (int i = addrGen.size(); i < proxyElements(); i++)

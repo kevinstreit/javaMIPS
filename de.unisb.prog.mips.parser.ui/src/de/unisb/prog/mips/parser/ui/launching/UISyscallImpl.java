@@ -15,17 +15,14 @@ public class UISyscallImpl implements SysCallImplementation {
 
 	public void print(CharSequence s) {
 		out.print(s);
-		out.flush();
 	}
 
 	public void print(char ch) {
 		out.print(ch);
-		out.flush();
 	}
 
 	public void print(int v) {
 		out.print(v);
-		out.flush();
 	}
 
 	public void exit(int ret) {
@@ -40,7 +37,7 @@ public class UISyscallImpl implements SysCallImplementation {
 	}
 
 	public int readInt() {
-		String in = MIPSCore.getInstance().getConsoleOut().startInput(10);
+		String in = MIPSCore.getInstance().getConsoleOut().startInput(11);
 		try {
 			return Integer.parseInt(in);
 		} catch (NumberFormatException e) {
