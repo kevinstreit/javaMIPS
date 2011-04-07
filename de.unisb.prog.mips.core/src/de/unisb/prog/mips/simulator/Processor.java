@@ -143,7 +143,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 
 		// integer overflow iff (x[31] == y[31]) && (y[31] != (x+y)[31])
 		// see hacker's delight chapter 2-12
-		boolean overflow = ( ((x ^ s) & (y ^ s)) < 0 );
+		boolean overflow = (x ^ y) >= 0 && (y ^ s) < 0;
 
 		if (overflow)
 			exc.overflow(this, mem, pc);
