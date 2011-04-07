@@ -1,81 +1,44 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<templates>
-	<template id="sc_exit" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to exit the program (return code 0)" enabled="true" name="exit (syscall)">li $$v0 10
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a new unterminated string constant (ASCII)" enabled="true" id="ascii" name=".ascii">.ascii "${str}"
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a new unterminated globally labeled string constant (ASCII)" enabled="true" id="ascii_glob" name=".ascii (globally labeled)">.globl ${lbl}
+${lbl}:
+	.ascii "${str}"
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a new unterminated labeled string constant (ASCII)" enabled="true" id="ascii_lbl" name=".ascii (labeled)">${lbl}:
+	.ascii "${str}"
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a new zero terminated string constant (ASCIIZ)" enabled="true" id="asciiz" name=".asciiz">.asciiz "${str}"
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a new zero terminated globally labeled string constant (ASCIIZ)" enabled="true" id="asciiz_glob" name=".asciiz (globally labeled)">.globl ${lbl}
+${lbl}:
+	.asciiz "${str}"
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a new zero terminated labeled string constant (ASCIIZ)" enabled="true" id="asciiz_lbl" name=".asciiz (labeled)">${lbl}:
+	.asciiz "${str}"
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to exit the program (return code 0)" enabled="true" id="sc_exit" name="exit (syscall)">li $$v0 10
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_exit2_li" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to exit the program with a constant return code" enabled="true" name="exit with constant return code (syscall)">li $$a0 ${return_code}
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to exit the program with a constant return code" enabled="true" id="sc_exit2_li" name="exit with constant return code (syscall)">li $$a0 ${return_code}
 	li $$v0 17
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_exit2_flex" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to exit the program with a variable return code" enabled="true" name="exit with variable return code (syscall)">${load_return_code_to_a0}
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to exit the program with a variable return code" enabled="true" id="sc_exit2_flex" name="exit with variable return code (syscall)">${load_return_code_to_a0}
 	li $$v0 17
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_printChar" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to print a character to terminal" enabled="true" name="printChar (syscall)">${load_char_to_a0}
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataDecl" deleted="false" description="Define a global data label" enabled="true" id="globalLabel_data" name="global data label">.globl ${lbl}
+${lbl}:
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Define a global text label" enabled="true" id="globalLabel_txt" name="global text label">.globl ${lbl}
+${lbl}:
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.TextItem" deleted="false" description="Define a global main label" enabled="true" id="main" name="main">.globl main
+main:
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to print a character to terminal" enabled="true" id="sc_printChar" name="printChar (syscall)">${load_char_to_a0}
 	li $$v0 11
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_printString" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to print a string to terminal" enabled="true" name="printString (syscall)">${load_string_address_to_a0}
-	li $$v0 4
-	syscall
-	${cursor}</template>
-	
-	<template id="sc_printInt" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to print an integer to terminal" enabled="true" name="printInt (syscall)">${load_integer_to_a0}
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to print an integer to terminal" enabled="true" id="sc_printInt" name="printInt (syscall)">${load_integer_to_a0}
 	li $$v0 1
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_readChar" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to read a single character" enabled="true" name="readChar (syscall)">li $$v0 12
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to print a string to terminal" enabled="true" id="sc_printString" name="printString (syscall)">${load_string_address_to_a0}
+	li $$v0 4
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_readInt" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to read an integer" enabled="true" name="readInt (syscall)">li $$v0 5
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to read a single character" enabled="true" id="sc_readChar" name="readChar (syscall)">li $$v0 12
 	syscall
-	${cursor}</template>
-	
-	<template id="sc_readString" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to read a string" enabled="true" name="readString (syscall)">${load_addr_into_a0}
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to read an integer" enabled="true" id="sc_readInt" name="readInt (syscall)">li $$v0 5
+	syscall
+	${cursor}</template><template autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Perform a syscall to read a string" enabled="true" id="sc_readString" name="readString (syscall)">${load_addr_into_a0}
 	${load_length_into_a1}
 	li $$v0 8
 	syscall
-	${cursor}</template>
-	
-	<template id="main" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Define a global main label" enabled="true" name="main">.globl main
-main:
-	${cursor}</template>
-	
-	<template id="globalLabel_txt" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.Insn" deleted="false" description="Define a global text label" enabled="true" name="global text label">.globl ${lbl}
-${lbl}:
-	${cursor}</template>
-	
-	<template id="globalLabel_data" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a global data label" enabled="true" name="global data label">.globl ${lbl}
-${lbl}:
-	${cursor}</template>
-	
-	<template id="ascii" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a new unterminated string constant (ASCII)" enabled="true" name=".ascii">.ascii "${str}"
-	${cursor}</template>
-	
-	<template id="ascii_glob" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a new unterminated globally labeled string constant (ASCII)" enabled="true" name=".ascii (globally labeled)">.globl ${lbl}
-${lbl}:
-	.ascii "${str}"
-	${cursor}</template>
-	
-	<template id="ascii_lbl" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a new unterminated labeled string constant (ASCII)" enabled="true" name=".ascii (labeled)">${lbl}:
-	.ascii "${str}"
-	${cursor}</template>
-	
-	<template id="asciiz" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a new zero terminated string constant (ASCIIZ)" enabled="true" name=".asciiz">.asciiz "${str}"
-	${cursor}</template>
-	
-	<template id="asciiz_glob" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a new zero terminated globally labeled string constant (ASCIIZ)" enabled="true" name=".asciiz (globally labeled)">.globl ${lbl}
-${lbl}:
-	.asciiz "${str}"
-	${cursor}</template>
-	
-	<template id="asciiz_lbl" autoinsert="true" context="de.unisb.prog.mips.parser.Mips.DataItem" deleted="false" description="Define a new zero terminated labeled string constant (ASCIIZ)" enabled="true" name=".asciiz (labeled)">${lbl}:
-	.asciiz "${str}"
-	${cursor}</template>
-</templates>
+	${cursor}</template></templates>
