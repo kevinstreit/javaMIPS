@@ -3,13 +3,34 @@
  */
 package de.unisb.prog.mips.parser.ui;
 
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /**
  * Use this class to register components to be used within the IDE.
  */
 public class MipsUiModule extends de.unisb.prog.mips.parser.ui.AbstractMipsUiModule {
+	private static ImageDescriptor createImageDesc(String path) {
+		return ImageDescriptor.createFromImageData(new ImageData(MIPSCore.class.getResourceAsStream(path)));
+	}
+
 	public MipsUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
+
+		ImageRegistry imgReg = JFaceResources.getImageRegistry();
+
+		imgReg.put(MIPSCore.ICN_RUN_MIPS, createImageDesc("/icons/icn/run.gif"));
+		imgReg.put(MIPSCore.ICN_RESUME_MIPS, createImageDesc("/icons/icn/resume_co.gif"));
+		imgReg.put(MIPSCore.ICN_STEP_MIPS, createImageDesc("/icons/icn/stepover_co.gif"));
+		imgReg.put(MIPSCore.ICN_SUSPEND_MIPS, createImageDesc("/icons/icn/suspend_co.gif"));
+		imgReg.put(MIPSCore.ICN_MIPS_CONSOLE, createImageDesc("/icons/icn/console_view.gif"));
+		imgReg.put(MIPSCore.ICN_DEBUG_MIPS, createImageDesc("/icons/icn/debug.gif"));
+		imgReg.put(MIPSCore.ICN_REGISTER_VIEW, createImageDesc("/icons/icn/register_view.gif"));
+		imgReg.put(MIPSCore.ICN_INST_PTR, createImageDesc("/icons/icn/inst_ptr.gif"));
+		imgReg.put(MIPSCore.ICN_SIGNED, createImageDesc("/icons/icn/signed.gif"));
+		imgReg.put(MIPSCore.ICN_UNSIGNED, createImageDesc("/icons/icn/unsigned.gif"));
 	}
 }

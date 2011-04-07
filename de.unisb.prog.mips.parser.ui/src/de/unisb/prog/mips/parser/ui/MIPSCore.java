@@ -16,10 +16,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -58,27 +54,6 @@ public class MIPSCore {
 	public static final String ICN_INST_PTR = "de.unisb.cs.prog.mips.instptr";
 	public static final String ICN_SIGNED = "de.unisb.cs.prog.mips.signed";
 	public static final String ICN_UNSIGNED = "de.unisb.cs.prog.mips.unsigned";
-
-	private static ImageDescriptor createImageDesc(String path) {
-		return ImageDescriptor.createFromImageData(new ImageData(MIPSCore.class.getResourceAsStream(path)));
-	}
-
-	static {
-		ImageRegistry imgReg = JFaceResources.getImageRegistry();
-
-		imgReg.put(ICN_RUN_MIPS, createImageDesc("/icons/icn/run.gif"));
-		imgReg.put(ICN_RESUME_MIPS, createImageDesc("/icons/icn/resume_co.gif"));
-		imgReg.put(ICN_STEP_MIPS, createImageDesc("/icons/icn/stepover_co.gif"));
-		imgReg.put(ICN_SUSPEND_MIPS, createImageDesc("/icons/icn/suspend_co.gif"));
-		imgReg.put(ICN_MIPS_CONSOLE, createImageDesc("/icons/icn/console_view.gif"));
-		imgReg.put(ICN_DEBUG_MIPS, createImageDesc("/icons/icn/debug.gif"));
-		imgReg.put(ICN_REGISTER_VIEW, createImageDesc("/icons/icn/register_view.gif"));
-		imgReg.put(ICN_INST_PTR, createImageDesc("/icons/icn/inst_ptr.gif"));
-		imgReg.put(ICN_SIGNED, createImageDesc("/icons/icn/signed.gif"));
-		imgReg.put(ICN_UNSIGNED, createImageDesc("/icons/icn/unsigned.gif"));
-	}
-
-	// Singleton management ====================
 
 	private static MIPSCore instance = null;
 	private EditorOpenListener editorListener;
