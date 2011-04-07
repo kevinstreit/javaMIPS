@@ -138,14 +138,15 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		return la < lb ? 1 : 0;
 	}
 
-	private static boolean doesOverflow(int x, int y) {
-		// compute the carry bits at every position
-		int c = (x + y) ^ x ^ y;
-		return c < 0;
+	private static boolean additionOverflow(int x, int y) {
+		// integer overflow iff (x[31] == y[31]) && (y[31] != (x+y)[31])
+		// see hacker's delight chapter 2-12
+		int s = x + y;
+		return ( ((x ^ s) & (y ^ s)) < 0 );
 	}
 
 	private void addSigned(int targetReg, int x, int y) {
-		if (doesOverflow(x, y))
+		if (additionOverflow(x, y))
 			exc.overflow(this, mem, pc);
 		else
 			gp[targetReg] = x + y;
@@ -281,7 +282,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		break;
 		case add:     addSigned(rd, s, t); break;
 		case addu:    gp[rd] = s + t; break;
-		case sub:     addSigned(rs, s, -t); break;
+		case sub:     addSigned(rs, s, -t);	break;
 		case subu:    gp[rd] = s - t; break;
 		case and:     gp[rd] = s & t; break;
 		case or:      gp[rd] = s | t; break;
