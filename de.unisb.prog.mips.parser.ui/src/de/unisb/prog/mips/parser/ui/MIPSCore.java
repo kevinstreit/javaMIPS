@@ -56,6 +56,8 @@ public class MIPSCore {
 	public static final String ICN_DEBUG_MIPS = "de.unisb.cs.prog.mips.dbgmips";
 	public static final String ICN_REGISTER_VIEW = "de.unisb.cs.prog.mips.registerview";
 	public static final String ICN_INST_PTR = "de.unisb.cs.prog.mips.instptr";
+	public static final String ICN_SIGNED = "de.unisb.cs.prog.mips.signed";
+	public static final String ICN_UNSIGNED = "de.unisb.cs.prog.mips.unsigned";
 
 	private static ImageDescriptor createImageDesc(String path) {
 		return ImageDescriptor.createFromImageData(new ImageData(MIPSCore.class.getResourceAsStream(path)));
@@ -72,6 +74,8 @@ public class MIPSCore {
 		imgReg.put(ICN_DEBUG_MIPS, createImageDesc("/icons/icn/debug.gif"));
 		imgReg.put(ICN_REGISTER_VIEW, createImageDesc("/icons/icn/register_view.gif"));
 		imgReg.put(ICN_INST_PTR, createImageDesc("/icons/icn/inst_ptr.gif"));
+		imgReg.put(ICN_SIGNED, createImageDesc("/icons/icn/signed.gif"));
+		imgReg.put(ICN_UNSIGNED, createImageDesc("/icons/icn/unsigned.gif"));
 	}
 
 	// Singleton management ====================

@@ -3,6 +3,9 @@ package de.unisb.prog.mips.parser.ui.views;
 
 import java.util.Arrays;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -15,6 +18,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -35,6 +39,9 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 	private final int[] lastPRegValues = new int[PReg.values().length];
 	private final boolean[] regChanged = new boolean[Reg.values().length];
 	private final boolean[] pregChanged = new boolean[PReg.values().length];
+
+	private Action toggleSignedUnsignedAction;
+	private boolean showDecimalsSigned = true;
 
 	private enum PReg {
 		pc ("The program counter"),
@@ -91,7 +98,10 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 					if (system == null || system.getProcessor().state == ExecutionState.RUNNING)
 						cell.setText("---");
 					else {
-						int val = proc.gp[reg.ordinal()];
+						long val = proc.gp[reg.ordinal()];
+						if (!showDecimalsSigned)
+							val &= (1l << Integer.SIZE) - 1;
+
 						cell.setText("" + val);
 					}
 					break;
@@ -105,7 +115,7 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 					break;
 				}
 			} else if (cell.getElement() instanceof PReg) {
-				int val = -1;
+				long val = 0;
 				PReg reg = (PReg) cell.getElement();
 				cell.setFont(pregChanged[reg.ordinal()] ? changedFont : regFont);
 
@@ -122,6 +132,9 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 						break;
 					}
 				}
+
+				if (!showDecimalsSigned)
+					val &= (1l << Integer.SIZE) - 1;
 
 				switch (cell.getColumnIndex()) {
 				case 0:
@@ -193,8 +206,51 @@ public class RegisterView extends ViewPart implements IExecutionListener {
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "de.unisb.prog.mips.parser.ui.viewer");
 
+		makeActions();
+		contributeToActionBars();
+
 		MIPSCore.getInstance().addExecutionListener(this);
 
+	}
+
+	private void contributeToActionBars() {
+		IActionBars bars = getViewSite().getActionBars();
+		fillLocalPullDown(bars.getMenuManager());
+		fillLocalToolBar(bars.getToolBarManager());
+	}
+
+	private void fillLocalPullDown(IMenuManager manager) {
+		manager.add(toggleSignedUnsignedAction);
+	}
+
+	private void fillLocalToolBar(IToolBarManager manager) {
+		manager.add(toggleSignedUnsignedAction);
+	}
+
+	private void setSignedUnsignedIcon() {
+		toggleSignedUnsignedAction.setImageDescriptor(
+			showDecimalsSigned
+			? JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_SIGNED)
+			: JFaceResources.getImageRegistry().getDescriptor(MIPSCore.ICN_UNSIGNED)
+		);
+	}
+
+	private void makeActions() {
+		toggleSignedUnsignedAction = new Action() {
+			@Override
+			public void run() {
+				showDecimalsSigned = !showDecimalsSigned;
+				viewer.getTable().getDisplay().syncExec(new Runnable() {
+					public void run() {
+						viewer.refresh();
+						setSignedUnsignedIcon();
+					}
+				});
+			}
+		};
+		toggleSignedUnsignedAction.setText("Interpret numbers as unsigned");
+		toggleSignedUnsignedAction.setToolTipText("Toggle if the decimal view in the table should interpret numbers signed or unsigned.");
+		setSignedUnsignedIcon();
 	}
 
 	public void setFocus() {
