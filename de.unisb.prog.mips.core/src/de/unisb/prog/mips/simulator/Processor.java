@@ -138,18 +138,27 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		return la < lb ? 1 : 0;
 	}
 
-	private static boolean additionOverflow(int x, int y) {
+	private void addSigned(int targetReg, int x, int y) {
+		int s = x + y;
+
 		// integer overflow iff (x[31] == y[31]) && (y[31] != (x+y)[31])
 		// see hacker's delight chapter 2-12
-		int s = x + y;
-		return ( ((x ^ s) & (y ^ s)) < 0 );
-	}
+		boolean overflow = ( ((x ^ s) & (y ^ s)) < 0 );
 
-	private void addSigned(int targetReg, int x, int y) {
-		if (additionOverflow(x, y))
+		if (overflow)
 			exc.overflow(this, mem, pc);
 		else
-			gp[targetReg] = x + y;
+			gp[targetReg] = s;
+	}
+
+	private void subSigned(int targetReg, int x, int y) {
+		int d = x - y;
+		boolean overflow = x < y != d < 0;
+
+		if (overflow)
+			exc.overflow(this, mem, pc);
+		else
+			gp[targetReg] = d;
 	}
 
 	public Instruction j(Opcode opc, int imm) {
@@ -282,7 +291,7 @@ public final class Processor extends ProcessorState implements Handler<Instructi
 		break;
 		case add:     addSigned(rd, s, t); break;
 		case addu:    gp[rd] = s + t; break;
-		case sub:     addSigned(rs, s, -t);	break;
+		case sub:     subSigned(rd, s, t);	break;
 		case subu:    gp[rd] = s - t; break;
 		case and:     gp[rd] = s & t; break;
 		case or:      gp[rd] = s | t; break;
