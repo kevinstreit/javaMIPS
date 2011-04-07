@@ -108,8 +108,25 @@ public abstract class Segment implements Iterable<Element> {
 		int ofs = 0;
 		boolean automaticAlignment = true;
 
-		for (Element e : this) {
+		for (int pos = 0; pos < elements.size();) {
+			int end = pos;
+
+			// We have to ensure that all labels have the same offset as
+			// the first following non label element (if any)
+			Element e;
+			do {
+				e = elements.get(end++);
+			} while (end < elements.size() && e instanceof Label);
+
+			// e here points either to the next non label element or to the last label in the section
 			e.setOffset(ofs, automaticAlignment);
+			ofs = e.getOffset();
+
+			// Now set the possibly auto aligned offset to all labels between pos and end (except for the last)
+			for (; pos < end - 1; ++pos)
+				elements.get(pos).setOffset(ofs, false);
+			pos = end;
+
 			ofs = e.nextElementOffset(e.getOffset());
 			if (e instanceof Align) {
 				Align a = (Align) e;
