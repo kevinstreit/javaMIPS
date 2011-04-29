@@ -21,6 +21,8 @@ public class MIPSConsoleOutput extends PrintStream {
 	private ArrayList<String> messages = new ArrayList<String>();
 	final int[] textPos = new int[1];
 
+	private static final int TEXT_LIMIT = 1 << 14;
+
 	private Thread refreshingThread = new Thread(new Runnable() {
 		public void run() {
 			try {
@@ -38,6 +40,7 @@ public class MIPSConsoleOutput extends PrintStream {
 					synchronized (messages) {
 						taken.addAll(messages);
 						messages.clear();
+						messages.notify();
 					}
 
 					final StringBuilder buf = new StringBuilder();
@@ -55,7 +58,7 @@ public class MIPSConsoleOutput extends PrintStream {
 						buf.append(s.substring(1));
 					}
 
-					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 						public void run() {
 							if (!textField.isDisposed()) {
 								textField.append(buf.toString());
@@ -65,6 +68,21 @@ public class MIPSConsoleOutput extends PrintStream {
 
 								textPos[0] += buf.length();
 								textField.setSelection(textPos[0]);
+
+								int textLength = textField.getText().length();
+								if (textLength > TEXT_LIMIT) {
+									String remaining = textField.getText(textLength - TEXT_LIMIT, textLength-1);
+									StyleRange sty[] = textField.getStyleRanges(textLength - TEXT_LIMIT, TEXT_LIMIT);
+									int cutOff = textLength - remaining.length();
+									textField.setText(remaining);
+
+									for (StyleRange st : sty)
+										st.start -= cutOff;
+
+									textField.setStyleRanges(sty);
+									textPos[0] -= cutOff;
+									textField.setSelection(textPos[0]);
+								}
 							}
 						}
 					});
@@ -78,6 +96,10 @@ public class MIPSConsoleOutput extends PrintStream {
 
 	private void addOutput(String s) {
 		synchronized (messages) {
+			while (messages.size() > 256)
+				try {
+					messages.wait(100);
+				} catch (InterruptedException e) {}
 			messages.add(s);
 			messages.notify();
 		}
