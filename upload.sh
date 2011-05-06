@@ -1,2 +1,2 @@
 #! /bin/sh
-rsync -avzC --no-p -O -e ssh "javaMIPS Update Site/" mars:/www/PROG/software/javamips
+rsync -avzC --no-p -O -e ssh "javaMIPS Update Site/" mars:/www/CDL/software/javamips
