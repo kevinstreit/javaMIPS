@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: de.unisb.prog.mips.parser
 Bundle-Vendor: Saarland University
-Bundle-Version: 1.1.0
+Bundle-Version: 1.1.3
 Bundle-SymbolicName: de.unisb.prog.mips.parser; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,

@@ -2,7 +2,7 @@
 <feature
       id="de.unisb.prog.javaMIPS"
       label="javaMIPS"
-      version="1.1.0"
+      version="1.1.4"
       provider-name="Saarland University">
 
    <description>
@@ -87,7 +87,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <url>
-      <update label="javaMIPS Update Site" url="http://www.prog.uni-saarland.de/software/javamips/"/>
+      <update label="javaMIPS Update Site" url="http://www.cdl.uni-saarland.de/software/javamips/"/>
    </url>
 
    <requires>
