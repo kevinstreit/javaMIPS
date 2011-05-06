@@ -4,17 +4,17 @@ generate mips "http://www.unisb.de/prog/mips/parser/Mips"
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore 
 
-Asm hidden(COMMENT,WHITE): {Asm} NL* (elem+=DataSegment | elem+=TextSegment)*;
+Asm hidden(COMMENT,WHITE): {Asm} TERM* (elem+=DataSegment | elem+=TextSegment)*;
 
 Directive: {Global} ".globl" label=[Label]
          | {Extern} ".extern" label=Label
          | {SetAt} ".set" ID
          ;
 
-TextSegment: ".text" (addr=HEXINT)? NL* (items+=TextItem | items+=Directive | items+=LabelDef) (items+=TextItem | items+=Directive | items+=LabelDef | NL)*;
+TextSegment: ".text" (addr=HEXINT)? TERM* (items+=TextItem | items+=Directive | items+=LabelDef) (items+=TextItem | items+=Directive | items+=LabelDef | TERM)*;
 TextItem:    item=(Insn | Align | Word);
 
-Insn: opcode=ID (regs+=Reg)* (addr=Addr)? ('(' base=Reg ')')? NL;
+Insn: opcode=ID (regs+=Reg)* (addr=Addr)? ('(' base=Reg ')')? TERM;
 	
 Reg: (INTREG | TXTREG);
 
@@ -24,7 +24,7 @@ Mult  returns Expression: Unary (({Mul.left=current} '*' | {Shra.left=current} "
 Unary returns Expression: ({Minus} '-' '(' expr=CExpr ')' | {Prim} '(' expr=CExpr ')' | {Const} cnst=PNInt);
 // Prim  returns Expression: '(' CExpr ')' | {Const} cnst=PNInt;
 	
-DataSegment: ".data" (addr=HEXINT)? NL* (items+=DataDecl | items+=Directive | items+=LabelDef) (items+=DataDecl | items+=Directive | items+=LabelDef | NL)*;
+DataSegment: ".data" (addr=HEXINT)? TERM* (items+=DataDecl | items+=Directive | items+=LabelDef) (items+=DataDecl | items+=Directive | items+=LabelDef | TERM)*;
 
 DataDecl : item=(Str | Align | Space | Byte | Half | Word);
 	
@@ -52,8 +52,8 @@ terminal TXTREG   : '$' ('a'..'z') ('a'..'z'|'0'..'9')+;
 terminal COMMENT  : (';'|'#') !('\n'|'\r')* ;
 terminal WHITE    : (' '|'\t')+;
 terminal NL       : ('\r'|'\n')+;
+terminal TERM     : NL /* | EOF */ ;
 
 terminal ID       : '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 terminal STRING	  : '"' ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|'"') )* '"' 
                   | "'" ( '\\' ('b'|'t'|'n'|'f'|'r'|'"'|"'"|'\\') | !('\\'|"'") )* "'" ; 
-	
